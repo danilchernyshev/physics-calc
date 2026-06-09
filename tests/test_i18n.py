@@ -45,10 +45,12 @@ def test_set_unknown_language_raises(tr):
 
 def test_available_languages(tr):
     codes = {code for code, _native in tr.available_languages()}
-    assert {"en", "fr", "ru"} <= codes
+    assert {"en", "es", "fr", "ru", "uk"} <= codes
     natives = dict(tr.available_languages())
     assert natives["ru"] == "Русский"
     assert natives["fr"] == "Français"
+    assert natives["es"] == "Español"
+    assert natives["uk"] == "Українська"
 
 
 def test_variable_label_with_and_without_unit(tr):
@@ -76,7 +78,7 @@ def _all_required_keys() -> set[str]:
     return keys
 
 
-@pytest.mark.parametrize("code", ["en", "fr", "ru"])
+@pytest.mark.parametrize("code", ["en", "es", "fr", "ru", "uk"])
 def test_every_catalog_has_all_domain_keys(code, tr):
     catalog_keys = set(tr._catalogs[code])
     missing = _all_required_keys() - catalog_keys
@@ -97,7 +99,7 @@ _ERROR_KEYS = [
 ]
 
 
-@pytest.mark.parametrize("code", ["en", "fr", "ru"])
+@pytest.mark.parametrize("code", ["en", "es", "fr", "ru", "uk"])
 def test_every_catalog_has_all_error_keys(code, tr):
     missing = set(_ERROR_KEYS) - set(tr._catalogs[code])
     assert not missing, f"{code}.json is missing error keys: {sorted(missing)}"
