@@ -1,4 +1,4 @@
-"""Формулы механики."""
+"""Mechanics formulas."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ from physics_calc.core.formula import Formula, Variable
 FORMULAS: list[Formula] = [
     Formula(
         key="newton_2",
-        name="Второй закон Ньютона",
+        name_key="formula.newton_2",
         expression="F = m · a",
         variables=(
-            Variable("F", "Сила", "Н"),
-            Variable("m", "Масса", "кг"),
-            Variable("a", "Ускорение", "м/с²"),
+            Variable("F", "var.force", "unit.newton"),
+            Variable("m", "var.mass", "unit.kilogram"),
+            Variable("a", "var.acceleration", "unit.m_s2"),
         ),
         solvers={
             "F": lambda v: v["m"] * v["a"],
@@ -22,13 +22,13 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="velocity",
-        name="Скорость при равноускоренном движении",
+        name_key="formula.velocity",
         expression="v = v₀ + a · t",
         variables=(
-            Variable("v", "Конечная скорость", "м/с"),
-            Variable("v0", "Начальная скорость", "м/с"),
-            Variable("a", "Ускорение", "м/с²"),
-            Variable("t", "Время", "с"),
+            Variable("v", "var.final_velocity", "unit.meter_per_second"),
+            Variable("v0", "var.initial_velocity", "unit.meter_per_second"),
+            Variable("a", "var.acceleration", "unit.m_s2"),
+            Variable("t", "var.time", "unit.second"),
         ),
         solvers={
             "v": lambda v: v["v0"] + v["a"] * v["t"],
@@ -39,12 +39,12 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="momentum",
-        name="Импульс тела",
+        name_key="formula.momentum",
         expression="p = m · v",
         variables=(
-            Variable("p", "Импульс", "кг·м/с"),
-            Variable("m", "Масса", "кг"),
-            Variable("v", "Скорость", "м/с"),
+            Variable("p", "var.momentum", "unit.kg_m_s"),
+            Variable("m", "var.mass", "unit.kilogram"),
+            Variable("v", "var.velocity", "unit.meter_per_second"),
         ),
         solvers={
             "p": lambda v: v["m"] * v["v"],
@@ -54,12 +54,12 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="kinetic_energy",
-        name="Кинетическая энергия",
+        name_key="formula.kinetic_energy",
         expression="E = ½ · m · v²",
         variables=(
-            Variable("E", "Кинетическая энергия", "Дж"),
-            Variable("m", "Масса", "кг"),
-            Variable("v", "Скорость", "м/с"),
+            Variable("E", "var.kinetic_energy", "unit.joule"),
+            Variable("m", "var.mass", "unit.kilogram"),
+            Variable("v", "var.velocity", "unit.meter_per_second"),
         ),
         solvers={
             "E": lambda v: 0.5 * v["m"] * v["v"] ** 2,
@@ -69,13 +69,13 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="potential_energy",
-        name="Потенциальная энергия в поле тяжести",
+        name_key="formula.potential_energy",
         expression="E = m · g · h",
         variables=(
-            Variable("E", "Потенциальная энергия", "Дж"),
-            Variable("m", "Масса", "кг"),
-            Variable("g", "Ускорение свободного падения", "м/с²"),
-            Variable("h", "Высота", "м"),
+            Variable("E", "var.potential_energy", "unit.joule"),
+            Variable("m", "var.mass", "unit.kilogram"),
+            Variable("g", "var.gravity", "unit.m_s2"),
+            Variable("h", "var.height", "unit.meter"),
         ),
         solvers={
             "E": lambda v: v["m"] * v["g"] * v["h"],
@@ -86,12 +86,12 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="work",
-        name="Механическая работа",
+        name_key="formula.work",
         expression="A = F · s",
         variables=(
-            Variable("A", "Работа", "Дж"),
-            Variable("F", "Сила", "Н"),
-            Variable("s", "Перемещение", "м"),
+            Variable("A", "var.work", "unit.joule"),
+            Variable("F", "var.force", "unit.newton"),
+            Variable("s", "var.displacement", "unit.meter"),
         ),
         solvers={
             "A": lambda v: v["F"] * v["s"],
@@ -101,12 +101,12 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="power",
-        name="Механическая мощность",
+        name_key="formula.power",
         expression="P = A / t",
         variables=(
-            Variable("P", "Мощность", "Вт"),
-            Variable("A", "Работа", "Дж"),
-            Variable("t", "Время", "с"),
+            Variable("P", "var.power", "unit.watt"),
+            Variable("A", "var.work", "unit.joule"),
+            Variable("t", "var.time", "unit.second"),
         ),
         solvers={
             "P": lambda v: v["A"] / v["t"],

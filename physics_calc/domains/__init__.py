@@ -1,17 +1,18 @@
-"""Наборы формул, сгруппированные по разделам физики.
+"""Formula sets grouped by physics section.
 
-Каждый модуль раздела экспортирует список :class:`~physics_calc.core.formula.Formula`.
-:data:`SECTIONS` собирает их вместе в порядке отображения в интерфейсе.
+Each section module exports a list of :class:`~physics_calc.core.formula.Formula`.
+:data:`SECTIONS` maps a stable section id (also the ``section.<id>`` i18n key)
+to its formulas, in display order.
 """
 
 from physics_calc.domains import mechanics, thermodynamics, electromagnetism, waves
 
-# Порядок важен: именно так разделы появятся во вкладках GUI.
+# Order matters: this is the order of the tabs in the GUI.
 SECTIONS = {
-    "Механика": mechanics.FORMULAS,
-    "Термодинамика": thermodynamics.FORMULAS,
-    "Электромагнетизм": electromagnetism.FORMULAS,
-    "Волны и оптика": waves.FORMULAS,
+    "mechanics": mechanics.FORMULAS,
+    "thermodynamics": thermodynamics.FORMULAS,
+    "electromagnetism": electromagnetism.FORMULAS,
+    "waves": waves.FORMULAS,
 }
 
 __all__ = ["SECTIONS"]

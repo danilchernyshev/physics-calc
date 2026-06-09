@@ -1,21 +1,21 @@
-"""Формулы электромагнетизма."""
+"""Electromagnetism formulas."""
 
 from __future__ import annotations
 
 from physics_calc.core.formula import Formula, Variable
 
-# Постоянная Кулона, Н·м²/Кл².
+# Coulomb constant, N·m²/C².
 K_COULOMB = 8.9875517873681764e9
 
 FORMULAS: list[Formula] = [
     Formula(
         key="ohm",
-        name="Закон Ома",
+        name_key="formula.ohm",
         expression="U = I · R",
         variables=(
-            Variable("U", "Напряжение", "В"),
-            Variable("I", "Сила тока", "А"),
-            Variable("R", "Сопротивление", "Ом"),
+            Variable("U", "var.voltage", "unit.volt"),
+            Variable("I", "var.current", "unit.ampere"),
+            Variable("R", "var.resistance", "unit.ohm"),
         ),
         solvers={
             "U": lambda v: v["I"] * v["R"],
@@ -25,12 +25,12 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="electric_power",
-        name="Электрическая мощность",
+        name_key="formula.electric_power",
         expression="P = U · I",
         variables=(
-            Variable("P", "Мощность", "Вт"),
-            Variable("U", "Напряжение", "В"),
-            Variable("I", "Сила тока", "А"),
+            Variable("P", "var.power", "unit.watt"),
+            Variable("U", "var.voltage", "unit.volt"),
+            Variable("I", "var.current", "unit.ampere"),
         ),
         solvers={
             "P": lambda v: v["U"] * v["I"],
@@ -40,13 +40,13 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="coulomb",
-        name="Закон Кулона",
+        name_key="formula.coulomb",
         expression="F = k · q₁ · q₂ / r²",
         variables=(
-            Variable("F", "Сила взаимодействия", "Н"),
-            Variable("q1", "Первый заряд", "Кл"),
-            Variable("q2", "Второй заряд", "Кл"),
-            Variable("r", "Расстояние", "м"),
+            Variable("F", "var.interaction_force", "unit.newton"),
+            Variable("q1", "var.charge_q1", "unit.coulomb"),
+            Variable("q2", "var.charge_q2", "unit.coulomb"),
+            Variable("r", "var.distance", "unit.meter"),
         ),
         solvers={
             "F": lambda v: K_COULOMB * v["q1"] * v["q2"] / v["r"] ** 2,
@@ -57,12 +57,12 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="capacitor_charge",
-        name="Заряд конденсатора",
+        name_key="formula.capacitor_charge",
         expression="Q = C · U",
         variables=(
-            Variable("Q", "Заряд", "Кл"),
-            Variable("C", "Ёмкость", "Ф"),
-            Variable("U", "Напряжение", "В"),
+            Variable("Q", "var.charge", "unit.coulomb"),
+            Variable("C", "var.capacitance", "unit.farad"),
+            Variable("U", "var.voltage", "unit.volt"),
         ),
         solvers={
             "Q": lambda v: v["C"] * v["U"],
@@ -72,12 +72,12 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="capacitor_energy",
-        name="Энергия конденсатора",
+        name_key="formula.capacitor_energy",
         expression="W = ½ · C · U²",
         variables=(
-            Variable("W", "Энергия", "Дж"),
-            Variable("C", "Ёмкость", "Ф"),
-            Variable("U", "Напряжение", "В"),
+            Variable("W", "var.energy", "unit.joule"),
+            Variable("C", "var.capacitance", "unit.farad"),
+            Variable("U", "var.voltage", "unit.volt"),
         ),
         solvers={
             "W": lambda v: 0.5 * v["C"] * v["U"] ** 2,
@@ -87,13 +87,13 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="resistance_series",
-        name="Сопротивление проводника",
+        name_key="formula.resistance_series",
         expression="R = ρ · L / S",
         variables=(
-            Variable("R", "Сопротивление", "Ом"),
-            Variable("rho", "Удельное сопротивление", "Ом·м"),
-            Variable("L", "Длина", "м"),
-            Variable("S", "Площадь сечения", "м²"),
+            Variable("R", "var.resistance", "unit.ohm"),
+            Variable("rho", "var.resistivity", "unit.ohm_m"),
+            Variable("L", "var.length", "unit.meter"),
+            Variable("S", "var.cross_section", "unit.m2"),
         ),
         solvers={
             "R": lambda v: v["rho"] * v["L"] / v["S"],

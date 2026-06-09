@@ -1,4 +1,4 @@
-"""Графический интерфейс на Tkinter."""
+"""Tkinter graphical interface."""
 
 from physics_calc.gui.app import run
 

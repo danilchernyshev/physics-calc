@@ -1,7 +1,7 @@
 [project]
 name = "physics-calc"
-version = "0.1.0"
-description = "Физический калькулятор: механика, термодинамика, электромагнетизм, волны и конвертер единиц с GUI на Tkinter"
+version = "0.2.0"
+description = "Physics calculator: mechanics, thermodynamics, electromagnetism, waves and a unit converter with a Tkinter GUI (English/French/Russian)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

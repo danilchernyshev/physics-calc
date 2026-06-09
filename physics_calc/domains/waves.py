@@ -1,17 +1,17 @@
-"""Формулы волн и оптики."""
+"""Waves and optics formulas."""
 
 from __future__ import annotations
 
 import math
 
-from physics_calc.core.formula import Formula, Variable
+from physics_calc.core.formula import Formula, SolveError, Variable
 
-# Постоянная Планка (Дж·с) и скорость света в вакууме (м/с).
+# Planck constant (J·s) and speed of light in vacuum (m/s).
 PLANCK = 6.62607015e-34
 LIGHT_SPEED = 299_792_458.0
 
 
-# --- Закон Снеллиуса: тригонометрия удобнее в отдельных функциях. ---
+# --- Snell's law: trigonometry reads better as named functions. ---
 
 def _snell_n1(v):
     return v["n2"] * math.sin(math.radians(v["theta2"])) / math.sin(math.radians(v["theta1"]))
@@ -24,26 +24,26 @@ def _snell_n2(v):
 def _snell_theta1(v):
     ratio = v["n2"] * math.sin(math.radians(v["theta2"])) / v["n1"]
     if not -1.0 <= ratio <= 1.0:
-        raise ValueError("полное внутреннее отражение — угол не существует")
+        raise SolveError("total_internal_reflection")
     return math.degrees(math.asin(ratio))
 
 
 def _snell_theta2(v):
     ratio = v["n1"] * math.sin(math.radians(v["theta1"])) / v["n2"]
     if not -1.0 <= ratio <= 1.0:
-        raise ValueError("полное внутреннее отражение — угол не существует")
+        raise SolveError("total_internal_reflection")
     return math.degrees(math.asin(ratio))
 
 
 FORMULAS: list[Formula] = [
     Formula(
         key="wave_speed",
-        name="Скорость волны",
+        name_key="formula.wave_speed",
         expression="v = λ · f",
         variables=(
-            Variable("v", "Скорость волны", "м/с"),
-            Variable("lam", "Длина волны", "м"),
-            Variable("f", "Частота", "Гц"),
+            Variable("v", "var.wave_speed", "unit.meter_per_second"),
+            Variable("lam", "var.wavelength", "unit.meter"),
+            Variable("f", "var.frequency", "unit.hertz"),
         ),
         solvers={
             "v": lambda v: v["lam"] * v["f"],
@@ -53,11 +53,11 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="period_frequency",
-        name="Период и частота",
+        name_key="formula.period_frequency",
         expression="T = 1 / f",
         variables=(
-            Variable("T", "Период", "с"),
-            Variable("f", "Частота", "Гц"),
+            Variable("T", "var.period", "unit.second"),
+            Variable("f", "var.frequency", "unit.hertz"),
         ),
         solvers={
             "T": lambda v: 1.0 / v["f"],
@@ -66,11 +66,11 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="photon_energy",
-        name="Энергия фотона",
+        name_key="formula.photon_energy",
         expression="E = h · f",
         variables=(
-            Variable("E", "Энергия фотона", "Дж"),
-            Variable("f", "Частота", "Гц"),
+            Variable("E", "var.photon_energy", "unit.joule"),
+            Variable("f", "var.frequency", "unit.hertz"),
         ),
         solvers={
             "E": lambda v: PLANCK * v["f"],
@@ -79,11 +79,11 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="wavelength_light",
-        name="Длина волны света",
+        name_key="formula.wavelength_light",
         expression="λ = c / f",
         variables=(
-            Variable("lam", "Длина волны", "м"),
-            Variable("f", "Частота", "Гц"),
+            Variable("lam", "var.wavelength", "unit.meter"),
+            Variable("f", "var.frequency", "unit.hertz"),
         ),
         solvers={
             "lam": lambda v: LIGHT_SPEED / v["f"],
@@ -92,13 +92,13 @@ FORMULAS: list[Formula] = [
     ),
     Formula(
         key="snell",
-        name="Закон Снеллиуса (показатель преломления)",
+        name_key="formula.snell",
         expression="n₁ · sin θ₁ = n₂ · sin θ₂",
         variables=(
-            Variable("n1", "Показатель преломления среды 1", ""),
-            Variable("theta1", "Угол падения", "°"),
-            Variable("n2", "Показатель преломления среды 2", ""),
-            Variable("theta2", "Угол преломления", "°"),
+            Variable("n1", "var.refractive_index_1"),
+            Variable("theta1", "var.angle_incidence", "unit.degree"),
+            Variable("n2", "var.refractive_index_2"),
+            Variable("theta2", "var.angle_refraction", "unit.degree"),
         ),
         solvers={
             "n1": _snell_n1,

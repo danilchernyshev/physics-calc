@@ -1,11 +1,14 @@
-"""Physics Calculator — расчёты по механике, термодинамике, электромагнетизму и волнам.
+"""Physics Calculator — mechanics, thermodynamics, electromagnetism and waves.
 
-Пакет состоит из трёх слоёв:
+The package has three layers:
 
-* :mod:`physics_calc.core`    — модель формулы и движок решения относительно
-  любой переменной, а также конвертер единиц измерения;
-* :mod:`physics_calc.domains` — наборы готовых формул по разделам физики;
-* :mod:`physics_calc.gui`     — десктопный интерфейс на Tkinter.
+* :mod:`physics_calc.core`    — the formula model with a solver for any variable,
+  and the unit converter;
+* :mod:`physics_calc.domains` — ready-made formula sets grouped by physics section;
+* :mod:`physics_calc.gui`     — the Tkinter desktop interface.
+
+User-facing text is localized via :mod:`physics_calc.i18n` (English, French,
+Russian), switchable at runtime.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

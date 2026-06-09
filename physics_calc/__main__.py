@@ -1,4 +1,4 @@
-"""Запуск калькулятора: ``python -m physics_calc``."""
+"""Run the calculator: ``python -m physics_calc``."""
 
 from physics_calc.gui import run
 
