@@ -29,26 +29,77 @@ and the language can be switched at runtime.
 ## Requirements
 
 - Python ≥ 3.10
-- Tkinter (part of the standard library, but on some Linux distributions it is
-  shipped as a separate system package):
-
-  ```bash
-  sudo apt-get install -y python3-tk        # Debian / Ubuntu
-  ```
+- Tkinter — part of the Python standard library. It ships with the official
+  installers on Windows and macOS, but some Linux distributions package it
+  separately (see the platform notes below).
 
 ## Running
 
+The app runs on **Windows, macOS and Linux** — it only needs Python and Tkinter,
+both cross-platform. Pick the command for your shell:
+
 ```bash
-# option 1 — directly
+# option 1 — run the module directly
 python -m physics_calc
 
-# option 2 — via uv (without installing into the system)
+# option 2 — via uv (no system install; resolves the project automatically)
 uv run python -m physics_calc
 
-# option 3 — install as a package; a `physics-calc` command appears
+# option 3 — install as a package; a `physics-calc` command appears on PATH
 pip install -e .
 physics-calc
 ```
+
+### Windows
+
+The installers from [python.org](https://www.python.org/downloads/windows/)
+include Tkinter by default (keep the "tcl/tk and IDLE" option checked during
+setup). Use the `py` launcher in **PowerShell** or **cmd**:
+
+```powershell
+py -m physics_calc
+```
+
+If you cloned the repo, run it from the project folder. To install it as a
+command instead:
+
+```powershell
+py -m pip install -e .
+physics-calc
+```
+
+> Note: the Python from the Microsoft Store also bundles Tkinter and works the
+> same way.
+
+### macOS
+
+The official [python.org](https://www.python.org/downloads/macos/) installer
+includes Tkinter:
+
+```bash
+python3 -m physics_calc
+```
+
+If you use Homebrew's Python, install the Tk bindings once:
+
+```bash
+brew install python-tk
+```
+
+### Linux
+
+Tkinter is usually a separate system package. Install it for your distribution,
+then run `python3 -m physics_calc`:
+
+```bash
+sudo apt-get install -y python3-tk        # Debian / Ubuntu / Mint
+sudo dnf install -y python3-tkinter       # Fedora / RHEL
+sudo pacman -S tk                         # Arch / Manjaro
+sudo zypper install python3-tk            # openSUSE
+```
+
+A graphical session (X11 or Wayland) is required, since the interface is a
+desktop window.
 
 ## Tests
 
