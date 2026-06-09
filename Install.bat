@@ -11,9 +11,13 @@ REM ============================================================
 REM Install from the folder this file lives in.
 cd /d "%~dp0"
 
+REM Prefer the "py" launcher; fall back to "python" if it is not installed.
+set "PY=py"
+where py >nul 2>&1 || set "PY=python"
+
 echo Installing Physics Calculator into your Python...
 echo.
-py -m pip install .
+%PY% -m pip install .
 
 if errorlevel 1 (
     echo.

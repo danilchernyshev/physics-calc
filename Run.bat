@@ -9,7 +9,11 @@ REM ============================================================
 REM Run from the folder this file lives in, so Python finds the project.
 cd /d "%~dp0"
 
-py -m physics_calc
+REM Prefer the "py" launcher; fall back to "python" if it is not installed.
+set "PY=py"
+where py >nul 2>&1 || set "PY=python"
+
+%PY% -m physics_calc
 
 REM If the app failed to start, keep the window open and show a hint.
 if errorlevel 1 (
