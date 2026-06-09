@@ -82,11 +82,15 @@ one folder; nothing else needs to be set up.
 The calculator window should open. That's it! To use it again later, just repeat
 Step 3.
 
-> **Optional:** if you would rather not open a terminal each time, you can create
-> a shortcut. Make a new text file in the project folder, paste the line
-> `py -m physics_calc` into it, and save it as `Run.bat` (make sure the name
-> ends in `.bat`, not `.txt`). Double-clicking `Run.bat` then opens the
-> calculator directly.
+> **Easiest option:** the project already includes a `Run.bat` file. Once Python
+> is installed (Step 1), you can simply **double-click `Run.bat`** in the project
+> folder to open the calculator — no terminal needed.
+
+> **Optional — install it as a command:** if you would like to start the
+> calculator by typing `physics-calc` from any terminal (instead of running it
+> from this folder), **double-click `Install.bat`** once. It installs the app
+> into your Python using `py -m pip install -e .`. After that, `physics-calc`
+> works from anywhere, and `Run.bat` keeps working too.
 
 If you get stuck on any step, it is completely normal — feel free to ask for
 help. The shorter, technical instructions for each operating system are below.
