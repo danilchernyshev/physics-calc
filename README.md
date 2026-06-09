@@ -1,91 +1,100 @@
-# Физический калькулятор
+# Physics Calculator
 
-Настольный калькулятор для решения задач по **механике, термодинамике,
-электромагнетизму и волнам**, а также для **перевода единиц измерения**.
-Простой и понятный интерфейс на Tkinter: выбираете формулу, заполняете все
-поля, кроме одного — программа вычисляет недостающую величину.
+A desktop calculator for solving problems in **mechanics, thermodynamics,
+electromagnetism and waves**, and for **converting units of measurement**.
+A simple, clear Tkinter interface: pick a formula, fill in every field but
+one — the program computes the missing quantity.
 
-## Возможности
+The interface is **localized** (English, Spanish, French, Russian, Ukrainian)
+and the language can be switched at runtime.
 
-- **Решение относительно любой переменной.** В формуле `F = m·a` можно найти
-  любую из `F`, `m`, `a` — достаточно оставить нужное поле пустым.
-- **Четыре раздела физики** с готовыми формулами:
-  - Механика — законы Ньютона, кинематика, импульс, энергия, работа, мощность;
-  - Термодинамика — количество теплоты, уравнение идеального газа, КПД Карно,
-    тепловое расширение;
-  - Электромагнетизм — закон Ома, мощность, закон Кулона, конденсаторы,
-    сопротивление проводника;
-  - Волны и оптика — скорость волны, период/частота, энергия фотона, длина
-    волны света, закон Снеллиуса.
-- **Конвертер единиц**: длина, масса, время, скорость, энергия, давление,
-  сила и температура.
-- **Нулевые внешние зависимости** — только стандартная библиотека Python.
+## Features
 
-## Требования
+- **Solve for any variable.** In the formula `F = m·a` you can find any of
+  `F`, `m`, `a` — just leave the field you want to compute empty.
+- **Four physics sections** with ready-made formulas:
+  - Mechanics — Newton's laws, kinematics, momentum, energy, work, power;
+  - Thermodynamics — heat, the ideal gas law, Carnot efficiency, thermal
+    expansion;
+  - Electromagnetism — Ohm's law, power, Coulomb's law, capacitors, conductor
+    resistance;
+  - Waves & optics — wave speed, period/frequency, photon energy, light
+    wavelength, Snell's law.
+- **Unit converter**: length, mass, time, speed, energy, pressure, force and
+  temperature.
+- **Runtime language switching** across English, Spanish, French, Russian and
+  Ukrainian.
+- **Zero external dependencies** — only the Python standard library.
+
+## Requirements
 
 - Python ≥ 3.10
-- Tkinter (входит в стандартную библиотеку, но в некоторых дистрибутивах
-  Linux ставится отдельным системным пакетом):
+- Tkinter (part of the standard library, but on some Linux distributions it is
+  shipped as a separate system package):
 
   ```bash
   sudo apt-get install -y python3-tk        # Debian / Ubuntu
   ```
 
-## Запуск
+## Running
 
 ```bash
-# вариант 1 — напрямую
+# option 1 — directly
 python -m physics_calc
 
-# вариант 2 — через uv (без установки в систему)
+# option 2 — via uv (without installing into the system)
 uv run python -m physics_calc
 
-# вариант 3 — установить как пакет, появится команда physics-calc
+# option 3 — install as a package; a `physics-calc` command appears
 pip install -e .
 physics-calc
 ```
 
-## Тесты
+## Tests
 
-Логика расчётов и конвертера покрыта тестами и не требует графической среды:
+The calculation and converter logic is covered by tests that do not require a
+graphical environment:
 
 ```bash
-uv run --extra dev pytest        # или: pytest
+uv run --extra dev pytest        # or: pytest
 ```
 
-## Структура проекта
+## Project structure
 
 ```
 physics_calc/
-├── core/            # модель формулы + движок решения, конвертер единиц
+├── core/            # formula model + solving engine, unit converter
 │   ├── formula.py
 │   └── units.py
-├── domains/         # наборы формул по разделам физики
+├── domains/         # formula sets grouped by physics section
 │   ├── mechanics.py
 │   ├── thermodynamics.py
 │   ├── electromagnetism.py
 │   └── waves.py
-├── gui/             # интерфейс на Tkinter
+├── gui/             # Tkinter interface
 │   └── app.py
-└── __main__.py      # точка входа `python -m physics_calc`
-tests/               # pytest-тесты ядра (без GUI)
+├── i18n.py          # runtime localization engine
+├── locales/         # translation catalogs (en, es, fr, ru, uk)
+└── __main__.py      # entry point for `python -m physics_calc`
+tests/               # pytest tests for the core (no GUI)
 ```
 
-## Как добавить формулу
+## How to add a formula
 
-Формулы декларативны. Чтобы добавить новую, создайте объект `Formula` в нужном
-модуле раздела и опишите по одному решателю на каждую переменную, которую
-формула умеет вычислять:
+Formulas are declarative. To add a new one, create a `Formula` object in the
+relevant section module and provide one solver per variable the formula can
+compute. Display text is referenced by i18n *keys* (`name_key`, `unit_key`),
+which must be added to every catalog in `physics_calc/locales/`:
 
 ```python
 Formula(
     key="ohm",
-    name="Закон Ома",
+    name_key="formula.ohm",
     expression="U = I · R",
     variables=(
-        Variable("U", "Напряжение", "В"),
-        Variable("I", "Сила тока", "А"),
-        Variable("R", "Сопротивление", "Ом"),
+        Variable("U", "var.voltage", "unit.volt"),
+        Variable("I", "var.current", "unit.ampere"),
+        Variable("R", "var.resistance", "unit.ohm"),
     ),
     solvers={
         "U": lambda v: v["I"] * v["R"],
@@ -95,8 +104,9 @@ Formula(
 )
 ```
 
-GUI автоматически подхватит новую формулу — отдельной правки интерфейса не нужно.
+The GUI picks up the new formula automatically — no interface changes are
+needed. (See `CLAUDE.md` for the full i18n contract.)
 
-## Лицензия
+## License
 
-MIT — см. [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

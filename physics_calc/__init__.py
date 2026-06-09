@@ -7,8 +7,8 @@ The package has three layers:
 * :mod:`physics_calc.domains` — ready-made formula sets grouped by physics section;
 * :mod:`physics_calc.gui`     — the Tkinter desktop interface.
 
-User-facing text is localized via :mod:`physics_calc.i18n` (English, French,
-Russian), switchable at runtime.
+User-facing text is localized via :mod:`physics_calc.i18n` (English, Spanish,
+French, Russian, Ukrainian), switchable at runtime.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
