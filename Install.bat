@@ -13,7 +13,7 @@ cd /d "%~dp0"
 
 echo Installing Physics Calculator into your Python...
 echo.
-py -m pip install -e .
+py -m pip install .
 
 if errorlevel 1 (
     echo.

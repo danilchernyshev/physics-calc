@@ -89,7 +89,7 @@ Step 3.
 > **Optional — install it as a command:** if you would like to start the
 > calculator by typing `physics-calc` from any terminal (instead of running it
 > from this folder), **double-click `Install.bat`** once. It installs the app
-> into your Python using `py -m pip install -e .`. After that, `physics-calc`
+> into your Python using `py -m pip install .`. After that, `physics-calc`
 > works from anywhere, and `Run.bat` keeps working too.
 
 If you get stuck on any step, it is completely normal — feel free to ask for
@@ -133,7 +133,7 @@ If you cloned the repo, run it from the project folder. To install it as a
 command instead:
 
 ```powershell
-py -m pip install -e .
+py -m pip install .
 physics-calc
 ```
 
