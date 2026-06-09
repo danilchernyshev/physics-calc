@@ -26,6 +26,71 @@ and the language can be switched at runtime.
   Ukrainian.
 - **Zero external dependencies** — only the Python standard library.
 
+## Getting started on Windows (step by step)
+
+New to Python? No problem — this section walks you through everything from the
+beginning. You do not need any prior experience. Just follow the steps in order,
+and you will have the calculator running in a few minutes.
+
+You will do three things: install Python, get the project files, and run one
+command.
+
+### Step 1 — Install Python
+
+1. Open [python.org/downloads/windows](https://www.python.org/downloads/windows/)
+   and download the latest **Windows installer** (the regular 64-bit version is
+   fine).
+2. Run the file you downloaded.
+3. On the first screen, check the box **"Add python.exe to PATH"** at the
+   bottom. This step is easy to miss, but it matters — it lets Windows find
+   Python later.
+4. Make sure the **"tcl/tk and IDLE"** option stays selected (it is on by
+   default). This is the part that draws the program's window, so the calculator
+   needs it.
+5. Click **Install Now** and wait for it to finish. You can close the installer
+   when it is done.
+
+To check that it worked, open the **Start menu**, type `PowerShell`, and open it.
+In the window that appears, type the following and press **Enter**:
+
+```powershell
+py --version
+```
+
+If you see something like `Python 3.12.x`, you are ready for the next step. If
+you instead see an error, the most common cause is a missed "Add to PATH" box —
+reinstalling and checking that box usually fixes it.
+
+### Step 2 — Get the project files
+
+Copy the `physics-calc` folder onto your computer — for example, from the USB
+drive to your Desktop or to `C:\physics-calc`. Keep all the files together in
+one folder; nothing else needs to be set up.
+
+### Step 3 — Run the calculator
+
+1. Open the `physics-calc` folder in File Explorer.
+2. Right-click an empty area inside the folder and choose
+   **"Open in Terminal"** (on older Windows versions this may say
+   "Open PowerShell window here").
+3. Type this command and press **Enter**:
+
+   ```powershell
+   py -m physics_calc
+   ```
+
+The calculator window should open. That's it! To use it again later, just repeat
+Step 3.
+
+> **Optional:** if you would rather not open a terminal each time, you can create
+> a shortcut. Make a new text file in the project folder, paste the line
+> `py -m physics_calc` into it, and save it as `Run.bat` (make sure the name
+> ends in `.bat`, not `.txt`). Double-clicking `Run.bat` then opens the
+> calculator directly.
+
+If you get stuck on any step, it is completely normal — feel free to ask for
+help. The shorter, technical instructions for each operating system are below.
+
 ## Requirements
 
 - Python ≥ 3.10
