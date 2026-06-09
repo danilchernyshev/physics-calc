@@ -1,0 +1,141 @@
+============================================================
+ PHYSICS CALCULATOR - INSTALLATION GUIDE FOR WINDOWS
+============================================================
+
+This guide explains how to set up and run the Physics Calculator
+on a Windows computer. You do not need any programming experience.
+Just follow the steps in order. The whole process takes about five
+minutes.
+
+You will do three things:
+   1. Install Python (one time only).
+   2. Copy the project folder onto your computer.
+   3. Start the calculator.
+
+
+------------------------------------------------------------
+ WHAT YOU NEED
+------------------------------------------------------------
+
+ - A Windows computer (Windows 10 or 11).
+ - An internet connection (to download Python).
+ - The "physics-calc" project folder (for example, on this USB drive).
+
+
+------------------------------------------------------------
+ STEP 1 - INSTALL PYTHON
+------------------------------------------------------------
+
+Python is the program that runs the calculator. You only have to
+install it once.
+
+ 1. Open your web browser and go to:
+        https://www.python.org/downloads/windows/
+
+ 2. Click the button to download the latest "Windows installer"
+    (the regular 64-bit version is fine).
+
+ 3. Open the file you just downloaded to start the installer.
+
+ 4. IMPORTANT: On the very first screen, check the box near the
+    bottom that says:
+        [x] Add python.exe to PATH
+    This box is easy to miss, but it lets Windows find Python later.
+
+ 5. Make sure "tcl/tk and IDLE" stays selected (it is on by default).
+    This part draws the calculator's window, so it is required.
+
+ 6. Click "Install Now" and wait until it finishes. You can close
+    the installer when it is done.
+
+To check that Python installed correctly:
+ - Open the Start menu, type "PowerShell", and open it.
+ - Type the line below and press Enter:
+        py --version
+ - If you see something like "Python 3.12.x", you are ready.
+   If you see an error instead, the most common cause is a missed
+   "Add python.exe to PATH" box - reinstall and check that box.
+
+
+------------------------------------------------------------
+ STEP 2 - COPY THE PROJECT FOLDER
+------------------------------------------------------------
+
+Copy the whole "physics-calc" folder from the USB drive to your
+computer - for example, onto your Desktop or to C:\physics-calc.
+
+Keep all the files together in one folder. Nothing else needs to
+be set up.
+
+
+------------------------------------------------------------
+ STEP 3 - START THE CALCULATOR
+------------------------------------------------------------
+
+There are two easy ways. Pick whichever you prefer.
+
+ EASIEST - double-click Run.bat
+ ------------------------------
+   Open the "physics-calc" folder and double-click the file named
+   "Run.bat". The calculator window opens right away. That's it!
+
+   (If Windows shows a blue "Windows protected your PC" message the
+   first time, click "More info" and then "Run anyway". This happens
+   because the file is new, not because anything is wrong.)
+
+ OR - type one command
+ ---------------------
+   1. Open the "physics-calc" folder.
+   2. Right-click an empty area inside the folder and choose
+      "Open in Terminal" (older Windows: "Open PowerShell window here").
+   3. Type this and press Enter:
+          py -m physics_calc
+
+
+------------------------------------------------------------
+ OPTIONAL - INSTALL IT AS A COMMAND
+------------------------------------------------------------
+
+If you would like to start the calculator by typing "physics-calc"
+from any terminal (instead of opening the folder each time), just
+double-click the file named "Install.bat" once.
+
+After it finishes, you can open any terminal and type:
+        physics-calc
+
+The "Run.bat" file keeps working too.
+
+
+------------------------------------------------------------
+ TROUBLESHOOTING
+------------------------------------------------------------
+
+ "py is not recognized" or "python is not recognized"
+     Python is not installed, or the "Add python.exe to PATH" box
+     was not checked. Re-run the Python installer (Step 1) and make
+     sure that box is checked.
+
+ A window flashes and closes instantly
+     Open the folder, then open a terminal there (Step 3, second
+     method) and run "py -m physics_calc" so you can read any message.
+
+ No window appears at all
+     Make sure "tcl/tk and IDLE" was selected when you installed
+     Python. If unsure, re-run the installer and choose "Modify" to
+     turn it on.
+
+ Still stuck?
+     That is completely normal. Note down the exact message you see
+     and ask for help.
+
+
+------------------------------------------------------------
+ HOW TO USE THE CALCULATOR
+------------------------------------------------------------
+
+ - Pick a tab for a physics topic (Mechanics, Thermodynamics,
+   Electromagnetism, or Waves & optics), or the Unit converter tab.
+ - Choose a formula, then fill in every field except the one you
+   want to find.
+ - Click "Compute". The empty field is filled in with the answer.
+ - You can change the language at the top of the window at any time.

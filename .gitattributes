@@ -1,2 +1,4 @@
-# Windows batch files must keep CRLF line endings to run reliably.
+# Windows batch files and the Windows install guide keep CRLF line endings,
+# so they open and run correctly in Notepad / cmd / PowerShell.
 *.bat text eol=crlf
+INSTALL_WINDOWS.txt text eol=crlf
