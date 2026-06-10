@@ -165,43 +165,43 @@ def _as_example_from_row(row: object | None) -> WorkedExample | None:
     )
 
 
-def _resolve_language(
+def _fetch_localized(
     table: str,
     id_col: str,
     item_id: str,
     language: str,
-) -> str | None:
-    """Return the effective language for *item_id* in *table*, or ``None``.
+) -> object | None:
+    """Fetch the full row for ``(item_id, language)``, falling back to English.
 
-    Tries *language* first; if absent falls back to ``DEFAULT_LANGUAGE``
-    (``"en"``).  Returns ``None`` when the item does not exist in any
-    language.
+    Tries *language* first; if no row exists falls back to ``DEFAULT_LANGUAGE``
+    (``"en"``, the canonical language).  This single fetch-then-fallback also
+    yields the *effective* language via the row's ``language`` column, so
+    callers needing related-table queries (e.g. a topic's terms/example) don't
+    need a separate probe.
 
     Args:
-        table: The DB table name (``"topics"`` / ``"concepts"``).
-        id_col: The primary id column name (``"topic_id"`` / ``"term_id"``).
+        table: The DB table name (``"topics"`` / ``"concepts"`` / ``"problems"``).
+        id_col: The primary id column name (``"topic_id"`` / ``"term_id"`` /
+            ``"problem_id"``).
         item_id: The id value to look up.
         language: The initially requested language code.
 
     Returns:
-        The language code whose row was found, or ``None``.
+        The :class:`sqlite3.Row`, or ``None`` when the item does not exist in
+        any language.
     """
     conn = _db.get_connection()
     # nosec B608 — table and id_col are internal constants, never user input
-    hit = conn.execute(  # noqa: S608
-        f"SELECT 1 FROM {table} WHERE {id_col}=? AND language=? LIMIT 1",
+    row = conn.execute(  # noqa: S608
+        f"SELECT * FROM {table} WHERE {id_col}=? AND language=?",
         (item_id, language),
     ).fetchone()
-    if hit is not None:
-        return language
-    if language != DEFAULT_LANGUAGE:
-        hit = conn.execute(  # noqa: S608
-            f"SELECT 1 FROM {table} WHERE {id_col}=? AND language=? LIMIT 1",
+    if row is None and language != DEFAULT_LANGUAGE:
+        row = conn.execute(  # noqa: S608
+            f"SELECT * FROM {table} WHERE {id_col}=? AND language=?",
             (item_id, DEFAULT_LANGUAGE),
         ).fetchone()
-        if hit is not None:
-            return DEFAULT_LANGUAGE
-    return None
+    return row
 
 
 # ---------------------------------------------------------------------------
@@ -220,17 +220,14 @@ def load_concept(term_id: str, language: str = DEFAULT_LANGUAGE) -> Concept | No
         A :class:`Concept` for the requested (or English fallback) language, or
         ``None`` if *term_id* does not exist in the database at all.
     """
-    effective = _resolve_language("concepts", "term_id", term_id, language)
-    if effective is None:
+    row = _fetch_localized("concepts", "term_id", term_id, language)
+    if row is None:
         return None
-    conn = _db.get_connection()
-    row = conn.execute(
-        "SELECT * FROM concepts WHERE term_id=? AND language=?",
-        (term_id, effective),
-    ).fetchone()
     return Concept(
         term_id=term_id,
-        title=row["title"],
+        # Fall back to the id when a row carries no title, matching the prior
+        # file loader (``data.get("title", term_id)``).
+        title=row["title"] or term_id,
         short=row["short"],
         full=row["full"],
         formulas=tuple(json.loads(row["formulas_json"])),
@@ -259,16 +256,14 @@ def load_topic(topic_id: str, language: str = DEFAULT_LANGUAGE) -> Topic | None:
         A :class:`Topic` for the requested (or English fallback) language, or
         ``None`` if *topic_id* does not exist in the database at all.
     """
-    effective = _resolve_language("topics", "topic_id", topic_id, language)
-    if effective is None:
+    row = _fetch_localized("topics", "topic_id", topic_id, language)
+    if row is None:
         return None
+    # The related-table queries must use the language that actually resolved
+    # (the requested one, or the English fallback), read off the topic row.
+    effective = row["language"]
 
     conn = _db.get_connection()
-    row = conn.execute(
-        "SELECT * FROM topics WHERE topic_id=? AND language=?",
-        (topic_id, effective),
-    ).fetchone()
-
     term_rows = conn.execute(
         "SELECT term_id FROM topic_terms"
         " WHERE topic_id=? AND language=? ORDER BY position",
@@ -329,16 +324,7 @@ def load_problem(problem_id: str, language: str = DEFAULT_LANGUAGE) -> Problem |
         A :class:`Problem` for the requested (or English fallback) language, or
         ``None`` if *problem_id* does not exist in the database.
     """
-    conn = _db.get_connection()
-    row = conn.execute(
-        "SELECT * FROM problems WHERE problem_id=? AND language=?",
-        (problem_id, language),
-    ).fetchone()
-    if row is None and language != DEFAULT_LANGUAGE:
-        row = conn.execute(
-            "SELECT * FROM problems WHERE problem_id=? AND language=?",
-            (problem_id, DEFAULT_LANGUAGE),
-        ).fetchone()
+    row = _fetch_localized("problems", "problem_id", problem_id, language)
     if row is None:
         return None
 
