@@ -876,6 +876,60 @@ def guide_screen() -> dict:
     }
 
 
+#: Map the core's stable error codes to their localized message keys.
+_UPDATE_ERROR_KEYS = {
+    "update.error.offline": "updates.error.offline",
+    "update.error.http": "updates.error.http",
+    "update.error.bad_version": "updates.error.bad_version",
+}
+
+
+def updates_screen(check: dict | None, *, current: str, auto_check: bool) -> dict:
+    """The software-updates overlay model: chrome labels + an optional result.
+
+    ``check`` is :func:`study_calc.core.updates.check_updates`'s raw status model
+    (or ``None`` before any check has run). Every user-facing string is resolved
+    here from the ``updates.*`` i18n keys — the core stays language-neutral. The
+    ``status`` field drives the frontend: ``idle`` / ``up_to_date`` / ``available``
+    / ``error``.
+    """
+    model: dict = {
+        "title": t("updates.title"),
+        "intro": t("updates.intro"),
+        "close": t("ui.close"),
+        "checkButton": t("updates.check_button"),
+        "checking": t("updates.checking"),
+        "autoLabel": t("updates.auto_check"),
+        "autoCheck": bool(auto_check),
+        "currentLine": t("updates.current_version", version=current),
+        "status": "idle",
+    }
+    if check is None:
+        return model
+
+    status = check.get("status")
+    if status == "up_to_date":
+        model["status"] = "up_to_date"
+        model["message"] = t("updates.up_to_date")
+    elif status == "available":
+        version = str(check.get("version", ""))
+        model["status"] = "available"
+        model["newVersion"] = version
+        model["message"] = t("updates.available", version=version)
+        model["bumpNote"] = t(f"updates.bump.{check.get('bump', 'patch')}")
+        notes = str(check.get("notes") or "").strip()
+        if notes:
+            model["notesHeading"] = t("updates.whats_new")
+            model["notes"] = notes
+        model["viewRelease"] = t("updates.view_release")
+        model["url"] = str(check.get("url", ""))
+    else:  # "error"
+        model["status"] = "error"
+        code = str(check.get("code", "update.error.http"))
+        model["message"] = t(_UPDATE_ERROR_KEYS.get(code, "updates.error.http"))
+    return model
+
+
 def solve_formula(formula_key: str, values: Mapping[str, str]) -> dict:
     """Solve ``formula_key`` from string ``values`` (symbol -> text field).
 

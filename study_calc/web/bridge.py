@@ -17,7 +17,10 @@ from __future__ import annotations
 
 from . import screens
 from .. import navigation
+from ..core import updates as updates_core
+from ..core.settings import Settings
 from ..i18n import i18n, t
+from ..resources import app_version
 
 
 def subject_tagline_key(subject_id: str) -> str:
@@ -50,12 +53,33 @@ def navigation_model() -> list[dict]:
 
 
 class Bridge:
-    """PyWebView ``js_api``: the shell's localized state, regenerated on demand."""
+    """PyWebView ``js_api``: the shell's localized state, regenerated on demand.
+
+    The constructor takes optional injectables so the update feature (#74) stays
+    headlessly testable: ``version`` (defaults to the single-sourced
+    :func:`study_calc.resources.app_version`), a :class:`~study_calc.core.settings.Settings`
+    store, and an ``update_fetcher`` callable the check uses instead of hitting
+    the network. Defaults give the real app; tests pass fakes.
+    """
+
+    def __init__(
+        self,
+        *,
+        version: str | None = None,
+        settings: Settings | None = None,
+        update_fetcher: updates_core.Fetcher | None = None,
+    ) -> None:
+        self._version = version or app_version()
+        self._settings = settings if settings is not None else Settings()
+        self._update_fetcher = update_fetcher
 
     def get_state(self) -> dict:
         """The full shell model: language, the language list, chrome labels, subjects."""
         return {
             "lang": i18n.language,
+            "version": self._version,
+            # The frontend runs a non-blocking startup check only when this is on.
+            "autoUpdateCheck": self._settings.auto_update_check,
             "languages": [
                 {"code": code, "label": native}
                 for code, native in i18n.available_languages()
@@ -64,6 +88,7 @@ class Bridge:
                 "appTitle": t("app.title"),
                 "subjectsHeading": t("nav.subjects"),
                 "howToUse": t("menu.guide"),
+                "updates": t("menu.updates"),
                 "language": t("menu.language"),
                 "placeholder": t("shell.placeholder"),
             },
@@ -128,3 +153,25 @@ class Bridge:
     def guide_screen(self) -> dict:
         """The guide overlay model: title, intro, and six localized sections."""
         return screens.guide_screen()
+
+    # --- software updates (#74) ---
+
+    def update_screen(self) -> dict:
+        """The updates overlay model before any check has run (labels + current version)."""
+        return screens.updates_screen(
+            None, current=self._version, auto_check=self._settings.auto_update_check
+        )
+
+    def check_updates(self) -> dict:
+        """Force an update check now; localized up-to-date / available / error model."""
+        result = updates_core.check_updates(self._version, fetcher=self._update_fetcher)
+        return screens.updates_screen(
+            result, current=self._version, auto_check=self._settings.auto_update_check
+        )
+
+    def set_auto_update_check(self, enabled: bool) -> dict:
+        """Persist the auto-check preference and echo back the refreshed model."""
+        self._settings.set_auto_update_check(bool(enabled))
+        return screens.updates_screen(
+            None, current=self._version, auto_check=self._settings.auto_update_check
+        )

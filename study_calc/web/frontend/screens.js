@@ -990,6 +990,118 @@ const Screens = {
     document.body.append(overlay);
     closeBtn.focus(); // move focus into the dialog on open
   },
+
+  // Software-updates overlay (#74). `model` is the bridge's update_screen() /
+  // check_updates() result (labels + an optional status). `api` carries the two
+  // async bridge calls the dialog drives:
+  //   api.check()        -> check_updates(): the localized status model
+  //   api.setAuto(bool)  -> set_auto_update_check(): persist the startup toggle
+  // Mirrors the guide overlay's a11y contract (dialog/focus-trap/Escape) and
+  // shares _destroyOverlay. All copy is localized server-side.
+  openUpdates(model, api) {
+    const existing = document.querySelector('.modal--updates');
+    if (existing) {
+      const btn = existing.querySelector('.modal__close');
+      if (btn) btn.focus();
+      return;
+    }
+
+    const trigger = document.getElementById('updates-btn');
+    let overlay;
+    function close() {
+      _destroyOverlay(overlay);
+      if (trigger) trigger.focus();
+    }
+
+    const closeBtn = h('button', {
+      class: 'modal__close', type: 'button',
+      'aria-label': model.close, onclick: close,
+    }, ['×']); // ×
+
+    // The status region is re-rendered in place after each check (idle ->
+    // checking -> up_to_date/available/error) without rebuilding the dialog.
+    const status = h('div', { class: 'updates__status', id: 'updates-status' }, []);
+
+    function fillStatus(m) {
+      const nodes = [];
+      if (m.status === 'available') {
+        nodes.push(h('p', { class: 'result result--answer', text: m.message }));
+        if (m.bumpNote) nodes.push(h('p', { class: 'rich__body', text: m.bumpNote }));
+        if (m.notes) {
+          nodes.push(h('h3', { class: 'learn__heading', text: m.notesHeading }));
+          nodes.push(h('pre', { class: 'updates__notes', text: m.notes }));
+        }
+        if (m.url) {
+          nodes.push(h('a', {
+            class: 'updates__link', href: m.url,
+            target: '_blank', rel: 'noopener noreferrer',
+          }, [m.viewRelease]));
+        }
+      } else if (m.status === 'up_to_date') {
+        nodes.push(h('p', { class: 'updates__ok', text: m.message }));
+      } else if (m.status === 'error') {
+        nodes.push(UI.errorStrip(m.message));
+      }
+      status.replaceChildren(...nodes);
+    }
+    fillStatus(model);
+
+    const checkBtn = UI.button({
+      label: model.checkButton,
+      onclick: async () => {
+        checkBtn.disabled = true;
+        status.replaceChildren(h('p', { class: 'updates__checking', text: model.checking }));
+        const result = await api.check();
+        checkBtn.disabled = false;
+        if (result) fillStatus(result);
+      },
+    });
+
+    // Auto-check toggle: persists immediately; no Save button (one setting).
+    const autoId = 'updates-auto';
+    const autoBox = h('input', {
+      type: 'checkbox', id: autoId, checked: model.autoCheck,
+      onchange: (e) => { api.setAuto(e.target.checked); },
+    });
+    const autoRow = h('label', { class: 'updates__auto', for: autoId },
+      [autoBox, h('span', { text: model.autoLabel })]);
+
+    const bodyNodes = [
+      h('p', { class: 'rich__body', text: model.intro }),
+      h('p', { class: 'updates__current', text: model.currentLine }),
+      h('div', { class: 'updates__actions' }, [checkBtn]),
+      status,
+      autoRow,
+    ];
+
+    const card = UI.card({ title: model.title, body: bodyNodes, class: 'guide__card' });
+    const header = card.querySelector('.card__header');
+    if (header) header.append(closeBtn); else card.prepend(closeBtn);
+
+    overlay = h('div', {
+      class: 'modal modal--updates', role: 'dialog',
+      'aria-modal': 'true', 'aria-label': model.title,
+    }, [card]);
+
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    overlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+      if (e.key !== 'Tab') return;
+      const focusable = Array.from(overlay.querySelectorAll(
+        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      ));
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    });
+
+    document.body.append(overlay);
+    closeBtn.focus();
+  },
 };
 
 // Render the learning-card blocks (the model produced by screens.py mirrors the

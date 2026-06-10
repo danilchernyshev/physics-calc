@@ -563,6 +563,63 @@
   text-align: center;
 }
 
+/* ---- Software-updates overlay (#74) --------------------------------- */
+/* Reuses .guide__card inside the shared .modal backdrop; these style only the
+   updates-specific body content. */
+.updates__current {
+  margin: 0 0 var(--space-md);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.updates__actions { margin: var(--space-md) 0; }
+
+.updates__status:empty { display: none; }
+
+.updates__ok {
+  margin: var(--space-md) 0 0;
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.updates__checking {
+  margin: var(--space-md) 0 0;
+  color: var(--color-text-muted);
+}
+
+/* Release notes verbatim from the GitHub Release: monospace, scrollable, never
+   overflowing the dialog. */
+.updates__notes {
+  margin: var(--space-xs) 0 var(--space-md);
+  padding: var(--space-md);
+  max-height: 30vh;
+  overflow-y: auto;
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.updates__link {
+  display: inline-block;
+  margin-bottom: var(--space-md);
+  color: var(--color-accent-link);
+}
+
+/* The auto-check toggle row at the foot of the dialog. */
+.updates__auto {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-body);
+  cursor: pointer;
+}
+
 /* ---- Key-term pop-up ------------------------------------------------ */
 
 .modal {
