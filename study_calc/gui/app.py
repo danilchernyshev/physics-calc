@@ -7,9 +7,10 @@ variable but one, and clicks "Compute" — the empty field is filled with the re
 That "solve for any variable" behaviour comes from
 :class:`~study_calc.core.formula.Formula`.
 
-All user-facing text comes from :mod:`study_calc.i18n`. A language selector at
-the top switches the catalog at runtime; the window is then rebuilt so every
-label, tab and combobox is re-rendered in the new language.
+All user-facing text comes from :mod:`study_calc.i18n`. The Language menu switches
+the catalog at runtime; the window is then rebuilt so every label, tab and combobox
+is re-rendered in the new language. A Help menu offers a "How to use" guide and an
+About box.
 """
 
 from __future__ import annotations
@@ -213,6 +214,39 @@ class AboutWindow(tk.Toplevel):
         text.write("2023 – 2027\n", "body")
         text.write("Peel District School Board\n", "body")
         text.write("Mississauga, Ontario, Canada\n", "body")
+        text.end()
+
+
+class GuideWindow(tk.Toplevel):
+    """A 'How to use' help window: what the tool offers and how to work each part."""
+
+    # (heading key, body key) pairs, rendered in order. Keep the list in i18n so the
+    # whole guide follows the active language.
+    _SECTIONS = (
+        ("guide.physics.head", "guide.physics.body"),
+        ("guide.math.head", "guide.math.body"),
+        ("guide.tools.head", "guide.tools.body"),
+        ("guide.problems.head", "guide.problems.body"),
+        ("guide.learning.head", "guide.learning.body"),
+        ("guide.language.head", "guide.language.body"),
+    )
+
+    def __init__(self, master: tk.Misc) -> None:
+        super().__init__(master)
+        self.title(t("menu.guide"))
+        self.minsize(540, 480)
+        text = _RichText(self, width=64, height=24)
+        scroll = ttk.Scrollbar(self, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scroll.set)
+        scroll.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+
+        text.begin()
+        text.heading(t("guide.title"))
+        text.write(t("guide.intro") + "\n", "body")
+        for head_key, body_key in self._SECTIONS:
+            text.heading(t(head_key))
+            text.write(t(body_key) + "\n", "body")
         text.end()
 
 
@@ -1042,25 +1076,27 @@ class App:
     def _build(self) -> None:
         self.root.title(t("app.title"))
 
-        # --- Menu bar: Help -> About. Rebuilt here so it follows the language. ---
+        # --- Menu bar: Language, and Help -> How to use / About. Rebuilt here so
+        # every label follows the active language. ---
         menubar = tk.Menu(self.root)
+
+        # Language menu: a radio entry per locale, a checkmark on the active one.
+        language_menu = tk.Menu(menubar, tearoff=0)
+        self._lang_var = tk.StringVar(value=i18n.language)
+        for code, native in self._languages:
+            language_menu.add_radiobutton(
+                label=native, value=code, variable=self._lang_var,
+                command=lambda c=code: self._on_language_change(c),
+            )
+        menubar.add_cascade(label=t("menu.language"), menu=language_menu)
+
         help_menu = tk.Menu(menubar, tearoff=0)
+        help_menu.add_command(label=t("menu.guide"), command=self._show_guide)
+        help_menu.add_separator()
         help_menu.add_command(label=t("menu.about"), command=self._show_about)
         menubar.add_cascade(label=t("menu.help"), menu=help_menu)
-        self.root.config(menu=menubar)
 
-        # --- Top bar: language selector, right-aligned. ---
-        top = ttk.Frame(self.root, padding=(8, 8, 8, 0))
-        top.pack(fill="x")
-        ttk.Label(top, text=t("language.label")).pack(side="left")
-        self._lang_combo = ttk.Combobox(
-            top, state="readonly", width=12,
-            values=[native for _code, native in self._languages],
-        )
-        self._lang_combo.pack(side="left", padx=(6, 0))
-        codes = [code for code, _native in self._languages]
-        self._lang_combo.current(codes.index(i18n.language))
-        self._lang_combo.bind("<<ComboboxSelected>>", lambda _e: self._on_language_change())
+        self.root.config(menu=menubar)
 
         # --- Tabs: an outer notebook of subjects, each grouping its sections/tools
         # (see study_calc.navigation.SUBJECTS). A subject with a single item shows
@@ -1114,9 +1150,8 @@ class App:
                   wraplength=560, justify="left").pack(anchor="w")
         return frame
 
-    def _on_language_change(self) -> None:
+    def _on_language_change(self, code: str) -> None:
         """Switch language and rebuild the UI, keeping the selected subject/tab."""
-        code = self._languages[self._lang_combo.current()][0]
         if code == i18n.language:
             return
         selection = self._current_selection()
@@ -1153,6 +1188,9 @@ class App:
                 inner_nb.select(inner)
             except tk.TclError:
                 pass
+
+    def _show_guide(self) -> None:
+        GuideWindow(self.root)
 
     def _show_about(self) -> None:
         AboutWindow(self.root)
