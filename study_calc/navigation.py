@@ -83,4 +83,46 @@ SUBJECTS: tuple[tuple[str, tuple[object, ...]], ...] = (
     )),
 )
 
-__all__ = ["Section", "Tool", "Problems", "Placeholder", "TOOL_NAMES", "SUBJECTS"]
+def item_kind(item: object) -> str:
+    """The navigation kind of an item: ``section`` / ``tool`` / ``problems`` / ``placeholder``."""
+    if isinstance(item, Section):
+        return "section"
+    if isinstance(item, Tool):
+        return "tool"
+    if isinstance(item, Problems):
+        return "problems"
+    if isinstance(item, Placeholder):
+        return "placeholder"
+    raise TypeError(f"unknown navigation item {item!r}")
+
+
+def item_id(item: object) -> str:
+    """A stable id for an item, unique within its subject (for client-side selection)."""
+    if isinstance(item, Section):
+        return f"section:{item.section_id}"
+    if isinstance(item, Tool):
+        return f"tool:{item.name}"
+    if isinstance(item, Problems):
+        return f"problems:{item.subject_id}"
+    if isinstance(item, Placeholder):
+        return f"placeholder:{item.message_key}"
+    raise TypeError(f"unknown navigation item {item!r}")
+
+
+def item_label_key(item: object) -> str:
+    """The i18n key for an item's tab label (matches what :mod:`gui.app` renders)."""
+    if isinstance(item, Section):
+        return f"section.{item.section_id}"
+    if isinstance(item, Tool):
+        return f"tab.{item.name}"
+    if isinstance(item, Problems):
+        return "tab.problems"
+    if isinstance(item, Placeholder):
+        return item.message_key
+    raise TypeError(f"unknown navigation item {item!r}")
+
+
+__all__ = [
+    "Section", "Tool", "Problems", "Placeholder", "TOOL_NAMES", "SUBJECTS",
+    "item_kind", "item_id", "item_label_key",
+]

@@ -73,7 +73,23 @@ language-agnostic:
   `Placeholder` (a "coming soon" notice). The Chemistry subject bundles two formula
   `Section`s, the periodic-table `Tool`, and its `Problems`. `gui/app.py` maps each
   item to a concrete widget; adding or
-  reordering a subject is a one-line edit here with no widget code to touch.
+  reordering a subject is a one-line edit here with no widget code to touch. The
+  `item_kind` / `item_id` / `item_label_key` helpers expose each item's kind, a
+  stable id, and its i18n label key, so both front ends derive labels the same way.
+
+- **`web/`** — the **redesign frontend** (ADR 0001 chose a PyWebView web UI over
+  Tkinter; see `docs/adr/0001-ui-framework.md`). It reuses `core`/`domains`/
+  `navigation`/i18n unchanged and is built incrementally beside the Tkinter app.
+  `tokens.json` is the framework-agnostic design-token source of truth (`tokens.py`
+  emits `tokens.css`; `docs/design-tokens.md`). `bridge.py` is the **JS↔Python
+  `js_api`** — pure Python, no PyWebView import, so it's unit-tested headlessly: it
+  builds the localized shell model (subjects/items + chrome labels) entirely from
+  `navigation.SUBJECTS`, and `set_language` relabels without restructuring. `app.py`
+  lazily imports PyWebView (the optional `web` extra) to open the window over
+  `frontend/` (`index.html` + `shell.css` using the tokens + vanilla-JS `shell.js`),
+  and `render_preview_html()` inlines the state for a browser/screenshot preview
+  without the bridge. The shell (nav rail + header) is issue #4; per-screen panels
+  are #6–#11. Run it with `python -m study_calc.web`.
 
 - **`domains/`** — declarative formula sets, one module per section: physics
   (mechanics, thermodynamics, electromagnetism, waves) plus `chemistry.py`
