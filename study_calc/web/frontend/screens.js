@@ -452,7 +452,7 @@ const Screens = {
       body: [
         h('div', { class: 'periodic__tools' }, [
           h('div', { class: 'periodic__tool-row' }, [
-            UI.field(L.molarMass + ':', mmInput),
+            UI.field(L.molarMass, mmInput),
             h('div', { class: 'periodic__tool-actions chips' }, [
               UI.button({ label: L.compute, variant: 'primary', onclick: computeMM }),
               UI.button({ label: L.clear, variant: 'ghost', onclick: clearMM }),
@@ -479,6 +479,97 @@ const Screens = {
     renderDetail(hydrogen);
 
     return h('div', { class: 'screen screen--periodic' }, [toolsCard, gridCard]);
+  },
+
+  // Guide overlay (issue #40). `model` is the bridge's guide_screen() result:
+  // {title, intro, sections:[{head,body}]}. All strings are already localized
+  // server-side — nothing is hardcoded here.
+  //
+  // a11y contract (mirrors the #26 modal contract):
+  //   - role="dialog" + aria-modal="true" on the backdrop
+  //   - focus moves to the × close button on open
+  //   - focus is trapped within the dialog while open
+  //   - focus returns to the trigger (#guide-btn) on close
+  //   - Escape, clicking the backdrop, and the × button all dismiss
+  openGuide(model) {
+    // Guard against double-open: the #guide-btn handler is async, so a quick
+    // double-click could otherwise stack two overlays — and only the top one
+    // would be dismissable via Escape. If a guide overlay is already mounted,
+    // refocus its close button instead of mounting a second.
+    const existing = document.querySelector('.modal--guide');
+    if (existing) {
+      const btn = existing.querySelector('.modal__close');
+      if (btn) btn.focus();
+      return;
+    }
+
+    const trigger = document.getElementById('guide-btn');
+
+    // `overlay` is declared before `closeBtn` so the close() closure can
+    // reference it even though the assignment happens further down.
+    let overlay;
+
+    function close() {
+      if (overlay) overlay.remove();
+      if (trigger) trigger.focus();
+    }
+
+    const closeBtn = h('button', {
+      class: 'modal__close',
+      type: 'button',
+      'aria-label': model.close,
+      onclick: close,
+    }, ['×']); // ×
+
+    // Build the scrollable body: lead paragraph + six section head/body pairs.
+    const bodyNodes = [
+      h('p', { class: 'rich__body', text: model.intro }),
+      ...model.sections.flatMap((sec) => [
+        h('h3', { class: 'learn__heading', text: sec.head }),
+        h('p', { class: 'rich__body', text: sec.body }),
+      ]),
+    ];
+
+    // Use the shared UI.card factory — do not re-implement card markup.
+    const card = UI.card({
+      title: model.title,
+      body: bodyNodes,
+      class: 'guide__card',
+    });
+
+    // Inject the × button into the card header so title + close live together.
+    const header = card.querySelector('.card__header');
+    if (header) header.append(closeBtn);
+    else card.prepend(closeBtn); // fallback if title was omitted
+
+    overlay = h('div', {
+      class: 'modal modal--guide',
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-label': model.title,
+    }, [card]);
+
+    // Backdrop click dismisses.
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    // Escape dismisses; Tab is trapped within the dialog.
+    overlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+      if (e.key !== 'Tab') return;
+      const focusable = Array.from(overlay.querySelectorAll(
+        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      ));
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    });
+
+    document.body.append(overlay);
+    closeBtn.focus(); // move focus into the dialog on open
   },
 };
 
@@ -570,7 +661,7 @@ function renderExample(ex) {
 function openConcept(concept, L) {
   const card = h('div', { class: 'modal__card' }, [
     h('button', {
-      class: 'modal__close', type: 'button', 'aria-label': 'Close',
+      class: 'modal__close', type: 'button', 'aria-label': L.close,
       onclick: close,
     }, ['×']),
     h('h3', { class: 'modal__title', text: concept.title }),

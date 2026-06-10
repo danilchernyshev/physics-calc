@@ -78,8 +78,14 @@ function renderNav(data) {
     h('div', { class: 'nav__items' }, items),
     h('div', { class: 'nav__spacer' }),
     h('div', { class: 'nav__footer' }, [
-      h('button', { class: 'nav__foot-link' },
-        ['ⓘ ' + data.labels.howToUse]), // ⓘ
+      h('button', {
+        class: 'nav__foot-link',
+        id: 'guide-btn',
+        onclick: async () => {
+          const model = await callApi('guide_screen');
+          if (model) Screens.openGuide(model);
+        },
+      }, ['ⓘ ' + data.labels.howToUse]), // ⓘ
       langMenu,
       h('button', {
         class: 'nav__foot-link',

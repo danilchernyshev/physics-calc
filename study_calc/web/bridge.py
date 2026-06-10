@@ -120,3 +120,7 @@ class Bridge:
     def balance_run(self, equation: str) -> dict:
         """Balance a chemical equation; localized result or error."""
         return screens.balance_run(equation)
+
+    def guide_screen(self) -> dict:
+        """The guide overlay model: title, intro, and six localized sections."""
+        return screens.guide_screen()
