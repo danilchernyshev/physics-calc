@@ -8,12 +8,16 @@ language switch must relabel without changing the structure.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from study_calc import navigation
 from study_calc.i18n import i18n
 from study_calc.web import app as web_app
 from study_calc.web.bridge import Bridge
+
+_FRONTEND = Path(__file__).resolve().parent.parent / "study_calc" / "web" / "frontend"
 
 
 @pytest.fixture(autouse=True)
@@ -95,3 +99,30 @@ def test_preview_html_inlines_state():
     assert "shell.js" in html and "tokens.css" in html
     # The injected state is valid and carries the subjects.
     assert '"subjects"' in html
+
+
+# --- favicon / window icon assets (issue #57) --------------------------------
+
+def test_favicon_svg_exists():
+    assert (_FRONTEND / "favicon.svg").is_file(), "favicon.svg is missing from frontend/"
+
+
+def test_favicon_png_exists():
+    assert (_FRONTEND / "favicon.png").is_file(), "favicon.png is missing from frontend/"
+
+
+def test_window_icon_png_exists():
+    assert (_FRONTEND / "icon.png").is_file(), "icon.png is missing from frontend/"
+
+
+def test_window_icon_constant_points_at_asset():
+    # run() passes this path to PyWebView's icon= argument.
+    assert web_app._WINDOW_ICON.is_file()
+    assert web_app._WINDOW_ICON.name == "icon.png"
+
+
+def test_index_html_references_favicon():
+    html = (_FRONTEND / "index.html").read_text(encoding="utf-8")
+    assert 'rel="icon"' in html, "index.html has no <link rel=\"icon\"> for the favicon"
+    assert "favicon.svg" in html, "index.html does not reference favicon.svg"
+    assert "favicon.png" in html, "index.html does not reference favicon.png"

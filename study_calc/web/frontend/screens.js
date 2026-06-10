@@ -356,10 +356,17 @@ const Screens = {
 
   // Practice-problems screen (issue #11). `model` is the bridge's
   // problems_screen(); everything is baked in, so there is no ctx/run round-trip.
-  // The left card is the "problem tree" (the subject's problems); the right card
-  // is the worked "solution card" with a reveal-the-solution flow — mirroring the
-  // Tk ProblemsPanel + ExplanationPanel.show_problem. An empty subject shows the
-  // quiet `empty` hint, exactly like the Tk panel.
+  //
+  // Figma-aligned design (QA re-check):
+  //  Left panel  — ProblemTree: "Practice" header + count badge, search field,
+  //                collapsible tree grouped by course code → section, per-problem
+  //                status icons (● selected / ✓ answered / ○ unanswered).
+  //  Right panel — PracticePanel: section chip + "Question N of M" counter,
+  //                statement, answer input + "Check answer" button,
+  //                "Show solution" / "Show answer" secondary controls,
+  //                "→ Backed by topic: …" footer.
+  //
+  // An empty subject shows the quiet `empty` hint, matching the Tk panel.
   problems(model) {
     const L = model.labels;
     const problems = model.problems;
@@ -370,35 +377,159 @@ const Screens = {
       ]);
     }
 
-    // Per-selection reveal state: a fresh problem starts hidden; the student
-    // reveals the steps, then the answer (and optionally the theory) on demand.
-    const st = { index: 0, steps: false, answer: false, theory: false };
+    // Per-selection state.  `answered` is a Set of problem ids the student
+    // successfully verified via "Check answer" — persists across selections.
+    const st = {
+      index: 0,
+      steps: false,
+      answer: false,
+      theory: false,
+      answered: new Set(),
+      searchQuery: '',
+    };
     const current = () => problems[st.index];
 
-    const listWrap = h('ul', { class: 'problems__list' }, []);
-    const solutionContent = h('div', { class: 'solution' }, []);
+    // Mutable islands — updated in place without re-rendering the whole screen.
+    const treeWrap = h('div', { class: 'problems__tree' }, []);
+    const solutionContent = h('div', { class: 'practice__content' }, []);
 
-    function renderList() {
-      listWrap.replaceChildren(...problems.map((p, i) =>
-        h('li', {}, [
-          h('button', {
-            class: 'problems__item' + (i === st.index ? ' problems__item--active' : ''),
-            type: 'button',
-            'aria-current': i === st.index ? 'true' : null,
-            onclick: () => select(i),
-          }, [
-            h('span', { class: 'problems__item-title', text: p.title }),
-            p.badge ? UI.badge(p.badge) : null,
-          ]),
-        ])));
+    // --- ProblemTree helpers ---
+
+    // course code → Map(sectionId → bool expanded); initialised lazily on first use.
+    const sectionExpanded = new Map();
+    function isSectionExpanded(course, sectionId) {
+      if (!sectionExpanded.has(course)) sectionExpanded.set(course, new Map());
+      const m = sectionExpanded.get(course);
+      if (!m.has(sectionId)) m.set(sectionId, true); // start expanded
+      return m.get(sectionId);
     }
+    function toggleSection(course, sectionId) {
+      isSectionExpanded(course, sectionId); // ensure initialised
+      const m = sectionExpanded.get(course);
+      m.set(sectionId, !m.get(sectionId));
+      renderTree();
+    }
+
+    // Status icon for a problem by its position in the full list.
+    function statusIcon(i) {
+      if (i === st.index) return '●';
+      if (st.answered.has(problems[i].id)) return '✓';
+      return '○';
+    }
+
+    // Build the grouped tree from the (possibly filtered) problems list.
+    // Returns an ordered array of { course, sections: [{ sectionId, sectionLabel, items: [{problem, origIdx}] }] }.
+    function buildTree(filtered) {
+      // Maintain insertion order — course groups appear in the order problems arrive.
+      const courseMap = new Map(); // courseCode → Map(sectionId → [{problem, origIdx}])
+      for (const p of filtered) {
+        const origIdx = problems.indexOf(p);
+        const course = p.courseCode || '';
+        const section = p.sectionId || '';
+        if (!courseMap.has(course)) courseMap.set(course, new Map());
+        const secMap = courseMap.get(course);
+        if (!secMap.has(section)) secMap.set(section, []);
+        secMap.get(section).push({ problem: p, origIdx });
+      }
+      const tree = [];
+      for (const [course, secMap] of courseMap) {
+        const sections = [];
+        for (const [sectionId, items] of secMap) {
+          // Derive a label: first item's sectionLabel, or general fallback.
+          const sectionLabel = items[0].problem.sectionLabel || L.general;
+          sections.push({ sectionId, sectionLabel, items });
+        }
+        tree.push({ course, sections });
+      }
+      return tree;
+    }
+
+    function renderTree() {
+      const q = st.searchQuery.trim().toLowerCase();
+      const filtered = q
+        ? problems.filter((p) => p.title.toLowerCase().includes(q))
+        : problems;
+      const tree = buildTree(filtered);
+      const groupNodes = [];
+      for (const { course, sections } of tree) {
+        const courseLabel = course || L.general;
+        const courseTotal = sections.reduce((s, sec) => s + sec.items.length, 0);
+
+        const sectionNodes = [];
+        for (const { sectionId, sectionLabel, items } of sections) {
+          const expanded = isSectionExpanded(course, sectionId);
+          const chevron = expanded ? '▾' : '▸';
+          const secHeader = h('button', {
+            class: 'problems__section-header',
+            type: 'button',
+            onclick: () => toggleSection(course, sectionId),
+          }, [
+            h('span', { class: 'problems__section-chevron', text: chevron }),
+            h('span', { class: 'problems__section-label', text: sectionLabel }),
+            h('span', { class: 'problems__section-count', text: '[' + items.length + ']' }),
+          ]);
+
+          const itemNodes = expanded
+            ? items.map(({ problem: p, origIdx: i }) =>
+                h('li', {}, [
+                  h('button', {
+                    class: 'problems__item' + (i === st.index ? ' problems__item--active' : ''),
+                    type: 'button',
+                    'aria-current': i === st.index ? 'true' : null,
+                    onclick: () => select(i),
+                  }, [
+                    h('span', { class: 'problems__status', text: statusIcon(i) }),
+                    h('span', { class: 'problems__item-title', text: p.title }),
+                  ]),
+                ]))
+            : [];
+
+          sectionNodes.push(h('div', { class: 'problems__section' }, [
+            secHeader,
+            h('ul', {
+              class: 'problems__section-list' + (expanded ? '' : ' problems__section-list--hidden'),
+            }, itemNodes),
+          ]));
+        }
+
+        groupNodes.push(h('div', { class: 'problems__group' }, [
+          h('div', { class: 'problems__course-header' }, [
+            h('span', { class: 'problems__course-label', text: courseLabel }),
+            UI.badge(String(courseTotal) + ' ' + (courseTotal === 1 ? L.answer : L.problemsCount
+              .replace('{n}', String(courseTotal)))),
+          ]),
+          ...sectionNodes,
+        ]));
+      }
+      treeWrap.replaceChildren(...groupNodes);
+    }
+
+    // --- PracticePanel helpers ---
 
     function renderSolution() {
       const p = current();
-      const parts = [h('h2', { class: 'card__title', text: p.title })];
+      const i = st.index;
+      const parts = [];
+
+      // Subtitle line: "Practice problems with cited, worked solutions".
+      parts.push(h('p', { class: 'practice__subtitle', text: L.practiceSubtitle }));
+
+      // Section chip + "Question N of M" counter.
+      const metaRow = [];
+      if (p.sectionLabel) {
+        metaRow.push(h('span', { class: 'chip practice__section-chip', text: p.sectionLabel }));
+      }
+      metaRow.push(h('span', {
+        class: 'practice__counter',
+        text: L.questionOf.replace('{n}', String(i + 1)).replace('{m}', String(problems.length)),
+      }));
+      parts.push(h('div', { class: 'practice__meta-row' }, metaRow));
+
+      // Problem title + curriculum badge.
+      parts.push(h('h2', { class: 'card__title', text: p.title }));
       if (p.badge) parts.push(UI.badge(p.badge));
 
-      // The statement (given + find) always shows.
+      // Statement: given + find (always visible).
       if (p.given.length) {
         parts.push(h('p', { class: 'rich__label', text: L.given + ':' }));
         parts.push(h('ul', { class: 'learn__given' },
@@ -409,30 +540,70 @@ const Screens = {
           L.find + ': ', h('span', { class: 'rich__body-inline', text: p.find }),
         ]));
       }
-      // Solution steps and the final answer appear only once revealed.
+
+      // Answer input + "Check answer" button, or a "Correct!" confirmation
+      // chip once the problem has been answered successfully.
+      if (st.answered.has(p.id)) {
+        parts.push(h('div', { class: 'practice__correct-banner' }, [
+          h('span', { text: L.correct }),
+        ]));
+      } else {
+        // `feedbackNode` receives the "Not quite" message after a failed check.
+        const feedbackNode = h('p', { class: 'practice__feedback' });
+        const answerInput = h('input', {
+          class: 'field__control',
+          type: 'text',
+          placeholder: L.answer,
+        });
+        // Normalise for comparison: lowercase, collapse whitespace/special chars.
+        function normalise(s) {
+          return s.toLowerCase().replace(/\s+/g, '').replace(/[≈~]/g, '');
+        }
+        function checkAnswer() {
+          const user = normalise(answerInput.value);
+          const expected = normalise(p.answer || '');
+          if (user && expected && user === expected) {
+            st.answered.add(p.id);
+            renderSolution();
+            renderTree(); // refresh status icons
+          } else {
+            feedbackNode.textContent = L.incorrect;
+          }
+        }
+        answerInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); checkAnswer(); }
+        });
+        parts.push(h('div', { class: 'practice__answer-row' }, [
+          UI.field(L.answer, answerInput),
+          UI.button({ label: L.checkAnswer, variant: 'primary', onclick: checkAnswer }),
+        ]));
+        parts.push(feedbackNode);
+      }
+
+      // Solution steps — revealed by "Show solution".
       if (st.steps && p.steps.length) {
         parts.push(h('p', { class: 'rich__label', text: L.solution + ':' }));
         parts.push(h('ol', { class: 'learn__steps' },
           p.steps.map((s) => h('li', { text: s }))));
       }
+      // Final answer — revealed by "Show answer".
       if (st.answer && p.answer) {
         parts.push(h('p', { class: 'rich__label' }, [
           L.answer + ': ', h('span', { class: 'rich__answer', text: p.answer }),
         ]));
       }
 
-      // Reveal controls: each button disables once it has revealed its part (or
-      // is omitted when the problem has no steps / answer / backing topic).
+      // Secondary controls: "Show solution · Show answer" + related-topic toggle.
       const controls = [];
       if (p.steps.length) {
         controls.push(UI.button({
-          label: L.revealSteps, variant: 'ghost', disabled: st.steps,
+          label: L.showSolution, variant: 'ghost', disabled: st.steps,
           onclick: () => { st.steps = true; renderSolution(); },
         }));
       }
       if (p.answer) {
         controls.push(UI.button({
-          label: L.revealAnswer, variant: 'ghost', disabled: st.answer,
+          label: L.showAnswer, variant: 'ghost', disabled: st.answer,
           onclick: () => { st.answer = true; renderSolution(); },
         }));
       }
@@ -444,7 +615,7 @@ const Screens = {
       }
       if (controls.length) parts.push(h('div', { class: 'chips' }, controls));
 
-      // A video-solution link opens in the browser (parity with the Tk link).
+      // Video-solution link.
       if (p.videoUrl) {
         parts.push(h('div', { class: 'learn__links' }, [
           h('a', {
@@ -454,30 +625,57 @@ const Screens = {
         ]));
       }
 
-      // Inline theory: the related topic's learning blocks, revealed on demand.
-      // The web's roomier layout expands them in place rather than swapping the
-      // whole panel as the Tk version does — same learningBlocks vocabulary.
+      // Inline theory: related-topic learning blocks, expanded on demand.
       if (st.theory && p.topic) {
         parts.push(h('div', { class: 'problems__theory' }, learningBlocks(p.topic, L)));
+      }
+
+      // "→ Backed by topic: Newton's second law" footer (when topic is present).
+      if (p.topicTitle) {
+        parts.push(h('p', { class: 'practice__backed-by' }, [
+          '→ ', L.backedByTopic, ' ',
+          h('span', { class: 'practice__topic-name', text: p.topicTitle }),
+        ]));
       }
 
       solutionContent.replaceChildren(...parts);
     }
 
     function select(i) {
-      // A fresh problem starts fully hidden — the reveal flow restarts each time.
       st.index = i;
       st.steps = false;
       st.answer = false;
       st.theory = false;
-      renderList();
+      renderTree();
       renderSolution();
     }
 
-    renderList();
+    // Search input — filters problems by title in real time.
+    const searchInput = h('input', {
+      class: 'field__control problems__search-input',
+      type: 'text',
+      placeholder: L.searchPlaceholder,
+    });
+    searchInput.addEventListener('input', (e) => {
+      st.searchQuery = e.target.value;
+      renderTree();
+    });
+
+    renderTree();
     renderSolution();
 
-    const listCard = UI.card({ title: L.choose, body: [listWrap] });
+    // Left card: "Practice [19 problems]" header, search field, collapsible tree.
+    const listCard = UI.card({
+      body: [
+        h('div', { class: 'practice__list-header' }, [
+          h('span', { class: 'card__title practice__list-title', text: L.practice }),
+          UI.badge(L.problemsCount),
+        ]),
+        h('div', { class: 'problems__search' }, [searchInput]),
+        treeWrap,
+      ],
+    });
+    // Right card: interactive PracticePanel.
     const solutionCard = UI.card({ body: [solutionContent] });
 
     return h('div', { class: 'screen screen--problems' }, [
@@ -504,10 +702,17 @@ const Screens = {
   // Periodic-table screen (issue #10). `model` is the bridge's periodic_screen();
   // `ctx.molarMass(formula)` -> Promise of molar_mass_run() (or null in preview),
   // `ctx.balance(equation)` -> Promise of balance_run() (or null in preview).
-  // The 118-element grid is placed by xpos/ypos via inline style; cells are
-  // coloured through `.periodic__cell--<series>` classes that map to the
-  // --series-* CSS tokens. The element detail line is built client-side from the
-  // pre-baked element list — no round-trip needed (mirrors converter's approach).
+  //
+  // Layout (Figma "Chemistry — Periodic table" frame):
+  //   Left column: grid card — 118-element CSS grid, series legend, element detail
+  //   Right column: two stacked cards — molar-mass card and equation-balancer card
+  //
+  // Grid rendering: main table (ypos 1–7) and f-block (lanthanides/actinides,
+  // ypos 9–10) are placed in ONE shared CSS grid; an explicit 8th row with extra
+  // height creates the visual gap that makes the f-block look detached.
+  //
+  // Element detail: rich inline header — coloured symbol tile + name + mass +
+  // Group · Period — mirroring the Figma "Element detail" component.
   periodic(model, ctx) {
     const L = model.labels;
     const els = model.elements;
@@ -516,7 +721,7 @@ const Screens = {
     // molar-mass request cannot clobber a concurrent balance result and vice versa.
     const st = { mmRun: 0, balRun: 0 };
 
-    // --- Detail line (updated on cell click; no backend round-trip) ---
+    // --- Element detail (rich header; updated on cell click, no round-trip) ---
     const detailWrap = h('div', { class: 'periodic__detail' }, []);
 
     function fmtMass(m) {
@@ -525,17 +730,32 @@ const Screens = {
     }
 
     function renderDetail(el) {
-      const group = el.group != null ? String(el.group) : '—'; // em dash for no group
-      const text = (
-        el.name + '  ·  ' + L.atomicNumber + ' ' + el.number
-        + '  ·  ' + L.atomicMass + ' ' + fmtMass(el.mass) + ' ' + L.gramPerMol
-        + '  ·  ' + L.group + ' ' + group + ', ' + L.period + ' ' + el.period
-        + '  ·  ' + el.category
+      const group = el.group != null ? String(el.group) : '—';
+      // Symbol tile: coloured square that mirrors the grid cell (Figma design).
+      const tile = h('div', {
+        class: 'periodic__detail-tile periodic__cell--' + el.series,
+      }, [
+        h('span', { class: 'periodic__num', text: String(el.number) }),
+        h('span', { class: 'periodic__sym', text: el.symbol }),
+        h('span', { class: 'periodic__detail-mass-small', text: fmtMass(el.mass) }),
+      ]);
+      const info = h('div', { class: 'periodic__detail-info' }, [
+        h('p', { class: 'periodic__detail-name', text: el.name }),
+        h('p', { class: 'periodic__detail-meta' }, [
+          fmtMass(el.mass) + ' ' + L.gramPerMol
+          + '  ·  ' + L.group + ' ' + group
+          + '  ·  ' + L.period + ' ' + el.period,
+        ]),
+      ]);
+      detailWrap.replaceChildren(
+        h('div', { class: 'periodic__detail-header' }, [tile, info])
       );
-      detailWrap.replaceChildren(h('p', { class: 'periodic__detail-text', text }));
     }
 
     // --- Periodic grid: one button per element, placed via xpos/ypos. ---
+    // The grid uses grid-template-rows with an explicit empty 8th row so the
+    // lanthanide/actinide f-block (ypos 9–10) appears detached from the main
+    // table (ypos 1–7), matching the standard periodic-table layout.
     const gridCells = els.map((el) =>
       h('button', {
         class: 'periodic__cell periodic__cell--' + el.series,
@@ -550,23 +770,41 @@ const Screens = {
     );
     const grid = h('div', { class: 'periodic__grid' }, gridCells);
 
+    // --- Series legend: colored dots + labels (Figma "Series legend" row) ---
+    const legendItems = (model.seriesLegend || []).map((entry) =>
+      h('span', { class: 'periodic__legend-item' }, [
+        h('span', {
+          class: 'periodic__legend-dot periodic__cell--' + entry.slug,
+        }, []),
+        h('span', { class: 'periodic__legend-label', text: entry.label }),
+      ])
+    );
+    const legend = h('div', { class: 'periodic__legend' }, legendItems);
+
     // --- Molar-mass tool ---
     const mmInput = h('input', { class: 'field__control', type: 'text', placeholder: 'H2O' });
     const mmResultWrap = h('div', { class: 'periodic__tool-result' }, []);
+    const mmCompWrap = h('p', { class: 'periodic__composition' }, []);
 
     async function computeMM() {
       const run = ++st.mmRun;
       const res = await ctx.molarMass(mmInput.value);
       if (run !== st.mmRun) return; // superseded by a newer request or Clear
       if (!res) return;             // no backend (static preview)
-      mmResultWrap.replaceChildren(
-        res.ok ? UI.result({ label: '', value: res.result }) : UI.errorStrip(res.error)
-      );
+      if (res.ok) {
+        mmResultWrap.replaceChildren(UI.result({ label: '', value: res.result }));
+        // Show percentage composition below the result (Figma requirement).
+        mmCompWrap.textContent = res.composition || '';
+      } else {
+        mmResultWrap.replaceChildren(UI.errorStrip(res.error));
+        mmCompWrap.textContent = '';
+      }
     }
     function clearMM() {
       st.mmRun++;
       mmInput.value = '';
       mmResultWrap.replaceChildren();
+      mmCompWrap.textContent = '';
     }
     // Enter computes (parity with the Tk <Return> binding).
     mmInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); computeMM(); } });
@@ -594,38 +832,61 @@ const Screens = {
     }
     balInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); computeBal(); } });
 
-    const toolsCard = UI.card({
-      title: model.title,
+    // Curriculum badge (e.g. "SCH4U (Grade 12)") in the grid card header area.
+    const curriculumBadge = model.curriculum ? UI.badge(model.curriculum) : null;
+
+    // Grid card: curriculum badge + the element grid + legend + detail header.
+    const gridCardBody = [
+      ...(curriculumBadge ? [curriculumBadge] : []),
+      grid,
+      legend,
+      detailWrap,
+    ];
+    const gridCard = UI.card({ body: gridCardBody });
+
+    // Molar-mass card: subtitle hint + input row + result + composition line.
+    const mmCard = UI.card({
+      title: L.molarMass,
       body: [
-        h('div', { class: 'periodic__tools' }, [
-          h('div', { class: 'periodic__tool-row' }, [
-            UI.field(L.molarMass, mmInput),
-            h('div', { class: 'periodic__tool-actions chips' }, [
-              UI.button({ label: L.compute, variant: 'primary', onclick: computeMM }),
-              UI.button({ label: L.clear, variant: 'ghost', onclick: clearMM }),
-            ]),
-            mmResultWrap,
-          ]),
-          h('div', { class: 'periodic__tool-row' }, [
-            UI.field(L.equation, balInput),
-            h('div', { class: 'periodic__tool-actions chips' }, [
-              UI.button({ label: L.balance, variant: 'primary', onclick: computeBal }),
-              UI.button({ label: L.clear, variant: 'ghost', onclick: clearBal }),
-            ]),
-            balResultWrap,
+        UI.hint(L.mmHint),
+        h('div', { class: 'periodic__tool-row' }, [
+          UI.field(L.molarMass, mmInput),
+          h('div', { class: 'periodic__tool-actions chips' }, [
+            UI.button({ label: L.compute, variant: 'primary', onclick: computeMM }),
+            UI.button({ label: L.clear, variant: 'ghost', onclick: clearMM }),
           ]),
         ]),
+        mmResultWrap,
+        mmCompWrap,
       ],
     });
 
-    const gridCard = UI.card({ body: [grid, detailWrap] });
+    // Equation-balancer card: subtitle hint + input row + result.
+    const balCard = UI.card({
+      title: L.equation,
+      body: [
+        UI.hint(L.balHint),
+        h('div', { class: 'periodic__tool-row' }, [
+          UI.field(L.equation, balInput),
+          h('div', { class: 'periodic__tool-actions chips' }, [
+            UI.button({ label: L.balance, variant: 'primary', onclick: computeBal }),
+            UI.button({ label: L.clear, variant: 'ghost', onclick: clearBal }),
+          ]),
+        ]),
+        balResultWrap,
+      ],
+    });
 
-    // Seed the detail line with hydrogen (element 1), mirroring the Tk panel
+    // Seed the detail header with hydrogen (element 1), mirroring the Tk panel
     // which calls `self._select(periodic.element("H"))` in __init__.
     const hydrogen = els.find((e) => e.symbol === 'H') || els[0];
     renderDetail(hydrogen);
 
-    return h('div', { class: 'screen screen--periodic' }, [toolsCard, gridCard]);
+    // Two-column layout: grid card on the left, two tool cards stacked on the right.
+    return h('div', { class: 'screen screen--periodic' }, [
+      h('div', { class: 'screen__col screen__col--main' }, [gridCard]),
+      h('div', { class: 'screen__col screen__col--aside' }, [mmCard, balCard]),
+    ]);
   },
 
   // Guide overlay (issue #40). `model` is the bridge's guide_screen() result:
