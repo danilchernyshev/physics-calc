@@ -659,6 +659,53 @@ def balance_run(equation: str) -> dict:
 # frontend reveals and swaps without a round-trip.
 
 
+@lru_cache(maxsize=1)
+def _topic_section_map() -> dict[str, str]:
+    """Map every formula key to its section id across all SECTIONS.
+
+    Cached on first call. Used to derive the section (e.g. ``"mechanics"``)
+    for a problem whose ``topic_id`` is a formula key, so the frontend can group
+    problems into the ``course → section`` ProblemTree Figma structure.
+    """
+    return {
+        f.key: sec_id
+        for sec_id, formulas in SECTIONS.items()
+        for f in formulas
+    }
+
+
+def _problem_section(topic_id: str) -> tuple[str, str]:
+    """Return ``(section_id, localized_label)`` for a problem's topic_id.
+
+    When the topic_id matches a formula key in SECTIONS the section id and its
+    ``section.<id>`` i18n label are returned. Topics without a SECTIONS match
+    (e.g. SPH-specific ones like ``sph_relativity``) return ``("", "")``,
+    letting the frontend render the problem under a subject-level group with no
+    section chip.
+    """
+    section_id = _topic_section_map().get(topic_id, "")
+    if not section_id:
+        return "", ""
+    return section_id, t(f"section.{section_id}")
+
+
+def _topic_title(topic_id: str) -> str:
+    """Return a display name for a backing topic.
+
+    For formula keys it returns the localized formula name (e.g.
+    ``"Newton's second law"``); for custom topic_ids it falls back to a
+    title-cased, underscore-stripped form of the id. Used by the frontend's
+    ``→ Backed by topic:`` footer line.
+    """
+    if not topic_id:
+        return ""
+    formula = _formula_index().get(topic_id)
+    if formula is not None:
+        return t(formula.name_key)
+    # e.g. "sph_relativity" → "Sph Relativity"; imperfect but readable.
+    return topic_id.replace("_", " ").title()
+
+
 def _problem_model(problem: Problem) -> dict:
     """One practice problem as a JSON-able model (mirror of ``show_problem``).
 
@@ -667,9 +714,14 @@ def _problem_model(problem: Problem) -> dict:
     the curriculum line (empty when the problem carries no courses). ``topic`` is
     the related topic's learning blocks (``None`` when the problem has no backing
     topic), so "Learn the theory" expands inline — mirroring the Tk panel swap.
+    ``sectionId`` / ``sectionLabel`` drive the frontend's course→section
+    ProblemTree grouping (Figma issue #11 QA). ``courseCode`` is the primary
+    Ontario course code (first entry of ``courses``, or ``""``). ``topicTitle``
+    is the display name of the backing topic for the "Backed by topic:" footer.
     """
     ex = problem.example
     topic = load_topic(problem.topic_id, i18n.language) if problem.topic_id else None
+    section_id, section_label = _problem_section(problem.topic_id)
     return {
         "id": problem.problem_id,
         "title": ex.title or t("ui.problem_statement"),
@@ -680,6 +732,11 @@ def _problem_model(problem: Problem) -> dict:
         "answer": ex.answer,
         "videoUrl": problem.video_url,
         "topic": _topic_blocks(t("ui.related_topic"), topic) if topic is not None else None,
+        # Grouping / display metadata added for the Figma-aligned ProblemTree (#11 QA).
+        "sectionId": section_id,
+        "sectionLabel": section_label,
+        "courseCode": problem.courses[0] if problem.courses else "",
+        "topicTitle": _topic_title(problem.topic_id),
     }
 
 
@@ -697,14 +754,17 @@ def problems_screen(subject_id: str) -> dict:
     problems = problems_for_subject(subject_id, i18n.language)
     return {
         "subjectId": subject_id,
+        "count": len(problems),
         "labels": {
+            # Legacy labels kept for backward compatibility.
             "choose": t("ui.choose_problem"),
+            "revealSteps": t("ui.reveal_steps"),
+            "revealAnswer": t("ui.reveal_answer"),
+            # Common labels.
             "given": t("ui.given"),
             "find": t("ui.find"),
             "solution": t("ui.solution"),
             "answer": t("ui.answer"),
-            "revealSteps": t("ui.reveal_steps"),
-            "revealAnswer": t("ui.reveal_answer"),
             "videoSolution": t("ui.video_solution"),
             "relatedTopic": t("ui.related_topic"),
             "empty": t("problems.empty"),
@@ -714,6 +774,19 @@ def problems_screen(subject_id: str) -> dict:
             "relatedFormulas": t("ui.related_formulas"),
             "seeAlso": t("ui.see_also"),
             "close": t("ui.close"),
+            # Figma-aligned ProblemTree + PracticePanel labels (issue #11 QA).
+            "practice": t("ui.practice"),
+            "practiceSubtitle": t("ui.practice_subtitle"),
+            "searchPlaceholder": t("ui.search_problems"),
+            "problemsCount": t("problems.count", n=len(problems)),
+            "checkAnswer": t("ui.check_answer"),
+            "questionOf": t("ui.question_of"),
+            "showSolution": t("ui.show_solution"),
+            "showAnswer": t("ui.show_answer"),
+            "backedByTopic": t("ui.backed_by_topic"),
+            "correct": t("ui.correct"),
+            "incorrect": t("ui.incorrect"),
+            "general": t("ui.general"),
         },
         "problems": [_problem_model(p) for p in problems],
     }
