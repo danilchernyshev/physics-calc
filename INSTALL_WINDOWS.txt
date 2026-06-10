@@ -42,11 +42,10 @@ install it once.
         [x] Add python.exe to PATH
     This box is easy to miss, but it lets Windows find Python later.
 
- 5. Make sure "tcl/tk and IDLE" stays selected (it is on by default).
-    This part draws the calculator's window, so it is required.
-
- 6. Click "Install Now" and wait until it finishes. You can close
-    the installer when it is done.
+ 5. Click "Install Now" and wait until it finishes. You can close
+    the installer when it is done. (The calculator's window is drawn
+    with the Microsoft Edge WebView2 runtime, which is already built
+    into Windows 10 and 11 - nothing extra to tick during setup.)
 
 To check that Python installed correctly:
  - Open the Start menu, type "PowerShell", and open it.
@@ -77,18 +76,20 @@ There are two easy ways. Pick whichever you prefer.
  EASIEST - double-click Run.bat
  ------------------------------
    Open the "study-calc" folder and double-click the file named
-   "Run.bat". The calculator window opens right away. That's it!
+   "Run.bat". The first time, it quickly installs what it needs and
+   then the calculator window opens; every run after that is instant.
 
    (If Windows shows a blue "Windows protected your PC" message the
    first time, click "More info" and then "Run anyway". This happens
    because the file is new, not because anything is wrong.)
 
- OR - type one command
- ---------------------
+ OR - install once, then run
+ ---------------------------
    1. Open the "study-calc" folder.
    2. Right-click an empty area inside the folder and choose
       "Open in Terminal" (older Windows: "Open PowerShell window here").
-   3. Type this and press Enter:
+   3. Type these two lines, pressing Enter after each:
+          py -m pip install .
           py -m study_calc
 
 
@@ -120,9 +121,10 @@ The "Run.bat" file keeps working too.
      method) and run "py -m study_calc" so you can read any message.
 
  No window appears at all
-     Make sure "tcl/tk and IDLE" was selected when you installed
-     Python. If unsure, re-run the installer and choose "Modify" to
-     turn it on.
+     The window uses the Microsoft Edge WebView2 runtime. It is built
+     into Windows 10 and 11; if your Windows is older or it was removed,
+     install the "Microsoft Edge WebView2 Runtime" from microsoft.com
+     and try again.
 
  Still stuck?
      That is completely normal. Note down the exact message you see
@@ -133,9 +135,9 @@ The "Run.bat" file keeps working too.
  HOW TO USE THE CALCULATOR
 ------------------------------------------------------------
 
- - Pick a tab for a physics topic (Mechanics, Thermodynamics,
-   Electromagnetism, or Waves & optics), or the Unit converter tab.
+ - Pick a subject in the left-hand list - Physics, Math, Tools or
+   Chemistry - and then a topic or tool.
  - Choose a formula, then fill in every field except the one you
    want to find.
  - Click "Compute". The empty field is filled in with the answer.
- - You can change the language at the top of the window at any time.
+ - You can change the language from the header at any time.
