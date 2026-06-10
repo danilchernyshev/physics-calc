@@ -12,7 +12,10 @@ const Screens = {
   formula(model, ctx) {
     const L = model.labels;
     const formulas = model.formulas;
-    const st = { index: 0, values: {}, solution: null };
+    // `run` is a generation token: any state change (select / clear / a newer
+    // compute) bumps it, so a late in-flight solve discards its result instead of
+    // clobbering the panel. The synchronous Tk panel can't hit this race.
+    const st = { index: 0, values: {}, solution: null, run: 0 };
 
     const current = () => formulas[st.index];
 
@@ -50,6 +53,7 @@ const Screens = {
     }
 
     function select(index) {
+      st.run++;
       st.index = index;
       st.values = {};
       st.solution = null;
@@ -61,17 +65,17 @@ const Screens = {
     }
 
     async function compute() {
-      // Capture the formula being solved; drop the result if the user switched
-      // formula while the (async) solve was in flight, so a stale answer never
-      // lands under a different formula's solution card.
-      const key = current().key;
-      const res = await ctx.solve(key, st.values);
-      if (current().key !== key) return;
+      // Drop the result if anything changed (formula switch, Clear, a newer
+      // compute) while the async solve was in flight.
+      const run = ++st.run;
+      const res = await ctx.solve(current().key, st.values);
+      if (run !== st.run) return;
       st.solution = res || null;
       renderSolution();
     }
 
     function clear() {
+      st.run++;
       st.values = {};
       st.solution = null;
       renderFields();
@@ -106,6 +110,131 @@ const Screens = {
       h('div', { class: 'screen__col screen__col--aside' }, [learningCard]),
     ]);
   },
+
+  // Symbolic-math (CAS) screen (issue #7). `model` is the bridge's cas_screen();
+  // `ctx.run(op, expr, variable, fields)` -> Promise of cas_run(). The right card
+  // teaches the selected operation before a result and shows SymPy's step-by-step
+  // (green answer lines) after — mirroring the Tk CasPanel's shared right panel.
+  cas(model, ctx) {
+    if (!model.available) {
+      // SymPy absent: the same friendly notice as the Tk fallback tab.
+      return h('div', { class: 'screen screen--cas' }, [
+        UI.card({ title: model.title, body: [UI.errorStrip(model.notice)] }),
+      ]);
+    }
+
+    const L = model.labels;
+    const ops = model.operations;
+    // `run` is a generation token — see the formula screen: it discards a late
+    // in-flight result when the op changes, Clear is pressed, or a newer compute
+    // starts.
+    const st = { op: 0, expr: '', variable: '', fields: {}, view: null, run: 0 };
+
+    const current = () => ops[st.op];
+
+    const inputsWrap = h('div', { class: 'cas__inputs' }, []);
+    const panelContent = h('div', { class: 'cas__panel' }, []);
+
+    function renderInputs() {
+      const op = current();
+      const rows = [
+        UI.textInput({
+          label: L.expression, value: st.expr, mono: true,
+          oninput: (v) => { st.expr = v; },
+        }),
+      ];
+      if (op.usesVariable) {
+        rows.push(UI.textInput({
+          label: L.variable, value: st.variable, mono: true, width: '160px',
+          oninput: (v) => { st.variable = v; },
+        }));
+      }
+      for (const f of op.fields) {
+        rows.push(UI.textInput({
+          label: f.label, value: st.fields[f.id] || '', mono: true,
+          oninput: (v) => { st.fields[f.id] = v; },
+        }));
+      }
+      inputsWrap.replaceChildren(...rows);
+    }
+
+    function renderPanel() {
+      if (st.view && st.view.type === 'error') {
+        panelContent.replaceChildren(UI.errorStrip(st.view.error));
+      } else if (st.view && st.view.type === 'steps') {
+        panelContent.replaceChildren(...st.view.steps.map((s) =>
+          s.answer
+            ? h('div', { class: 'result' }, [h('span', { class: 'result__value', text: s.text })])
+            : h('p', { class: 'cas-step', text: s.text })));
+      } else {
+        // Before a result: teach the selected operation.
+        panelContent.replaceChildren(...learningBlocks(current().learning, L));
+      }
+    }
+
+    function selectOp(index) {
+      st.run++;
+      st.op = index;
+      st.fields = {};
+      st.view = null; // back to the operation's learning material
+      chipsWrap.replaceChildren(opChips());
+      renderInputs();
+      renderPanel();
+    }
+
+    async function compute() {
+      const run = ++st.run;
+      const res = await ctx.run(current().id, st.expr, st.variable, st.fields);
+      if (run !== st.run) return; // op changed / cleared / superseded — drop it
+      if (!res) return; // no backend (static preview)
+      st.view = res.ok ? { type: 'steps', steps: res.steps } : { type: 'error', error: res.error };
+      renderPanel();
+    }
+
+    function clear() {
+      st.run++;
+      st.expr = '';
+      st.variable = '';
+      st.fields = {};
+      st.view = null;
+      renderInputs();
+      renderPanel();
+    }
+
+    const opChips = () => UI.chips({
+      items: ops.map((o) => ({ id: o.id, label: o.label })),
+      active: current().id,
+      onselect: (id) => selectOp(ops.findIndex((o) => o.id === id)),
+    });
+    const chipsWrap = h('div', { class: 'cas__ops' }, [opChips()]);
+
+    // Enter in any input solves (parity with the Tk <Return> binding).
+    inputsWrap.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); compute(); }
+    });
+
+    const inputCard = UI.card({
+      title: L.operation,
+      body: [
+        chipsWrap,
+        UI.hint(L.hint),
+        inputsWrap,
+        h('div', { class: 'chips' }, [
+          UI.button({ label: L.compute, variant: 'primary', onclick: compute }),
+          UI.button({ label: L.clear, variant: 'ghost', onclick: clear }),
+        ]),
+      ],
+    });
+    const solutionCard = UI.card({ title: L.stepsTitle, body: [panelContent] });
+
+    renderInputs();
+    renderPanel();
+
+    return h('div', { class: 'screen screen--formula' }, [
+      h('div', { class: 'screen__col screen__col--main' }, [inputCard]),
+      h('div', { class: 'screen__col screen__col--aside' }, [solutionCard]),
+    ]);
+  },
 };
 
 // Render the learning-card blocks (the model produced by screens.py mirrors the
@@ -123,6 +252,9 @@ function learningBlocks(blocks, L) {
         break;
       case 'body':
         nodes.push(h('p', { class: 'rich__body', text: b.text }));
+        break;
+      case 'hint':
+        nodes.push(UI.hint(b.text));
         break;
       case 'formula':
         nodes.push(h('p', { class: 'rich__formula', text: b.text }));

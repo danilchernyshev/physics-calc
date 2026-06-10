@@ -119,6 +119,81 @@ def test_formula_learning_unknown_key_is_empty():
     assert screens.formula_learning("nope") == []
 
 
+# --- CAS (symbolic math) screen ---
+
+
+def test_cas_screen_lists_operations_with_fields_and_learning():
+    from study_calc.core import cas
+
+    screen = screens.cas_screen()
+    assert screen["available"] is True
+    assert [o["id"] for o in screen["operations"]] == list(cas.OPERATIONS)
+    rate = next(o for o in screen["operations"] if o["id"] == "rate")
+    assert [f["id"] for f in rate["fields"]] == list(cas.OP_FIELDS["rate"])
+    assert rate["usesVariable"] is True
+    # 'evaluate' takes no variable.
+    evaluate = next(o for o in screen["operations"] if o["id"] == "evaluate")
+    assert evaluate["usesVariable"] is False
+    # Every operation carries its before-a-result learning panel.
+    assert all(o["learning"] for o in screen["operations"])
+
+
+def test_cas_run_returns_steps_with_a_green_answer():
+    res = screens.cas_run("derivative", "x^2", "x")
+    assert res["ok"] is True
+    assert any(s["answer"] for s in res["steps"])
+    # The result line is the answer; powers render with ^, not Python's **.
+    answer = next(s for s in res["steps"] if s["answer"])
+    assert "**" not in answer["text"]
+
+
+def test_cas_run_maps_cas_errors_to_localized_messages():
+    res = screens.cas_run("factor", "((", "")
+    assert res["ok"] is False
+    assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_cas_run_empty_expression_is_an_error():
+    res = screens.cas_run("simplify", "", "")
+    assert res["ok"] is False
+
+
+def test_cas_screen_degrades_when_sympy_is_absent(monkeypatch):
+    # Simulate `from ..core import cas` failing (SymPy not installed): drop the
+    # cached submodule + the package attribute, and poison sys.modules so the
+    # re-import raises ImportError — exactly the path the Tk fallback tab uses.
+    import sys
+
+    import study_calc.core
+
+    monkeypatch.delattr(study_calc.core, "cas", raising=False)
+    monkeypatch.setitem(sys.modules, "study_calc.core.cas", None)
+
+    screen = screens.cas_screen()
+    assert screen["available"] is False
+    assert screen["notice"]
+    # And cas_run degrades the same way, not crashes.
+    assert screens.cas_run("simplify", "x", "")["ok"] is False
+
+
+def test_cas_screen_is_localized_on_language_switch():
+    try:
+        en = Bridge().cas_screen()
+        bridge = Bridge()
+        bridge.set_language("ru")
+        ru = bridge.cas_screen()
+        assert en["labels"]["compute"] != ru["labels"]["compute"]
+    finally:
+        i18n.set_language("en")
+
+
+def test_screens_js_exposes_the_cas_screen():
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    assert "cas(model, ctx)" in js
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    assert "cas_screen" in shell and "Screens.cas" in shell
+
+
 # --- language switching ---
 
 
@@ -157,8 +232,9 @@ def test_screens_js_handles_enter_and_guards_stale_solves():
     js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
     # Enter in a field solves (parity with the Tk <Return> binding).
     assert "'Enter'" in js and "compute()" in js
-    # The async solve drops its result if the formula changed while in flight.
-    assert "current().key !== key" in js
+    # A generation token drops a late async result (formula/op change, Clear, or
+    # a newer compute) so it never clobbers the current panel.
+    assert "run !== st.run" in js
 
 
 def test_screens_css_uses_only_tokens():

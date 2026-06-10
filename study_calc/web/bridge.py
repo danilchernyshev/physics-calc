@@ -84,3 +84,11 @@ class Bridge:
     def solve_formula(self, formula_key: str, values: dict) -> dict:
         """Solve a formula from the input fields; localized result or error."""
         return screens.solve_formula(formula_key, values)
+
+    def cas_screen(self) -> dict:
+        """The symbolic-math screen: operations + labels, or a SymPy-absent notice."""
+        return screens.cas_screen()
+
+    def cas_run(self, op: str, expression: str, variable: str = "", fields: dict | None = None) -> dict:
+        """Run a CAS operation; localized step-by-step (green answers) or error."""
+        return screens.cas_run(op, expression, variable, fields)
