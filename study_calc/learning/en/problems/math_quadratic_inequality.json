@@ -1,5 +1,8 @@
 {
   "subject": "math",
+  "courses": [
+    "MHF4U"
+  ],
   "title": "Solve a quadratic inequality",
   "given": [
     "x² − x − 6 ≥ 0"

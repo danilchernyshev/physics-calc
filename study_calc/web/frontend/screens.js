@@ -444,6 +444,22 @@ const Screens = {
       return tree;
     }
 
+    // One problem row (status icon + title). `origIdx` is its position in the
+    // full list, so selection/state stays stable under search-filtering.
+    function itemRow({ problem: p, origIdx: i }) {
+      return h('li', {}, [
+        h('button', {
+          class: 'problems__item' + (i === st.index ? ' problems__item--active' : ''),
+          type: 'button',
+          'aria-current': i === st.index ? 'true' : null,
+          onclick: () => select(i),
+        }, [
+          h('span', { class: 'problems__status', text: statusIcon(i) }),
+          h('span', { class: 'problems__item-title', text: p.title }),
+        ]),
+      ]);
+    }
+
     function renderTree() {
       const q = st.searchQuery.trim().toLowerCase();
       const filtered = q
@@ -454,9 +470,29 @@ const Screens = {
       for (const { course, sections } of tree) {
         const courseLabel = course || L.general;
         const courseTotal = sections.reduce((s, sec) => s + sec.items.length, 0);
+        const descriptor = (model.courseDescriptors && model.courseDescriptors[course]) || '';
 
-        const sectionNodes = [];
-        for (const { sectionId, sectionLabel, items } of sections) {
+        // Course-group header: code (bold) + "Grade 12 · University" descriptor +
+        // a single subtle count (Figma node 29:2). The descriptor is dropped for
+        // the no-course bucket; the count is plain, never a "N problems" pill.
+        const headerInner = [
+          h('span', { class: 'problems__course-label', text: courseLabel }),
+        ];
+        if (descriptor) {
+          headerInner.push(h('span', { class: 'problems__course-descriptor', text: descriptor }));
+        }
+        headerInner.push(h('span', { class: 'problems__course-count', text: String(courseTotal) }));
+        const courseHeader = h('div', { class: 'problems__course-header' }, headerInner);
+
+        // Split real (formula-section) sub-groups from section-less problems.
+        // Real sections render as collapsible sub-groups; section-less problems
+        // (topics that are not formula keys — e.g. Math/Chemistry, or SPH4U
+        // relativity) render flat directly under the course header, with no
+        // "General" pseudo-section (Figma node 29:2, #11 QA finding #3).
+        const realSections = sections.filter((s) => s.sectionId);
+        const flatItems = sections.filter((s) => !s.sectionId).flatMap((s) => s.items);
+        const bodyNodes = [];
+        for (const { sectionId, sectionLabel, items } of realSections) {
           const expanded = isSectionExpanded(course, sectionId);
           const chevron = expanded ? '▾' : '▸';
           const secHeader = h('button', {
@@ -468,38 +504,19 @@ const Screens = {
             h('span', { class: 'problems__section-label', text: sectionLabel }),
             h('span', { class: 'problems__section-count', text: '[' + items.length + ']' }),
           ]);
-
-          const itemNodes = expanded
-            ? items.map(({ problem: p, origIdx: i }) =>
-                h('li', {}, [
-                  h('button', {
-                    class: 'problems__item' + (i === st.index ? ' problems__item--active' : ''),
-                    type: 'button',
-                    'aria-current': i === st.index ? 'true' : null,
-                    onclick: () => select(i),
-                  }, [
-                    h('span', { class: 'problems__status', text: statusIcon(i) }),
-                    h('span', { class: 'problems__item-title', text: p.title }),
-                  ]),
-                ]))
-            : [];
-
-          sectionNodes.push(h('div', { class: 'problems__section' }, [
+          bodyNodes.push(h('div', { class: 'problems__section' }, [
             secHeader,
             h('ul', {
               class: 'problems__section-list' + (expanded ? '' : ' problems__section-list--hidden'),
-            }, itemNodes),
+            }, expanded ? items.map(itemRow) : []),
           ]));
         }
+        if (flatItems.length) {
+          bodyNodes.push(h('ul', { class: 'problems__section-list problems__section-list--flat' },
+            flatItems.map(itemRow)));
+        }
 
-        groupNodes.push(h('div', { class: 'problems__group' }, [
-          h('div', { class: 'problems__course-header' }, [
-            h('span', { class: 'problems__course-label', text: courseLabel }),
-            UI.badge(String(courseTotal) + ' ' + (courseTotal === 1 ? L.answer : L.problemsCount
-              .replace('{n}', String(courseTotal)))),
-          ]),
-          ...sectionNodes,
-        ]));
+        groupNodes.push(h('div', { class: 'problems__group' }, [courseHeader, ...bodyNodes]));
       }
       treeWrap.replaceChildren(...groupNodes);
     }
@@ -511,34 +528,30 @@ const Screens = {
       const i = st.index;
       const parts = [];
 
-      // Subtitle line: "Practice problems with cited, worked solutions".
-      parts.push(h('p', { class: 'practice__subtitle', text: L.practiceSubtitle }));
-
-      // Section chip + "Question N of M" counter.
-      const metaRow = [];
+      // Header row (Figma node 29:2): the problem title is the lead line, with
+      // the section chip inline to its right and the "Question N of M" counter
+      // far right on the same row. The curriculum course is shown once, as the
+      // shell-header chip beside the subject title — not repeated here.
+      const headRow = [h('h2', { class: 'card__title practice__title', text: p.title })];
       if (p.sectionLabel) {
-        metaRow.push(h('span', { class: 'chip practice__section-chip', text: p.sectionLabel }));
+        headRow.push(h('span', { class: 'chip practice__section-chip', text: p.sectionLabel }));
       }
-      metaRow.push(h('span', {
+      headRow.push(h('span', {
         class: 'practice__counter',
         text: L.questionOf.replace('{n}', String(i + 1)).replace('{m}', String(problems.length)),
       }));
-      parts.push(h('div', { class: 'practice__meta-row' }, metaRow));
+      parts.push(h('div', { class: 'practice__head-row' }, headRow));
 
-      // Problem title + curriculum badge.
-      parts.push(h('h2', { class: 'card__title', text: p.title }));
-      if (p.badge) parts.push(UI.badge(p.badge));
-
-      // Statement: given + find (always visible).
+      // Statement: given + find (always visible). Labels are uppercase small-caps
+      // (GIVEN / FIND) per the design — styling lives in .practice__field-label.
       if (p.given.length) {
-        parts.push(h('p', { class: 'rich__label', text: L.given + ':' }));
+        parts.push(h('p', { class: 'rich__label practice__field-label', text: L.given }));
         parts.push(h('ul', { class: 'learn__given' },
           p.given.map((g) => h('li', { text: g }))));
       }
       if (p.find) {
-        parts.push(h('p', { class: 'rich__label' }, [
-          L.find + ': ', h('span', { class: 'rich__body-inline', text: p.find }),
-        ]));
+        parts.push(h('p', { class: 'rich__label practice__field-label', text: L.find }));
+        parts.push(h('p', { class: 'rich__body-inline practice__find', text: p.find }));
       }
 
       // Answer input + "Check answer" button, or a "Correct!" confirmation
@@ -553,7 +566,7 @@ const Screens = {
         const answerInput = h('input', {
           class: 'field__control',
           type: 'text',
-          placeholder: L.answer,
+          placeholder: L.answerPlaceholder,
         });
         // Normalise for comparison: lowercase, collapse whitespace/special chars.
         function normalise(s) {
@@ -573,47 +586,51 @@ const Screens = {
         answerInput.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') { e.preventDefault(); checkAnswer(); }
         });
+        parts.push(h('p', { class: 'rich__label practice__field-label', text: L.yourAnswer }));
         parts.push(h('div', { class: 'practice__answer-row' }, [
-          UI.field(L.answer, answerInput),
+          UI.field(null, answerInput),
           UI.button({ label: L.checkAnswer, variant: 'primary', onclick: checkAnswer }),
         ]));
+        // "Tip: include units in your answer" hint beneath the input (Figma).
+        parts.push(h('p', { class: 'practice__tip', text: L.answerTip }));
         parts.push(feedbackNode);
       }
 
       // Solution steps — revealed by "Show solution".
       if (st.steps && p.steps.length) {
-        parts.push(h('p', { class: 'rich__label', text: L.solution + ':' }));
+        parts.push(h('p', { class: 'rich__label practice__field-label', text: L.solution }));
         parts.push(h('ol', { class: 'learn__steps' },
           p.steps.map((s) => h('li', { text: s }))));
       }
       // Final answer — revealed by "Show answer".
       if (st.answer && p.answer) {
-        parts.push(h('p', { class: 'rich__label' }, [
-          L.answer + ': ', h('span', { class: 'rich__answer', text: p.answer }),
-        ]));
+        parts.push(h('p', { class: 'rich__label practice__field-label', text: L.answer }));
+        parts.push(h('p', { class: 'rich__answer practice__answer', text: p.answer }));
       }
 
-      // Secondary controls: "Show solution · Show answer" + related-topic toggle.
-      const controls = [];
+      // Reveal toggles: "Show solution · Show answer" with a dot separator
+      // (Figma node 29:2). The related-topic toggle, when present, sits after.
+      const reveal = [];
       if (p.steps.length) {
-        controls.push(UI.button({
+        reveal.push(UI.button({
           label: L.showSolution, variant: 'ghost', disabled: st.steps,
           onclick: () => { st.steps = true; renderSolution(); },
         }));
       }
       if (p.answer) {
-        controls.push(UI.button({
+        if (reveal.length) reveal.push(h('span', { class: 'practice__dot', text: '·' }));
+        reveal.push(UI.button({
           label: L.showAnswer, variant: 'ghost', disabled: st.answer,
           onclick: () => { st.answer = true; renderSolution(); },
         }));
       }
       if (p.topic) {
-        controls.push(UI.button({
+        reveal.push(UI.button({
           label: L.relatedTopic, variant: 'ghost',
           onclick: () => { st.theory = !st.theory; renderSolution(); },
         }));
       }
-      if (controls.length) parts.push(h('div', { class: 'chips' }, controls));
+      if (reveal.length) parts.push(h('div', { class: 'practice__reveal' }, reveal));
 
       // Video-solution link.
       if (p.videoUrl) {

@@ -1,5 +1,8 @@
 {
   "subject": "physics",
+  "courses": [
+    "SPH4U"
+  ],
   "title": "Current through a resistor",
   "given": [
     "voltage U = 12 V",

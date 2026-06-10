@@ -78,6 +78,28 @@ def _curriculum_text(courses: tuple[str, ...]) -> str:
     return f"{t('ui.curriculum')} " + ", ".join(parts)
 
 
+# Ontario course-code stream letter (last char) -> i18n stream id. Used for the
+# ProblemTree group descriptor "Grade 12 · University" (Figma node 29:2, #11 QA).
+_STREAM_KEYS = {"U": "university", "C": "college", "M": "mixed", "E": "workplace", "O": "open"}
+
+
+def _course_descriptor(code: str) -> str:
+    """'Grade 12 · University' from an Ontario course code (e.g. ``"SPH4U"``).
+
+    The grade comes from :data:`CURRICULUM_GRADES`; the stream is read off the
+    code's final letter (U=University, C=College, …). Either part is dropped when
+    unknown, so an unrecognized code degrades gracefully to ``""``.
+    """
+    parts = []
+    grade = CURRICULUM_GRADES.get(code)
+    if grade:
+        parts.append(t("ui.grade", n=grade))
+    stream = _STREAM_KEYS.get(code[-1:].upper())
+    if stream:
+        parts.append(t(f"ui.stream.{stream}"))
+    return " · ".join(parts)
+
+
 def _concept_model(concept: Concept, with_see_also: bool = True) -> dict:
     """A glossary term as a JSON-able model for the key-terms pop-up.
 
@@ -790,9 +812,20 @@ def problems_screen(subject_id: str) -> dict:
     """
     subject_id = subject_id.split(":", 1)[-1]
     problems = problems_for_subject(subject_id, i18n.language)
+    # Representative course for the shell-header chip (Figma node 29:2): the most
+    # common Ontario code among the subject's problems (e.g. Physics -> SPH4U).
+    # And a code -> "Grade 12 · University" descriptor for each course group header.
+    code_counts: dict[str, int] = {}
+    for p in problems:
+        if p.courses:
+            code_counts[p.courses[0]] = code_counts.get(p.courses[0], 0) + 1
+    curriculum_code = max(code_counts, key=code_counts.get) if code_counts else ""
+    course_descriptors = {code: _course_descriptor(code) for code in code_counts}
     return {
         "subjectId": subject_id,
         "count": len(problems),
+        "curriculumCode": curriculum_code,
+        "courseDescriptors": course_descriptors,
         "labels": {
             # Legacy labels kept for backward compatibility.
             "choose": t("ui.choose_problem"),
@@ -825,6 +858,9 @@ def problems_screen(subject_id: str) -> dict:
             "correct": t("ui.correct"),
             "incorrect": t("ui.incorrect"),
             "general": t("ui.general"),
+            "yourAnswer": t("ui.your_answer"),
+            "answerPlaceholder": t("ui.answer_placeholder"),
+            "answerTip": t("ui.answer_tip"),
         },
         "problems": [_problem_model(p) for p in problems],
     }

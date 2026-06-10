@@ -1,5 +1,8 @@
 {
   "subject": "math",
+  "courses": [
+    "MHF4U"
+  ],
   "title": "Evaluate a logarithm with the laws of logs",
   "given": [
     "log₂ 48 − log₂ 3"

@@ -1,5 +1,8 @@
 {
   "subject": "physics",
+  "courses": [
+    "SPH4U"
+  ],
   "title": "Kinetic energy of a thrown baseball",
   "given": [
     "mass m = 0.145 kg",

@@ -720,13 +720,51 @@ def test_problems_screen_js_has_figma_interactive_elements():
     # PracticePanel interactive elements.
     assert "checkAnswer" in js, "Check answer button label reference missing"
     assert "questionOf" in js, "Question N of M counter missing"
-    assert "practice__meta-row" in js, "section chip + counter meta row missing"
+    # Figma node 29:2 header: title lead line + section chip + counter on one row.
+    assert "practice__head-row" in js, "solution-card header row missing"
     assert "practice__section-chip" in js, "section chip class missing"
     assert "practice__answer-row" in js, "answer input + button row missing"
     assert "backedByTopic" in js, "Backed by topic footer label reference missing"
     assert "practice__backed-by" in js, "Backed by topic footer class missing"
     assert "showSolution" in js, "Show solution button label reference missing"
     assert "showAnswer" in js, "Show answer button label reference missing"
+
+
+def test_problems_screen_js_qa_figma_reconciliation():
+    """The #11 QA fixes against Figma node 29:2 are present in screens.js / shell.js."""
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    # #1 — the doubled "N problems" pill is gone; group count is a plain subtle number.
+    assert "problems__course-count" in js, "subtle per-group count missing"
+    assert "L.problemsCount\n" not in js and "problemsCount\n" not in js, (
+        "the malformed problemsCount.replace() count pill must be gone"
+    )
+    # #2 — course-group header shows the 'Grade 12 · University' descriptor.
+    assert "problems__course-descriptor" in js
+    assert "courseDescriptors" in js
+    # #3 — empty-section course groups render flat (no 'General' sub-nesting).
+    assert "problems__section-list--flat" in js
+    # #4 — curriculum chip beside the page title, set in the shell header.
+    assert "header-badge" in shell and "curriculumCode" in shell
+    # #5 — Problems-specific subtitle replaces the generic subject tagline.
+    assert "header-subtitle" in shell and "practiceSubtitle" in shell
+    # #7 — uppercase small-caps section labels (GIVEN / FIND / YOUR ANSWER).
+    assert "practice__field-label" in js
+    # #8 — descriptive placeholder + tip + dotted reveal toggles.
+    assert "answerPlaceholder" in js and "practice__tip" in js
+    assert "practice__dot" in js and "practice__reveal" in js
+
+
+def test_problems_screen_carries_curriculum_code_and_descriptors():
+    """The model exposes the shell-header course chip + per-course descriptors (#11 QA)."""
+    physics = screens.problems_screen("physics")
+    assert physics["curriculumCode"] == "SPH4U"
+    assert "SPH4U" in physics["courseDescriptors"]
+    # Descriptor is resolved prose, not a raw key: "Grade 12 · University".
+    desc = physics["courseDescriptors"]["SPH4U"]
+    assert "·" in desc and "ui." not in desc
+    chemistry = screens.problems_screen("chemistry")
+    assert chemistry["curriculumCode"] == "SCH4U"
 
 
 def test_practice_panel_labels_in_all_five_locales():
@@ -747,6 +785,10 @@ def test_practice_panel_labels_in_all_five_locales():
         "ui.correct",
         "ui.incorrect",
         "ui.general",
+        "ui.your_answer",
+        "ui.answer_placeholder",
+        "ui.answer_tip",
+        "ui.stream.university",
     )
     for code in ("en", "es", "fr", "ru", "uk"):
         catalog = json.loads((_LOCALES_DIR / f"{code}.json").read_text(encoding="utf-8"))

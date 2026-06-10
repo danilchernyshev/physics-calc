@@ -355,11 +355,11 @@
 /* Collapsible tree: course groups contain section sub-groups. */
 .problems__tree { display: flex; flex-direction: column; gap: var(--space-sm); }
 
-/* Course group header: bold label + count badge, non-interactive (display only). */
+/* Course group header: bold code + "Grade 12 · University" descriptor (left) and
+   a single subtle count (right), non-interactive (display only). */
 .problems__course-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: baseline;
   padding: var(--space-2xs) 0;
   gap: var(--space-sm);
 }
@@ -367,6 +367,15 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-strong);
   font-size: var(--font-size-md);
+}
+.problems__course-descriptor {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.problems__course-count {
+  margin-left: auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 /* Section sub-group inside a course group. */
@@ -404,6 +413,9 @@
   gap: var(--space-2xs);
 }
 .problems__section-list--hidden { display: none; }
+/* Flat list: a course group with no real section taxonomy (Math/Chemistry)
+   renders its problems directly under the course header, with no indent. */
+.problems__section-list--flat { padding-left: 0; }
 
 /* Problem row button: status icon + title. */
 .problems__item {
@@ -445,21 +457,14 @@
 
 .practice__content { display: flex; flex-direction: column; gap: var(--space-sm); }
 
-/* Subtitle line: "Practice problems with cited, worked solutions". */
-.practice__subtitle {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-/* Section chip + "Question N of M" counter on one row. */
-.practice__meta-row {
+/* Header row: title (lead) + section chip inline + "Question N of M" far right. */
+.practice__head-row {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-sm);
   flex-wrap: wrap;
-  margin-bottom: var(--space-xs);
 }
+.practice__title { margin: 0; }
 .practice__section-chip {
   font-size: var(--font-size-sm);
   padding: var(--space-3xs) var(--space-sm);
@@ -469,9 +474,38 @@
   color: var(--color-text-body);
 }
 .practice__counter {
+  margin-left: auto;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
+
+/* Section labels: GIVEN / FIND / YOUR ANSWER / SOLUTION / ANSWER — uppercase
+   small-caps per the design. */
+.practice__field-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+}
+.practice__find { margin: 0; }
+.practice__answer { margin: 0; }
+
+/* "Tip: include units in your answer" hint beneath the answer input. */
+.practice__tip {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* "Show solution · Show answer" reveal toggles with a dot separator. */
+.practice__reveal {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+.practice__dot { color: var(--color-text-muted); }
 
 /* Answer input + "Check answer" button side by side. */
 .practice__answer-row {
