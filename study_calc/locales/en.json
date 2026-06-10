@@ -427,5 +427,17 @@
   "theory.dilution": "When a solution is diluted the amount of solute is unchanged, so c₁V₁ = c₂V₂. Knowing any three of the initial and final concentrations and volumes gives the fourth — the basis of preparing a dilute solution from a concentrated stock.",
   "theory.moles": "The amount of substance n links mass m and molar mass M by n = m / M. The molar mass (g/mol) is the sum of the standard atomic weights in the formula — compute it with the Molar mass box on the Periodic table tab.",
   "theory.ph": "The pH measures acidity: pH = −log₁₀[H⁺], where [H⁺] is the hydrogen-ion concentration in mol/L. A lower pH is more acidic; at 25 °C pure water has pH 7. Invert with [H⁺] = 10^(−pH).",
-  "ui.close": "Close"
+  "ui.close": "Close",
+  "ui.practice": "Practice",
+  "ui.practice_subtitle": "Practice problems with cited, worked solutions",
+  "ui.search_problems": "Search problems…",
+  "problems.count": "{n} problems",
+  "ui.check_answer": "Check answer",
+  "ui.question_of": "Question {n} of {m}",
+  "ui.show_solution": "Show solution",
+  "ui.show_answer": "Show answer",
+  "ui.backed_by_topic": "Backed by topic:",
+  "ui.correct": "Correct!",
+  "ui.incorrect": "Not quite — try again",
+  "ui.general": "General"
 }

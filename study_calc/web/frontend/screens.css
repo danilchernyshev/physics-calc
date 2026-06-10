@@ -227,30 +227,96 @@
 .periodic__cell--actinide              { background: var(--series-actinide); }
 .periodic__cell--default               { background: var(--series-default); }
 
-/* ---- Problems screen (issue #11) ------------------------------------ */
+/* ---- Problems screen (issue #11, Figma-aligned QA) ------------------ */
 
-/* The "problem tree": a vertical list of the subject's problems. Each item is a
-   full-width button so the whole row is clickable; the active row is tinted. */
-.problems__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-2xs); }
-
-.problems__item {
+/* Left panel: "Practice [N problems]" header row with count badge inline. */
+.practice__list-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
-  width: 100%;
-  text-align: left;
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface);
-  color: var(--color-text-body);
-  font-size: var(--font-size-md);
-  cursor: pointer;
+  margin-bottom: var(--space-md);
+}
+.practice__list-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
 }
 
-.problems__item:hover { border-color: var(--color-border-strong); }
+/* Search field sits below the header, above the tree. */
+.problems__search { margin-bottom: var(--space-md); }
+.problems__search-input { width: 100%; }
 
+/* Collapsible tree: course groups contain section sub-groups. */
+.problems__tree { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+/* Course group header: bold label + count badge, non-interactive (display only). */
+.problems__course-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2xs) 0;
+  gap: var(--space-sm);
+}
+.problems__course-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+  font-size: var(--font-size-md);
+}
+
+/* Section sub-group inside a course group. */
+.problems__group { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.problems__section { display: flex; flex-direction: column; }
+
+/* Section header button: chevron + label + count. */
+.problems__section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2xs) var(--space-xs);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-body);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.problems__section-header:hover { background: var(--color-bg-subtle); }
+
+.problems__section-chevron { flex-shrink: 0; font-size: var(--font-size-sm); }
+.problems__section-label { flex: 1; font-weight: var(--font-weight-medium); }
+.problems__section-count { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+
+/* The problem list inside a section: hides when the section is collapsed. */
+.problems__section-list {
+  margin: 0;
+  padding: 0 0 0 var(--space-lg);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+.problems__section-list--hidden { display: none; }
+
+/* Problem row button: status icon + title. */
+.problems__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-body);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.problems__item:hover { border-color: var(--color-border); background: var(--color-bg-subtle); }
 .problems__item--active {
   border-color: var(--color-brand-primary);
   background: var(--color-brand-soft);
@@ -258,7 +324,92 @@
   font-weight: var(--font-weight-medium);
 }
 
-.problems__item-title { min-width: 0; }
+/* Status icon: monospaced so ○ / ✓ / ● align neatly. */
+.problems__status {
+  flex-shrink: 0;
+  width: 1.25em;
+  text-align: center;
+  font-family: var(--font-family-mono);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.problems__item--active .problems__status { color: var(--color-brand-primary); }
+
+.problems__item-title { min-width: 0; flex: 1; }
+
+/* ---- PracticePanel (right card) ------------------------------------- */
+
+.practice__content { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+/* Subtitle line: "Practice problems with cited, worked solutions". */
+.practice__subtitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Section chip + "Question N of M" counter on one row. */
+.practice__meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xs);
+}
+.practice__section-chip {
+  font-size: var(--font-size-sm);
+  padding: var(--space-3xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-body);
+}
+.practice__counter {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Answer input + "Check answer" button side by side. */
+.practice__answer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.practice__answer-row .field { flex: 1; min-width: 0; }
+
+/* Feedback line: "Not quite — try again" or empty. */
+.practice__feedback {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: var(--font-size-sm);
+  color: var(--color-error, var(--color-text-muted));
+}
+
+/* "Correct!" confirmation chip — uses the success token. */
+.practice__correct-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-success-soft, var(--color-brand-soft));
+  color: var(--color-success, var(--color-brand-primary));
+  font-weight: var(--font-weight-semibold);
+}
+
+/* "→ Backed by topic: Newton's second law" footer. */
+.practice__backed-by {
+  margin: var(--space-md) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+.practice__topic-name {
+  color: var(--color-accent-link);
+  font-style: italic;
+}
 
 /* The related-topic theory, expanded inline beneath the solution on demand. */
 .problems__theory {

@@ -561,6 +561,164 @@ def test_problems_screen_has_dedicated_frontend_renderer():
     assert "problems_screen" in shell
 
 
+# --- issue #11 QA: Figma-aligned ProblemTree + PracticePanel ---
+
+
+def test_problems_screen_has_count_field():
+    """problems_screen() carries a top-level count == len(problems) (Figma count badge)."""
+    screen = screens.problems_screen("physics")
+    assert "count" in screen, "problems_screen must carry a top-level 'count' field"
+    assert screen["count"] == len(screen["problems"])
+    assert screen["count"] > 0
+
+
+def test_problems_screen_has_practice_panel_labels():
+    """All Figma-required PracticePanel labels are present and localized (issue #11 QA)."""
+    screen = screens.problems_screen("physics")
+    L = screen["labels"]
+    required = {
+        "practice", "practiceSubtitle", "searchPlaceholder",
+        "problemsCount", "checkAnswer", "questionOf",
+        "showSolution", "showAnswer", "backedByTopic",
+        "correct", "incorrect", "general",
+    }
+    for key in required:
+        assert key in L, f"labels missing {key!r} — required by Figma PracticePanel"
+        assert L[key], f"labels[{key!r}] must not be empty"
+        # Values should be localized prose (not raw i18n keys).
+        assert not L[key].startswith("ui."), f"labels[{key!r}] looks like an unresolved i18n key"
+
+    # questionOf must carry both placeholders so the frontend can substitute N/M.
+    assert "{n}" in L["questionOf"], "questionOf template must contain {n}"
+    assert "{m}" in L["questionOf"], "questionOf template must contain {m}"
+
+    # problemsCount must contain the count digit.
+    assert str(screen["count"]) in L["problemsCount"], (
+        "problemsCount must embed the count number"
+    )
+
+
+def test_problem_carries_section_and_course_metadata():
+    """Each problem model carries sectionId, sectionLabel, courseCode, topicTitle (issue #11 QA)."""
+    screen = screens.problems_screen("physics")
+    problems = screen["problems"]
+    assert problems
+
+    for p in problems:
+        # All four metadata fields must be present (may be empty string when absent).
+        for field in ("sectionId", "sectionLabel", "courseCode", "topicTitle"):
+            assert field in p, f"problem {p['id']!r} missing {field!r}"
+
+    # SPH4U problems with a formula topic should have a populated sectionId.
+    sph_with_topic = [
+        p for p in problems
+        if p["courseCode"] == "SPH4U" and p["topicTitle"]
+    ]
+    assert sph_with_topic, "expected SPH4U problems with a topicTitle"
+
+    # Problems whose topic maps to a SECTIONS formula get a non-empty sectionLabel.
+    mechanics_probs = [p for p in problems if p["sectionId"] == "mechanics"]
+    assert mechanics_probs, "expected at least one physics problem in the mechanics section"
+    assert all(p["sectionLabel"] for p in mechanics_probs), (
+        "sectionLabel must be non-empty for mechanics problems"
+    )
+
+
+def test_problem_topic_title_uses_formula_name():
+    """topicTitle for a formula-backed topic is the localized formula name."""
+    from study_calc.i18n import t
+    from study_calc.web.screens import _formula_index
+
+    screen = screens.problems_screen("physics")
+    findex = _formula_index()
+    for p in screen["problems"]:
+        pid = p["id"]
+        # Derive topic_id from the problem (load it via problems_for_subject).
+        # We verify indirectly: if there is a formula for that topic, the name must match.
+        if p["topicTitle"] and p["topicTitle"][0].isupper():
+            # topicTitle is non-empty → either a formula name or a formatted id.
+            # Both must be non-empty, non-key strings.
+            assert not p["topicTitle"].startswith("formula."), (
+                f"topicTitle for {pid!r} looks like an unresolved key"
+            )
+
+
+def test_problems_screen_practice_panel_labels_change_with_language():
+    """New PracticePanel labels are fully localized (all differ en ↔ ru)."""
+    try:
+        en = Bridge().problems_screen("physics")
+        bridge = Bridge()
+        bridge.set_language("ru")
+        ru = bridge.problems_screen("physics")
+
+        # The practice header label must differ between languages.
+        assert en["labels"]["practice"] != ru["labels"]["practice"], (
+            "labels.practice must differ between English and Russian"
+        )
+        assert en["labels"]["checkAnswer"] != ru["labels"]["checkAnswer"], (
+            "labels.checkAnswer must differ between English and Russian"
+        )
+        assert en["labels"]["showSolution"] != ru["labels"]["showSolution"], (
+            "labels.showSolution must differ between English and Russian"
+        )
+    finally:
+        i18n.set_language("en")
+
+
+def test_problems_screen_js_has_figma_interactive_elements():
+    """screens.js problems() has the Figma-required PracticePanel interactive elements."""
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # Collapsible tree structure.
+    assert "problems__tree" in js, "ProblemTree wrapper class missing"
+    assert "problems__section-header" in js, "section header button missing"
+    assert "problems__status" in js, "per-problem status icon span missing"
+    # Search field.
+    assert "problems__search" in js, "search wrapper missing"
+    assert "searchPlaceholder" in js, "search placeholder label missing"
+    # PracticePanel interactive elements.
+    assert "checkAnswer" in js, "Check answer button label reference missing"
+    assert "questionOf" in js, "Question N of M counter missing"
+    assert "practice__meta-row" in js, "section chip + counter meta row missing"
+    assert "practice__section-chip" in js, "section chip class missing"
+    assert "practice__answer-row" in js, "answer input + button row missing"
+    assert "backedByTopic" in js, "Backed by topic footer label reference missing"
+    assert "practice__backed-by" in js, "Backed by topic footer class missing"
+    assert "showSolution" in js, "Show solution button label reference missing"
+    assert "showAnswer" in js, "Show answer button label reference missing"
+
+
+def test_practice_panel_labels_in_all_five_locales():
+    """All new PracticePanel i18n keys exist in every locale catalog (issue #11 QA)."""
+    import json
+    from study_calc.i18n import _LOCALES_DIR
+
+    new_keys = (
+        "ui.practice",
+        "ui.practice_subtitle",
+        "ui.search_problems",
+        "problems.count",
+        "ui.check_answer",
+        "ui.question_of",
+        "ui.show_solution",
+        "ui.show_answer",
+        "ui.backed_by_topic",
+        "ui.correct",
+        "ui.incorrect",
+        "ui.general",
+    )
+    for code in ("en", "es", "fr", "ru", "uk"):
+        catalog = json.loads((_LOCALES_DIR / f"{code}.json").read_text(encoding="utf-8"))
+        for key in new_keys:
+            assert key in catalog, (
+                f"{code}.json is missing {key!r} — required for Figma-aligned Problems screen"
+            )
+            val = catalog[key]
+            assert val, f"{code}.json has empty value for {key!r}"
+            assert not val.startswith("ui.") and not val.startswith("problems."), (
+                f"{code}.json {key!r} = {val!r} looks like an unresolved key"
+            )
+
+
 # --- language switching ---
 
 

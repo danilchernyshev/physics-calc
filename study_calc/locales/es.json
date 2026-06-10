@@ -395,5 +395,17 @@
   "ui.atomic_mass": "Masa atómica",
   "ui.group": "Grupo",
   "ui.period": "Periodo",
-  "ui.close": "Cerrar"
+  "ui.close": "Cerrar",
+  "ui.practice": "Práctica",
+  "ui.practice_subtitle": "Problemas prácticos con soluciones razonadas",
+  "ui.search_problems": "Buscar problemas…",
+  "problems.count": "{n} problemas",
+  "ui.check_answer": "Comprobar respuesta",
+  "ui.question_of": "Pregunta {n} de {m}",
+  "ui.show_solution": "Mostrar solución",
+  "ui.show_answer": "Mostrar respuesta",
+  "ui.backed_by_topic": "Respaldado por tema:",
+  "ui.correct": "¡Correcto!",
+  "ui.incorrect": "No del todo — inténtalo de nuevo",
+  "ui.general": "General"
 }

@@ -395,5 +395,17 @@
   "ui.atomic_mass": "Атомна маса",
   "ui.group": "Група",
   "ui.period": "Період",
-  "ui.close": "Закрити"
+  "ui.close": "Закрити",
+  "ui.practice": "Задачі",
+  "ui.practice_subtitle": "Практичні задачі з розібраними рішеннями",
+  "ui.search_problems": "Пошук задач…",
+  "problems.count": "{n} задач",
+  "ui.check_answer": "Перевірити відповідь",
+  "ui.question_of": "Задача {n} з {m}",
+  "ui.show_solution": "Показати рішення",
+  "ui.show_answer": "Показати відповідь",
+  "ui.backed_by_topic": "За темою:",
+  "ui.correct": "Правильно!",
+  "ui.incorrect": "Не зовсім — спробуйте ще",
+  "ui.general": "Загальні"
 }
