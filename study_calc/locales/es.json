@@ -408,6 +408,7 @@
   "ui.correct": "¡Correcto!",
   "ui.incorrect": "No del todo — inténtalo de nuevo",
   "ui.general": "General",
+  "ui.periodic.click_hint": "Haz clic en un elemento para ver sus detalles",
   "ui.periodic.molar_hint": "Escribe una fórmula — se admiten paréntesis y subíndices",
   "ui.periodic.balance_hint": "Escribe reactivos → productos; los coeficientes se calculan exactamente",
   "series.alkali-metal": "Metal alcalino",

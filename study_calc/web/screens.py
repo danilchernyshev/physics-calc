@@ -606,8 +606,14 @@ def periodic_screen() -> dict:
         "available": True,
         "title": t("tab.periodic_table"),
         # Curriculum badge: the periodic table belongs to SCH4U (Grade 12 Chemistry).
+        # ``curriculum`` is the full descriptor ("SCH4U (Grade 12)"); ``curriculumCode``
+        # is the bare course code rendered as a compact chip beside the page-level
+        # "Chemistry" title in the shell header (Figma node 23:2).
         "curriculum": _curriculum_text(("SCH4U",)),
+        "curriculumCode": "SCH4U",
         "labels": {
+            "title":        t("tab.periodic_table"),
+            "clickHint":    t("ui.periodic.click_hint"),
             "molarMass":    t("ui.molar_mass"),
             "mmHint":       t("ui.periodic.molar_hint"),
             "compute":      t("ui.compute"),

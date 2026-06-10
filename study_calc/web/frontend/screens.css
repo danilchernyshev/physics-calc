@@ -239,15 +239,38 @@
   white-space: nowrap;
 }
 
-/* Element detail: rich inline header below the legend — coloured symbol tile
-   on the left (mirrors the grid cell), element name + meta on the right.
-   Replaces the previous single-line text approach. */
+/* Grid card header (Figma node 23:2): title + subtitle on the left, the rich
+   element-detail block on the right. Wraps on narrow widths. */
+.periodic__card-header {
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.periodic__card-heading { display: flex; flex-direction: column; gap: var(--space-3xs); }
+
+.periodic__card-subtitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Element detail: rich inline header — coloured symbol tile on the left
+   (mirrors the grid cell), element name + meta on the right. */
 .periodic__detail {
   margin-top: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
   background: var(--color-bg-subtle);
   min-height: 56px;
+}
+
+/* In the card header row the detail sits top-right: no top margin, and it does
+   not stretch full width. */
+.periodic__detail--header {
+  margin-top: 0;
+  flex-shrink: 0;
 }
 
 /* Flex row: tile on the left, info (name + meta) on the right. */

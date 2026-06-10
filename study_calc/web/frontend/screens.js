@@ -722,7 +722,8 @@ const Screens = {
     const st = { mmRun: 0, balRun: 0 };
 
     // --- Element detail (rich header; updated on cell click, no round-trip) ---
-    const detailWrap = h('div', { class: 'periodic__detail' }, []);
+    // Lives at the top-right of the grid card header row (Figma node 23:2).
+    const detailWrap = h('div', { class: 'periodic__detail periodic__detail--header' }, []);
 
     function fmtMass(m) {
       // Mirror Python's :g format: up to 6 significant digits, no trailing zeros.
@@ -832,17 +833,23 @@ const Screens = {
     }
     balInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); computeBal(); } });
 
-    // Curriculum badge (e.g. "SCH4U (Grade 12)") in the grid card header area.
-    const curriculumBadge = model.curriculum ? UI.badge(model.curriculum) : null;
-
-    // Grid card: curriculum badge + the element grid + legend + detail header.
-    const gridCardBody = [
-      ...(curriculumBadge ? [curriculumBadge] : []),
-      grid,
-      legend,
-      detailWrap,
-    ];
-    const gridCard = UI.card({ body: gridCardBody });
+    // Grid card with a real header row (Figma node 23:2): the card title
+    // ("Periodic table") + subtitle ("Click an element to see its details") sit
+    // top-left, and the rich element-detail header sits top-right of the same
+    // row. The curriculum badge is no longer an in-card pill — it is rendered as
+    // a compact chip beside the "Chemistry" page title in the shell header
+    // (mountScreen fills #header-badge from model.curriculumCode).
+    const gridHeader = h('div', { class: 'card__header periodic__card-header' }, [
+      h('div', { class: 'periodic__card-heading' }, [
+        h('h2', { class: 'card__title', text: L.title }),
+        h('p', { class: 'periodic__card-subtitle', text: L.clickHint }),
+      ]),
+      detailWrap,  // element detail, top-right of the header row
+    ]);
+    const gridCard = h('section', { class: 'card' }, [
+      gridHeader,
+      h('div', { class: 'card__body' }, [grid, legend]),
+    ]);
 
     // Molar-mass card: subtitle hint + input row + result + composition line.
     const mmCard = UI.card({
