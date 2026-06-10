@@ -17,6 +17,7 @@ import tkinter as tk
 import webbrowser
 from tkinter import ttk
 
+from study_calc import __version__
 from study_calc.core.explain import Explanation
 from study_calc.core.formula import Formula, SolveError
 from study_calc.core.learning import Concept, Topic, load_concept, load_topic
@@ -174,6 +175,29 @@ class ConceptWindow(tk.Toplevel):
                 other = load_concept(term_id, i18n.language)
                 if other is not None:
                     text.link(other.title, lambda c=other: ConceptWindow(self, c))
+        text.end()
+
+
+class AboutWindow(tk.Toplevel):
+    """A small 'About' pop-up: the app name, version and author credit."""
+
+    def __init__(self, master: tk.Misc) -> None:
+        super().__init__(master)
+        self.title(t("menu.about"))
+        self.minsize(380, 240)
+        self.resizable(False, False)
+        text = _RichText(self, width=46, height=10)
+        text.pack(fill="both", expand=True)
+
+        text.begin()
+        text.heading(t("app.title"))
+        text.write(f'{t("about.version")} {__version__}\n', "body")
+        text.write("\n", "body")
+        text.write(t("about.created_by") + "\n", "label")
+        text.write("Mark Chernyshev\n", "body")
+        text.write(t("about.role") + "\n", "body")
+        text.write("Applewood Heights Secondary School\n", "body")
+        text.write("Peel District School Board\n", "body")
         text.end()
 
 
@@ -704,6 +728,13 @@ class App:
     def _build(self) -> None:
         self.root.title(t("app.title"))
 
+        # --- Menu bar: Help -> About. Rebuilt here so it follows the language. ---
+        menubar = tk.Menu(self.root)
+        help_menu = tk.Menu(menubar, tearoff=0)
+        help_menu.add_command(label=t("menu.about"), command=self._show_about)
+        menubar.add_cascade(label=t("menu.help"), menu=help_menu)
+        self.root.config(menu=menubar)
+
         # --- Top bar: language selector, right-aligned. ---
         top = ttk.Frame(self.root, padding=(8, 8, 8, 0))
         top.pack(fill="x")
@@ -736,6 +767,9 @@ class App:
             child.destroy()
         self._build()
         self._notebook.select(selected_tab)
+
+    def _show_about(self) -> None:
+        AboutWindow(self.root)
 
     def run(self) -> None:
         self.root.mainloop()

@@ -2,6 +2,11 @@
   "language.native": "Español",
   "language.label": "Idioma:",
   "app.title": "Calculadora de estudio",
+  "menu.help": "Ayuda",
+  "menu.about": "Acerca de",
+  "about.version": "Versión",
+  "about.created_by": "Creado por",
+  "about.role": "Estudiante",
 
   "ui.formula": "Fórmula:",
   "ui.hint": "Rellene todos los campos menos uno: el campo vacío se calculará.",

@@ -2,6 +2,11 @@
   "language.native": "Українська",
   "language.label": "Мова:",
   "app.title": "Навчальний калькулятор",
+  "menu.help": "Довідка",
+  "menu.about": "Про програму",
+  "about.version": "Версія",
+  "about.created_by": "Автор",
+  "about.role": "Учень",
 
   "ui.formula": "Формула:",
   "ui.hint": "Заповніть усі поля, крім одного — порожнє буде обчислено.",

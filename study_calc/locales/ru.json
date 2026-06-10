@@ -2,6 +2,11 @@
   "language.native": "Русский",
   "language.label": "Язык:",
   "app.title": "Учебный калькулятор",
+  "menu.help": "Справка",
+  "menu.about": "О программе",
+  "about.version": "Версия",
+  "about.created_by": "Автор",
+  "about.role": "Учащийся",
 
   "ui.formula": "Формула:",
   "ui.hint": "Заполните все поля, кроме одного — пустое будет вычислено.",

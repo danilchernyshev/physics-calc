@@ -2,6 +2,11 @@
   "language.native": "Français",
   "language.label": "Langue :",
   "app.title": "Calculateur d'étude",
+  "menu.help": "Aide",
+  "menu.about": "À propos",
+  "about.version": "Version",
+  "about.created_by": "Créé par",
+  "about.role": "Élève",
 
   "ui.formula": "Formule :",
   "ui.hint": "Remplissez tous les champs sauf un — le champ vide sera calculé.",

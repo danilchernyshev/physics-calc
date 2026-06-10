@@ -2,6 +2,11 @@
   "language.native": "English",
   "language.label": "Language:",
   "app.title": "Study Calculator",
+  "menu.help": "Help",
+  "menu.about": "About",
+  "about.version": "Version",
+  "about.created_by": "Created by",
+  "about.role": "Student",
 
   "ui.formula": "Formula:",
   "ui.hint": "Fill all fields but one — the empty one will be computed.",
