@@ -12,9 +12,11 @@ dependencies = ["sympy>=1.12", "pywebview>=5.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
-# matplotlib backed the retired Tk graphing path; nothing imports it today. Kept
-# as a reserved optional extra for the not-yet-built web graphing surface.
-graph = ["matplotlib>=3.7"]
+# The graphing surface (not yet built on the web UI): matplotlib renders, numpy
+# samples. numpy is imported lazily, only inside core/cas.py::sample(), which no
+# shipping code path calls, so the core CAS/app surface runs without it. It used
+# to arrive transitively via matplotlib; declare it here, beside its renderer.
+graph = ["matplotlib>=3.7", "numpy>=1.24"]
 # Deprecated no-op alias: pywebview moved into core dependencies above. Retained
 # so the documented `--extra web` invocation keeps resolving.
 web = []
