@@ -21,7 +21,7 @@ if `sympy` is somehow absent. `pytest` is the sole dev dependency.
 
 ## Architecture
 
-Three layers, deliberately decoupled so the domain logic stays UI- and
+Layers, deliberately decoupled so the domain logic stays UI- and
 language-agnostic:
 
 - **`core/`** — the engine. `formula.py` defines `Formula`/`Variable` and the
@@ -50,7 +50,20 @@ language-agnostic:
   frozen dataclasses) from the separate `study_calc/learning/` content folder
   (see below), with English fallback — so the panel can show a topic summary, the
   useful formulas, a step-by-step method, reusable glossary terms, and a worked
-  example. `load_topic(id, lang)` / `load_concept(id, lang)` are `lru_cache`d.
+  example. `learning.py` also loads the **practice problems** (the `Problem`
+  dataclass — a tagged `WorkedExample` plus an optional video link and backing
+  topic) and exposes `problems_for_subject(subject, lang)`. `CURRICULUM_GRADES`
+  maps Ontario course codes (`SPH4U`, `SCH4U`, `MDM4U`, `MHF4U`, `MCV4U`, …) to a
+  grade level, rendered as a curriculum badge wherever a topic or problem carries
+  `courses`. `load_topic` / `load_concept` / `load_problem` are `lru_cache`d.
+
+- **`navigation.py`** — the **navigation layer**, kept free of Tkinter so it is
+  unit-testable headlessly. `SUBJECTS` is the single source of truth for the tab
+  tree: an ordered list of subjects (Physics, Math, Tools, Chemistry), each holding
+  items of four kinds — `Section` (a `domains.SECTIONS` id), `Tool` (`converter`/
+  `cas`/`vectors`), `Problems` (a subject's practice surface), or `Placeholder` (a
+  "coming soon" notice). `gui/app.py` maps each item to a concrete widget; adding or
+  reordering a subject is a one-line edit here with no widget code to touch.
 
 - **`domains/`** — declarative formula sets, one module per physics section
   (mechanics, thermodynamics, electromagnetism, waves). `domains/__init__.py`
@@ -63,11 +76,15 @@ language-agnostic:
   steps + those references). To add references for a new formula, add one row to
   `_SOURCES` there — slugs should be checked to resolve (HTTP 200) before commit.
 
-- **`gui/app.py`** — Tkinter window. One tab per section, a converter tab, and a
-  CAS tab (`CasPanel`, added by `_build_cas_tab` which falls back to a notice tab
-  if SymPy can't be imported). Every section tab *and* the CAS tab is a horizontal
-  `PanedWindow`: the calculator/input form on the left, an `ExplanationPanel` (the
-  right-hand learning area) on the right. All read-only rich text (the panel and
+- **`gui/app.py`** — Tkinter window. It walks `navigation.SUBJECTS` and builds one
+  outer tab per subject; a subject with several items renders an inner notebook, a
+  single-item subject renders that panel directly. Items become widgets via
+  `_item_widget`: a `Section` → a formula panel, a `Tool` → the converter / `CasPanel`
+  / vectors panel (CAS falls back to a notice tab if SymPy can't be imported), a
+  `Problems` → a `ProblemsPanel` (a problem list on the left, its worked solution in
+  the `ExplanationPanel` on the right). Every formula tab *and* the CAS tab is a
+  horizontal `PanedWindow`: the calculator/input form on the left, an
+  `ExplanationPanel` (the right-hand learning area) on the right. All read-only rich text (the panel and
   the pop-up window) is built on the shared `_RichText` widget (heading / body /
   formula / link styling; a "link" opens a URL *or* runs a callback).
   `ExplanationPanel` has three render modes on one widget: `show(Explanation,
@@ -79,7 +96,8 @@ language-agnostic:
   `show_steps(title_key, segments)` paints a *dynamic* worked solution — the CAS
   tab feeds SymPy's step-by-step through it (answers tagged green). `ConceptWindow`
   is the term pop-up: full definition + related formulas + clickable "See also"
-  terms. Clickable references/terms open in a browser or a new window. `App`
+  terms; `show_problem(Problem)` paints a practice problem's worked solution.
+  Clickable references/terms open in a browser or a new window. `App`
   rebuilds *all* its widgets on language change (it destroys children and re-runs
   `_build()`), preserving the selected tab.
 
@@ -87,17 +105,22 @@ language-agnostic:
 
 A **separate, format-flexible content folder** (data, not code — parallel to
 `locales/`) holding the *prose* the right panel shows, loaded by
-`core/learning.py`. Layout: `learning/<lang>/topics/<id>.json` (one bundle per
-problem type — a formula `key` for physics, `cas_<op>` for Math) and
-`learning/<lang>/glossary/<term_id>.json` (reusable term definitions). `en` is
-canonical and the fallback (a file missing in another language is served from
-`en`, mirroring i18n). A topic carries `summary`, `terms[]` (glossary ids),
-`formulas[]`, `method[]`, and a worked `example`; a concept carries `title`,
-`short` (inline), `full` (pop-up), `formulas[]`, `see_also[]`. All content is
-**original** (written from OpenStax + general knowledge); CollegePhysicsAnswers
-videos are linked only, never copied. `tests/test_learning.py` enforces that every
-formula and CAS op has a topic, every referenced term resolves, and `see_also`
-links don't dangle. See `learning/README.md` for the schema and how to extend it.
+`core/learning.py`. Three content kinds under `learning/<lang>/`:
+`topics/<id>.json` (one bundle per problem type — a formula `key` for physics,
+`cas_<op>` for Math/CAS, plus subject-prefixed ids like `chem_*`, `mdm_*`, `sph_*`),
+`glossary/<term_id>.json` (reusable term definitions), and `problems/<id>.json` (a
+single practice problem). `en` is canonical and the fallback (a file missing in
+another language is served from `en`, mirroring i18n). A topic carries `summary`,
+`terms[]` (glossary ids), `formulas[]`, `method[]`, a worked `example`, and
+`courses[]` (Ontario codes for the grade badge); a concept carries `title`, `short`
+(inline), `full` (pop-up), `formulas[]`, `see_also[]`; a problem carries `subject`
+(a `navigation.SUBJECTS` id), the worked-example fields, an optional `video_url` and
+backing `topic`, and `courses[]`. All content is **original** (written from OpenStax
++ general knowledge); CollegePhysicsAnswers videos are linked only, never copied.
+`tests/test_learning.py` enforces that every formula and CAS op has a topic, every
+referenced term resolves, and `see_also` links don't dangle; `tests/test_problems.py`
+checks the problem set (subject filtering, course codes, video URLs). See
+`learning/README.md` for the schema and how to extend it.
 
 ### The i18n contract (most important to preserve)
 
