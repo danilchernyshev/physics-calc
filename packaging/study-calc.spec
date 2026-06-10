@@ -17,6 +17,7 @@
 # the matching ``study_calc/<...>`` destination prefix, keeping the layout
 # identical to a source checkout.
 
+import sys
 from pathlib import Path
 
 from PyInstaller.utils.hooks import copy_metadata
@@ -113,3 +114,29 @@ coll = COLLECT(
     upx=False,
     name="study-calc",
 )
+
+# On macOS, wrap the one-folder bundle into a proper ``Study Calc.app`` so the
+# user drags it to /Applications and launches it from Launchpad (the DMG in
+# packaging/macos/build_dmg.sh, #64, packages this). The guard keeps this a
+# no-op on Linux/Windows — COLLECT above is what #66/#63 wrap there. PyInstaller
+# still emits the plain ``dist/study-calc/`` folder alongside the ``.app``, so
+# packaging/smoke_test.py --bundle can validate the engines headlessly. The
+# ``.icns`` is generated from icon.png by build_dmg.sh before this runs.
+if sys.platform == "darwin":
+    from study_calc.resources import app_version  # lightweight, pyproject-backed
+
+    app = BUNDLE(
+        coll,
+        name="Study Calc.app",
+        icon=str(_ROOT / "packaging" / "macos" / "study-calc.icns"),
+        bundle_identifier="io.github.danilchernyshev.StudyCalc",
+        version=app_version(),
+        info_plist={
+            "CFBundleName": "Study Calc",
+            "CFBundleDisplayName": "Study Calc",
+            "CFBundleShortVersionString": app_version(),
+            "NSHighResolutionCapable": True,
+            # PyWebView's macOS backend (pywebview[cocoa]) targets modern macOS.
+            "LSMinimumSystemVersion": "11.0",
+        },
+    )

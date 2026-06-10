@@ -5,10 +5,10 @@
 # them to a GitHub Release. The version is single-sourced from `pyproject.toml`.
 #
 # Per the epic, this lands incrementally as each platform builder becomes ready.
-# Wired today: the test gate, the Linux AppImage (#66), and the Release publish.
+# Wired today: the test gate, the Linux AppImage (#66), the macOS DMG (#64), and
+# the Release publish.
 # Pending their builder tickets (uncomment the job once the builder is merged):
 #   - windows-installer  → Inno Setup .exe        (#63)
-#   - macos-dmg (arm64 + intel) → py2app + DMG    (#64)
 #   - linux-flatpak      → flatpak-builder         (#65)
 # Each new job follows the same shape: `needs: test`, build, run packaging/
 # smoke_test.py, then upload-artifact with the canonical asset name. The release
@@ -94,11 +94,41 @@ jobs:
           path: dist/study-calc-${{ env.VERSION }}-linux.AppImage
           if-no-files-found: error
 
+  macos-dmg:
+    needs: [test, resolve-version]
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - runner: macos-14   # Apple Silicon
+            arch: arm64
+          - runner: macos-13   # Intel
+            arch: intel
+    runs-on: ${{ matrix.runner }}
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+      - name: Build the DMG
+        # build_dmg.sh generates the icns, freezes with the shared spec (its
+        # darwin branch emits Study Calc.app), smoke-tests the bundle, and packs
+        # the DMG named for this runner's architecture.
+        run: uv run --extra packaging bash packaging/macos/build_dmg.sh
+      - name: Upload the DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-calc-${{ env.VERSION }}-macos-${{ matrix.arch }}.dmg
+          path: dist/study-calc-${{ env.VERSION }}-macos-${{ matrix.arch }}.dmg
+          if-no-files-found: error
+
   # Collect every built artifact and attach them to the GitHub Release. New
   # platform jobs just add themselves to `needs` and upload an artifact — the glob
   # below picks them up automatically.
   release:
-    needs: [linux-appimage]
+    needs: [linux-appimage, macos-dmg]
     runs-on: ubuntu-22.04
     permissions:
       contents: write # publish the Release and upload assets
