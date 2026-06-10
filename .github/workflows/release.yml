@@ -21,8 +21,11 @@ on:
     tags:
       - "v*"
 
+# Least privilege by default: only the `release` job that publishes assets is
+# granted `contents: write` (scoped on the job below); every other job keeps the
+# read-only default.
 permissions:
-  contents: write # create the Release and upload assets
+  contents: read
 
 jobs:
   # The gate: a pytest failure here blocks every build job below (they `needs: test`),
@@ -94,6 +97,8 @@ jobs:
   release:
     needs: [linux-appimage]
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write # publish the Release and upload assets
     steps:
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
