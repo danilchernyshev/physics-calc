@@ -14,16 +14,21 @@ from __future__ import annotations
 
 import math
 import tkinter as tk
+import webbrowser
 from tkinter import ttk
 
+from physics_calc.core.explain import Explanation
 from physics_calc.core.formula import Formula, SolveError
 from physics_calc.core.units import categories, convert, units_of, ConversionError
 from physics_calc.domains import SECTIONS
+from physics_calc.domains.references import explanation_for
 from physics_calc.i18n import i18n, t
 
 _OK_COLOR = "#0a6"
 _ERROR_COLOR = "#c33"
 _HINT_COLOR = "#666"
+_HEADING_COLOR = "#2a4d8f"
+_LINK_COLOR = "#1a5fb4"
 
 
 class ResultArea(ttk.Frame):
@@ -69,6 +74,122 @@ class ResultArea(ttk.Frame):
         self.show([])
 
 
+class ExplanationPanel(ttk.Frame):
+    """The learning area on the right of a tab: theory, worked steps, and study links.
+
+    A read-only, scrollable :class:`tk.Text` driven by language-neutral content
+    (i18n keys + URLs), so the same widget serves two cases:
+
+    - :meth:`show` renders a static :class:`~physics_calc.core.explain.Explanation`
+      (*Explanation* / *How to solve* / *Learn more*) for a physics formula.
+    - :meth:`show_steps` renders a dynamic worked solution — used by the CAS tab for
+      SymPy's step-by-step, and reusable for Math later.
+
+    References render as clickable links that open in the user's web browser.
+    """
+
+    def __init__(self, master: tk.Misc, width: int = 40) -> None:
+        super().__init__(master)
+        self._text = tk.Text(
+            self, width=width, wrap="word", relief="solid", borderwidth=1,
+            font=("TkDefaultFont", 11), padx=10, pady=8,
+            background="#f7f9fc", state="disabled", cursor="arrow",
+        )
+        scroll = ttk.Scrollbar(self, orient="vertical", command=self._text.yview)
+        self._text.configure(yscrollcommand=scroll.set)
+        scroll.pack(side="right", fill="y")
+        self._text.pack(side="left", fill="both", expand=True)
+        self._text.tag_configure(
+            "heading", foreground=_HEADING_COLOR, font=("TkDefaultFont", 11, "bold"),
+            spacing1=8, spacing3=3,
+        )
+        self._text.tag_configure("body", foreground="#222", spacing3=4)
+        self._text.tag_configure("step", foreground="#222", lmargin1=4, lmargin2=18, spacing3=3)
+        self._text.tag_configure("answer", foreground=_OK_COLOR, font=("TkDefaultFont", 11, "bold"))
+        self._text.tag_configure("error", foreground=_ERROR_COLOR)
+        self._text.tag_configure("hint", foreground=_HINT_COLOR, spacing3=4)
+        self._link_count = 0
+
+    def show(self, explanation: Explanation) -> None:
+        """Render a static ``explanation`` (theory, steps, references)."""
+        self._begin()
+        self._heading(t("ui.theory"))
+        self._text.insert("end", t(explanation.theory_key) + "\n", "body")
+
+        if explanation.steps_keys:
+            self._heading(t("ui.how_to_solve"))
+            for index, key in enumerate(explanation.steps_keys, start=1):
+                self._text.insert("end", f"{index}. {t(key)}\n", "step")
+
+        self._references(explanation.references)
+        self._end()
+
+    def show_steps(
+        self, title_key: str, segments: list[tuple[str, str]], references: tuple = ()
+    ) -> None:
+        """Render a dynamic worked solution under ``title_key``.
+
+        ``segments`` are pre-rendered ``(text, tag)`` pairs (tag in
+        ``"answer"``/``"step"``); each ``text`` already carries its own newline.
+        """
+        self._begin()
+        self._heading(t(title_key))
+        for text, tag in segments:
+            self._text.insert("end", text, tag)
+        self._references(references)
+        self._end()
+
+    def show_hint(self, title_key: str, hint_key: str) -> None:
+        """Show a quiet placeholder (e.g. before the CAS tab has been run)."""
+        self._begin()
+        self._heading(t(title_key))
+        self._text.insert("end", t(hint_key) + "\n", "hint")
+        self._end()
+
+    def show_error(self, message: str) -> None:
+        self._begin()
+        self._text.insert("end", "⚠ " + message, "error")
+        self._end()
+
+    def clear(self) -> None:
+        self._begin()
+        self._end()
+
+    # --- low-level building blocks (text widget is editable between begin/end) ---
+
+    def _begin(self) -> None:
+        self._text.config(state="normal")
+        self._text.delete("1.0", "end")
+        self._link_count = 0
+
+    def _end(self) -> None:
+        self._text.config(state="disabled")
+        self._text.see("1.0")
+
+    def _heading(self, text: str) -> None:
+        # A leading blank line before every heading but the first keeps sections apart.
+        prefix = "" if self._text.index("end-1c") == "1.0" else "\n"
+        self._text.insert("end", prefix + text + "\n", "heading")
+
+    def _references(self, references: tuple) -> None:
+        if not references:
+            return
+        self._heading(t("ui.learn_more"))
+        for ref in references:
+            self._insert_link(t(ref.label_key), ref.url)
+
+    def _insert_link(self, label: str, url: str) -> None:
+        """Insert one clickable line that opens ``url`` in the browser."""
+        tag = f"link-{self._link_count}"
+        self._link_count += 1
+        self._text.tag_configure(tag, foreground=_LINK_COLOR, underline=True, spacing3=3)
+        # Bind on this line's own tag so each link opens its own URL.
+        self._text.tag_bind(tag, "<Button-1>", lambda _e, u=url: webbrowser.open(u))
+        self._text.tag_bind(tag, "<Enter>", lambda _e: self._text.config(cursor="hand2"))
+        self._text.tag_bind(tag, "<Leave>", lambda _e: self._text.config(cursor="arrow"))
+        self._text.insert("end", label + "\n", tag)
+
+
 def _format_number(value: float) -> str:
     """Format a result: whole numbers without a tail, otherwise 6 significant digits.
 
@@ -105,8 +226,17 @@ class FormulaPanel(ttk.Frame):
         self._entries: dict[str, ttk.Entry] = {}
         self._current: Formula | None = None
 
+        # Two resizable columns: inputs/result on the left, the learning area
+        # (theory, how to solve, study links) on the right.
+        paned = ttk.PanedWindow(self, orient="horizontal")
+        paned.pack(fill="both", expand=True)
+        left = ttk.Frame(paned)
+        self._explain = ExplanationPanel(paned)
+        paned.add(left, weight=3)
+        paned.add(self._explain, weight=2)
+
         # --- Top row: formula picker. ---
-        top = ttk.Frame(self)
+        top = ttk.Frame(left)
         top.pack(fill="x")
         ttk.Label(top, text=t("ui.formula")).pack(side="left")
         self._combo = ttk.Combobox(
@@ -116,24 +246,24 @@ class FormulaPanel(ttk.Frame):
         self._combo.bind("<<ComboboxSelected>>", lambda _e: self._build_fields())
 
         # The formula expression, shown larger.
-        self._expr = ttk.Label(self, font=("TkDefaultFont", 13, "bold"))
+        self._expr = ttk.Label(left, font=("TkDefaultFont", 13, "bold"))
         self._expr.pack(anchor="w", pady=(10, 0))
 
-        ttk.Label(self, text=t("ui.hint"), foreground=_HINT_COLOR).pack(
+        ttk.Label(left, text=t("ui.hint"), foreground=_HINT_COLOR).pack(
             anchor="w", pady=(2, 8)
         )
 
         # --- Container for the dynamic fields. ---
-        self._fields = ttk.Frame(self)
+        self._fields = ttk.Frame(left)
         self._fields.pack(fill="x")
 
         # --- Buttons and result. ---
-        buttons = ttk.Frame(self)
+        buttons = ttk.Frame(left)
         buttons.pack(fill="x", pady=(12, 0))
         ttk.Button(buttons, text=t("ui.compute"), command=self._compute).pack(side="left")
         ttk.Button(buttons, text=t("ui.clear"), command=self._clear).pack(side="left", padx=6)
 
-        self._result = ResultArea(self)
+        self._result = ResultArea(left)
         self._result.pack(fill="both", expand=True, pady=(12, 0))
 
         self._combo.current(0)
@@ -149,6 +279,7 @@ class FormulaPanel(ttk.Frame):
         self._current = formula
         self._expr.config(text=formula.expression)
         self._result.clear()
+        self._explain.show(explanation_for(formula.key))
 
         for row, var in enumerate(formula.variables):
             ttk.Label(
@@ -303,8 +434,17 @@ class CasPanel(ttk.Frame):
         self._cas = cas
         self._op_ids = cas.OPERATIONS
 
+        # Two resizable columns, mirroring the formula tabs: the input form on the
+        # left, the worked step-by-step solution in the learning area on the right.
+        paned = ttk.PanedWindow(self, orient="horizontal")
+        paned.pack(fill="both", expand=True)
+        left = ttk.Frame(paned)
+        self._explain = ExplanationPanel(paned)
+        paned.add(left, weight=3)
+        paned.add(self._explain, weight=2)
+
         # --- Operation picker. ---
-        top = ttk.Frame(self)
+        top = ttk.Frame(left)
         top.pack(fill="x")
         ttk.Label(top, text=t("cas.operation")).pack(side="left")
         self._combo = ttk.Combobox(
@@ -314,12 +454,11 @@ class CasPanel(ttk.Frame):
         self._combo.pack(side="left", padx=(6, 0))
         self._combo.bind("<<ComboboxSelected>>", lambda _e: self._on_op_change())
 
-        ttk.Label(self, text=t("cas.hint"), foreground=_HINT_COLOR).pack(
-            anchor="w", pady=(10, 8)
-        )
+        ttk.Label(left, text=t("cas.hint"), foreground=_HINT_COLOR, wraplength=420,
+                  justify="left").pack(anchor="w", pady=(10, 8))
 
         # --- Expression + variable inputs. ---
-        fields = ttk.Frame(self)
+        fields = ttk.Frame(left)
         fields.pack(fill="x")
         ttk.Label(fields, text=t("cas.expression"), width=14, anchor="w").grid(
             row=0, column=0, sticky="w", pady=3
@@ -334,15 +473,11 @@ class CasPanel(ttk.Frame):
         self._var.grid(row=1, column=1, sticky="w", pady=3)
         self._var.bind("<Return>", lambda _e: self._compute())
 
-        # --- Buttons and result. ---
-        buttons = ttk.Frame(self)
+        # --- Buttons. ---
+        buttons = ttk.Frame(left)
         buttons.pack(fill="x", pady=(12, 0))
         ttk.Button(buttons, text=t("ui.compute"), command=self._compute).pack(side="left")
         ttk.Button(buttons, text=t("ui.clear"), command=self._clear).pack(side="left", padx=6)
-
-        # --- Working area: the shared read-only, selectable text area. ---
-        self._result = ResultArea(self)
-        self._result.pack(fill="both", expand=True, pady=(12, 0))
 
         self._combo.current(0)
         self._on_op_change()
@@ -362,12 +497,12 @@ class CasPanel(ttk.Frame):
         state = "normal" if needs_var else "disabled"
         self._var.config(state=state)
         self._var_label.config(foreground="" if needs_var else _HINT_COLOR)
-        self._result.clear()
+        self._explain.show_hint("cas.steps_title", "cas.steps_placeholder")
 
     def _clear(self) -> None:
         self._expr.delete(0, "end")
         self._var.delete(0, "end")
-        self._result.clear()
+        self._explain.show_hint("cas.steps_title", "cas.steps_placeholder")
 
     def _compute(self) -> None:
         op = self._op_ids[self._combo.current()]
@@ -376,7 +511,7 @@ class CasPanel(ttk.Frame):
         try:
             result = self._cas.run(op, expression, variable)
         except self._cas.CasError as exc:
-            self._result.show_error(t(f"error.{exc.code}", **exc.params))
+            self._explain.show_error(t(f"error.{exc.code}", **exc.params))
             return
         # Show powers as the user typed them (``x^2``), not SymPy's ``x**2``.
         segments = [
@@ -385,8 +520,8 @@ class CasPanel(ttk.Frame):
             for step in result.steps
         ]
         if not segments:  # defensive: an op without steps still shows an answer
-            segments = [(f"{result.input_text}  →  {result.output_text}", "answer")]
-        self._result.show(segments)
+            segments = [(f"{result.input_text}  →  {result.output_text}\n", "answer")]
+        self._explain.show_steps("cas.steps_title", segments)
 
 
 def _build_cas_tab(notebook: ttk.Notebook) -> None:
@@ -405,7 +540,7 @@ class App:
 
     def __init__(self) -> None:
         self.root = tk.Tk()
-        self.root.minsize(620, 470)
+        self.root.minsize(940, 500)
         # (code, native_name) pairs for the language picker.
         self._languages = i18n.available_languages()
         self._build()

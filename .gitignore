@@ -6,17 +6,20 @@ __pycache__/
 build/
 dist/
 
-# Виртуальные окружения и uv
+# Virtual environments and uv
 .venv/
 venv/
 uv.lock
 
-# Кэш инструментов
+# Tool caches
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
 
-# IDE / ОС
+# IDE / OS
 .vscode/
 .idea/
 .DS_Store
+
+# Playwright MCP artifacts (browser snapshots)
+.playwright-mcp/
