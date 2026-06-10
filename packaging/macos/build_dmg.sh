@@ -17,7 +17,7 @@
 #
 # macOS-only: PyInstaller's BUNDLE, sips, iconutil and hdiutil are all native
 # tools. The real build and acceptance run on a macOS CI runner / maintainer Mac.
-set -e
+set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${HERE}/../.." && pwd)"
