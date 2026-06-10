@@ -529,7 +529,37 @@ def test_screens_js_uses_shared_destroy_overlay():
     assert js.count("_destroyOverlay(") >= 3  # closeOverlays + openGuide + openConcept
 
 
-# --- issue #52: localized close label ---
+# --- issue #19 / #52: localized close label ---
+#
+# Issue #19 (bug): aria-label "Close" was hardcoded in screens.js.
+# Issue #52 (linked enhancement): formally add ui.close to all five locale
+# catalogs, thread it through every screen's labels payload (formula_screen,
+# cas_screen, vector_screen via _operation_labels, and guide_screen), and
+# replace the hardcoded literal with L.close / model.close in screens.js.
+# Both issues are addressed by the same set of changes.
+
+
+def test_close_key_present_in_all_locales():
+    """ui.close must be in every locale catalog (issue #19).
+
+    The key is used as the aria-label for every overlay close (×) button, so it
+    must be translated in all five languages — not just the English fallback.
+    A missing translation would silently fall back to the raw key string
+    ``"ui.close"``, which would be read aloud by a screen reader verbatim.
+    """
+    import json
+    from study_calc.i18n import _LOCALES_DIR
+
+    for code in ("en", "es", "fr", "ru", "uk"):
+        catalog = json.loads((_LOCALES_DIR / f"{code}.json").read_text(encoding="utf-8"))
+        assert "ui.close" in catalog, (
+            f"{code}.json is missing 'ui.close' — "
+            "add a translation so the aria-label is never an untranslated key"
+        )
+        value = catalog["ui.close"]
+        assert value and not value.startswith("ui."), (
+            f"{code}.json has 'ui.close' = {value!r}, which looks like a fallback key"
+        )
 
 
 def test_formula_screen_labels_carry_localized_close():
@@ -537,6 +567,22 @@ def test_formula_screen_labels_carry_localized_close():
     screen = screens.formula_screen("mechanics")
     labels = screen["labels"]
     assert "close" in labels, "formula_screen labels must include 'close'"
+    assert labels["close"] == t("ui.close")
+    assert labels["close"] and not labels["close"].startswith("ui.")
+
+
+def test_cas_screen_labels_carry_localized_close():
+    """cas_screen() labels include close == t("ui.close") (issue #19).
+
+    The key-term pop-up (openConcept) is reachable from every operations screen
+    (CAS and vectors) via the learning card, so the close label must be wired
+    into the operations labels payload too — not only formula_screen.
+    """
+    screen = screens.cas_screen()
+    if not screen.get("available", True):
+        return  # SymPy absent — no labels payload in this case
+    labels = screen["labels"]
+    assert "close" in labels, "cas_screen labels must include 'close'"
     assert labels["close"] == t("ui.close")
     assert labels["close"] and not labels["close"].startswith("ui.")
 
@@ -565,7 +611,7 @@ def test_close_label_changes_with_language_switch():
 
 
 def test_screens_js_has_no_hardcoded_english_close_string():
-    """No user-facing 'Close' literal must remain in screens.js (issue #52).
+    """No user-facing 'Close' literal must remain in screens.js (issue #19 / #52).
 
     Both overlay buttons read their aria-label from the localized model
     (model.close for openGuide, L.close for openConcept), so the only
