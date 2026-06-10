@@ -124,5 +124,8 @@ async function init() {
   render();
 }
 
-if (window.__STUDY_CALC_STATE__) init();
+// Start as soon as we have a state source. Guard against the race where
+// PyWebView has already injected its API (and fired `pywebviewready`) before
+// this script attached the listener — otherwise the window stays blank.
+if (window.__STUDY_CALC_STATE__ || (window.pywebview && window.pywebview.api)) init();
 else window.addEventListener('pywebviewready', init);
