@@ -280,15 +280,40 @@ def _topic_blocks(title_text: str, topic) -> list[dict]:
     return blocks
 
 
-def _cas_operation_learning(op: str) -> list[dict]:
-    """The before-a-result learning panel for an op: its topic, else a hint."""
-    topic = load_topic(f"cas_{op}", i18n.language)
+def _operation_learning(topic_id: str, title_text: str, title_key: str, placeholder_key: str) -> list[dict]:
+    """The before-a-result learning panel for an operation: its topic, else a hint.
+
+    Shared by the CAS and vectors screens — both teach the selected operation
+    before a result, falling back to a quiet placeholder (mirror of
+    ``CasPanel`` / ``VectorPanel._show_topic_or_hint``).
+    """
+    topic = load_topic(topic_id, i18n.language)
     if topic is not None:
-        return _topic_blocks(t(f"cas.op.{op}"), topic)
+        return _topic_blocks(title_text, topic)
     return [
-        {"type": "heading", "text": t("cas.steps_title")},
-        {"type": "hint", "text": t("cas.steps_placeholder")},
+        {"type": "heading", "text": t(title_key)},
+        {"type": "hint", "text": t(placeholder_key)},
     ]
+
+
+# The CAS and vectors screens share one model shape (operations, each with an
+# ordered ``fields`` list + learning blocks) and one frontend renderer
+# (``Screens.operations``). The differences below stay in the two screen/run
+# pairs: their field sets, the green-answer step keys, and (CAS only) the
+# ``**``->``^`` rendering and the lazy SymPy import / absent-fallback.
+
+
+def _render_steps(steps, answer_of, *, power_caret: bool = False, fallback: str | None = None) -> list[dict]:
+    """Turn engine ``CasStep``/``VectorStep`` items into ``{text, answer}`` dicts."""
+    rendered = []
+    for step in steps:
+        text = t(step.key, **step.params)
+        if power_caret:
+            text = text.replace("**", "^")  # show powers as x^2, not SymPy's x**2
+        rendered.append({"text": text, "answer": answer_of(step.key)})
+    if not rendered and fallback is not None:
+        rendered = [{"text": fallback, "answer": True}]
+    return rendered
 
 
 def cas_screen() -> dict:
@@ -302,40 +327,31 @@ def cas_screen() -> dict:
     except ImportError:
         return {"available": False, "title": t("tab.cas"), "notice": t("cas.unavailable")}
 
-    operations = [
-        {
+    operations = []
+    for op in cas.OPERATIONS:
+        fields = [{"id": "expression", "label": t("cas.expression"), "mono": True}]
+        if op in cas.USES_VARIABLE:
+            fields.append({"id": "variable", "label": t("cas.variable"), "mono": True})
+        for fid in cas.OP_FIELDS.get(op, ()):
+            fields.append({"id": fid, "label": t(f"cas.field.{fid}"), "mono": True})
+        operations.append({
             "id": op,
             "label": t(f"cas.op.{op}"),
-            "usesVariable": op in cas.USES_VARIABLE,
-            "fields": [
-                {"id": fid, "label": t(f"cas.field.{fid}")}
-                for fid in cas.OP_FIELDS.get(op, ())
-            ],
-            "learning": _cas_operation_learning(op),
-        }
-        for op in cas.OPERATIONS
-    ]
+            "fields": fields,
+            "learning": _operation_learning(
+                f"cas_{op}", t(f"cas.op.{op}"), "cas.steps_title", "cas.steps_placeholder"
+            ),
+        })
     return {
         "available": True,
         "title": t("tab.cas"),
-        "labels": {
-            "operation": t("cas.operation"),
-            "expression": t("cas.expression"),
-            "variable": t("cas.variable"),
-            "hint": t("cas.hint"),
-            "compute": t("ui.compute"),
-            "clear": t("ui.clear"),
-            "stepsTitle": t("cas.steps_title"),
-            "openFull": t("ui.open_full"),
-            "relatedFormulas": t("ui.related_formulas"),
-            "seeAlso": t("ui.see_also"),
-        },
+        "labels": _operation_labels("cas.operation", "cas.hint", "cas.steps_title"),
         "operations": operations,
     }
 
 
-def cas_run(op: str, expression: str, variable: str = "", fields: Mapping[str, str] | None = None) -> dict:
-    """Run a CAS operation; mirror of ``CasPanel._compute``.
+def cas_run(op: str, values: Mapping[str, str] | None = None) -> dict:
+    """Run a CAS operation from the named field values; mirror of ``CasPanel._compute``.
 
     Returns ``{"ok": True, "title", "steps"}`` (each step ``{"text", "answer"}``,
     ``answer`` marking the green result line) or ``{"ok": False, "error"}`` — both
@@ -346,22 +362,94 @@ def cas_run(op: str, expression: str, variable: str = "", fields: Mapping[str, s
     except ImportError:
         return {"ok": False, "error": t("cas.unavailable")}
 
-    extra = {fid: str(value or "").strip() for fid, value in (fields or {}).items()}
+    values = values or {}
+    expression = str(values.get("expression", "") or "").strip()
+    variable = str(values.get("variable", "") or "").strip()
+    extra = {fid: str(values.get(fid, "") or "").strip() for fid in cas.OP_FIELDS.get(op, ())}
     try:
-        result = cas.run(op, (expression or "").strip(), (variable or "").strip(), **extra)
+        result = cas.run(op, expression, variable, **extra)
     except cas.CasError as exc:
         return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
 
-    steps = [
-        {
-            "text": t(step.key, **step.params).replace("**", "^"),
-            "answer": _is_cas_answer(step.key),
-        }
-        for step in result.steps
-    ]
-    if not steps:  # defensive: an op without steps still shows an answer line
-        steps = [{"text": f"{result.input_text}  →  {result.output_text}", "answer": True}]
+    steps = _render_steps(
+        result.steps, _is_cas_answer, power_caret=True,
+        fallback=f"{result.input_text}  →  {result.output_text}",
+    )
     return {"ok": True, "title": t("cas.steps_title"), "steps": steps}
+
+
+# --- Vectors screen (shares the operations model/renderer with CAS) ---
+
+# Step keys whose line is the actual answer, mirroring ``VectorPanel._ANSWER_KEYS``.
+_VECTOR_ANSWER_KEYS = {
+    "vector.step.result",
+    "vector.step.angle_result",
+    "vector.step.proj_vector",
+}
+
+
+def vector_screen() -> dict:
+    """The vectors screen model: operations + labels.
+
+    ``core.vectors`` is standard-library only (always importable), so — unlike the
+    CAS tab — there is no absent-fallback; the model is always ``available``.
+    """
+    from ..core import vectors
+
+    operations = []
+    for op in vectors.OPERATIONS:
+        fields = [{"id": "u", "label": t("vector.u"), "mono": False}]
+        if op in vectors.NEEDS_SECOND:
+            fields.append({"id": "v", "label": t("vector.v"), "mono": False})
+        if op in vectors.NEEDS_SCALAR:
+            fields.append({"id": "k", "label": t("vector.scalar"), "mono": False})
+        operations.append({
+            "id": op,
+            "label": t(f"vector.op.{op}"),
+            "fields": fields,
+            "learning": _operation_learning(
+                f"vec_{op}", t(f"vector.op.{op}"), "vector.steps_title", "vector.steps_placeholder"
+            ),
+        })
+    return {
+        "available": True,
+        "title": t("tab.vectors"),
+        "labels": _operation_labels("vector.operation", "vector.hint", "vector.steps_title"),
+        "operations": operations,
+    }
+
+
+def vector_run(op: str, values: Mapping[str, str] | None = None) -> dict:
+    """Run a vector operation from the named field values; mirror of ``VectorPanel._compute``."""
+    from ..core import vectors
+
+    values = values or {}
+    u_text = str(values.get("u", "") or "").strip()
+    v_text = str(values.get("v", "") or "").strip()
+    scalar = str(values.get("k", "") or "").strip()
+    try:
+        result = vectors.run(op, u_text, v_text, scalar)
+    except vectors.VectorError as exc:
+        return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
+
+    steps = _render_steps(
+        result.steps, lambda key: key in _VECTOR_ANSWER_KEYS, fallback=result.output_text,
+    )
+    return {"ok": True, "title": t("vector.steps_title"), "steps": steps}
+
+
+def _operation_labels(operation_key: str, hint_key: str, steps_title_key: str) -> dict:
+    """The chrome labels shared by every operations screen (CAS, vectors)."""
+    return {
+        "operation": t(operation_key),
+        "hint": t(hint_key),
+        "compute": t("ui.compute"),
+        "clear": t("ui.clear"),
+        "stepsTitle": t(steps_title_key),
+        "openFull": t("ui.open_full"),
+        "relatedFormulas": t("ui.related_formulas"),
+        "seeAlso": t("ui.see_also"),
+    }
 
 
 def solve_formula(formula_key: str, values: Mapping[str, str]) -> dict:

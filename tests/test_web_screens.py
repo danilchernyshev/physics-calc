@@ -128,18 +128,19 @@ def test_cas_screen_lists_operations_with_fields_and_learning():
     screen = screens.cas_screen()
     assert screen["available"] is True
     assert [o["id"] for o in screen["operations"]] == list(cas.OPERATIONS)
+    # The fields are the full, ordered input set: expression, then variable (only
+    # for ops that use one), then the per-op extras (rate -> a, b).
     rate = next(o for o in screen["operations"] if o["id"] == "rate")
-    assert [f["id"] for f in rate["fields"]] == list(cas.OP_FIELDS["rate"])
-    assert rate["usesVariable"] is True
-    # 'evaluate' takes no variable.
+    assert [f["id"] for f in rate["fields"]] == ["expression", "variable", *cas.OP_FIELDS["rate"]]
+    # 'evaluate' takes no variable, so its only field is the expression.
     evaluate = next(o for o in screen["operations"] if o["id"] == "evaluate")
-    assert evaluate["usesVariable"] is False
+    assert [f["id"] for f in evaluate["fields"]] == ["expression"]
     # Every operation carries its before-a-result learning panel.
     assert all(o["learning"] for o in screen["operations"])
 
 
 def test_cas_run_returns_steps_with_a_green_answer():
-    res = screens.cas_run("derivative", "x^2", "x")
+    res = screens.cas_run("derivative", {"expression": "x^2", "variable": "x"})
     assert res["ok"] is True
     assert any(s["answer"] for s in res["steps"])
     # The result line is the answer; powers render with ^, not Python's **.
@@ -148,13 +149,13 @@ def test_cas_run_returns_steps_with_a_green_answer():
 
 
 def test_cas_run_maps_cas_errors_to_localized_messages():
-    res = screens.cas_run("factor", "((", "")
+    res = screens.cas_run("factor", {"expression": "(("})
     assert res["ok"] is False
     assert res["error"] and not res["error"].startswith("error.")
 
 
 def test_cas_run_empty_expression_is_an_error():
-    res = screens.cas_run("simplify", "", "")
+    res = screens.cas_run("simplify", {})
     assert res["ok"] is False
 
 
@@ -173,7 +174,7 @@ def test_cas_screen_degrades_when_sympy_is_absent(monkeypatch):
     assert screen["available"] is False
     assert screen["notice"]
     # And cas_run degrades the same way, not crashes.
-    assert screens.cas_run("simplify", "x", "")["ok"] is False
+    assert screens.cas_run("simplify", {"expression": "x"})["ok"] is False
 
 
 def test_cas_screen_is_localized_on_language_switch():
@@ -187,11 +188,44 @@ def test_cas_screen_is_localized_on_language_switch():
         i18n.set_language("en")
 
 
-def test_screens_js_exposes_the_cas_screen():
+# --- Vectors screen (shares the operations model with CAS) ---
+
+
+def test_vector_screen_lists_operations_with_per_op_fields():
+    from study_calc.core import vectors
+
+    screen = screens.vector_screen()
+    assert screen["available"] is True
+    assert [o["id"] for o in screen["operations"]] == list(vectors.OPERATIONS)
+    # magnitude needs only u; add needs u + v; scale needs u + k.
+    fields_of = {o["id"]: [f["id"] for f in o["fields"]] for o in screen["operations"]}
+    assert fields_of["magnitude"] == ["u"]
+    assert fields_of["add"] == ["u", "v"]
+    assert fields_of["scale"] == ["u", "k"]
+    assert all(o["learning"] for o in screen["operations"])
+
+
+def test_vector_run_returns_steps_with_a_green_answer():
+    res = screens.vector_run("add", {"u": "1, 2", "v": "3, 4"})
+    assert res["ok"] is True
+    answer = next(s for s in res["steps"] if s["answer"])
+    assert "(4, 6)" in answer["text"]
+
+
+def test_vector_run_maps_vector_errors_to_localized_messages():
+    res = screens.vector_run("add", {"u": "1, 2", "v": "3, 4, 5"})
+    assert res["ok"] is False
+    assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_operations_screens_share_one_frontend_renderer():
     js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
-    assert "cas(model, ctx)" in js
+    # One generic renderer backs both CAS and vectors (no per-screen copy).
+    assert "operations(model, ctx)" in js
+    assert "cas(model, ctx)" not in js
     shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
-    assert "cas_screen" in shell and "Screens.cas" in shell
+    assert "Screens.operations" in shell
+    assert "cas_screen" in shell and "vector_screen" in shell
 
 
 # --- language switching ---

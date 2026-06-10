@@ -10,6 +10,12 @@
 
 const state = { data: null, subject: 0, item: 0, langOpen: false };
 
+// Tool items that render the shared operations screen → their bridge methods.
+const OP_TOOLS = {
+  'tool:cas': { screen: 'cas_screen', run: 'cas_run' },
+  'tool:vectors': { screen: 'vector_screen', run: 'vector_run' },
+};
+
 async function loadState() {
   if (window.__STUDY_CALC_STATE__) return window.__STUDY_CALC_STATE__;
   return window.pywebview.api.get_state();
@@ -130,12 +136,15 @@ async function mountScreen() {
       return;
     }
   }
-  if (item && item.kind === 'tool' && item.id === 'tool:cas') {
-    const model = await callApi('cas_screen');
+  // Operation tools (CAS, vectors) share one screen renderer; each names its
+  // bridge screen + run methods.
+  const opTool = item && item.kind === 'tool' && OP_TOOLS[item.id];
+  if (opTool) {
+    const model = await callApi(opTool.screen);
     if (document.getElementById('screen-mount') !== mount) return;
     if (model) {
-      mount.replaceChildren(Screens.cas(model, {
-        run: (op, expr, variable, fields) => callApi('cas_run', op, expr, variable, fields),
+      mount.replaceChildren(Screens.operations(model, {
+        run: (op, values) => callApi(opTool.run, op, values),
       }));
       return;
     }

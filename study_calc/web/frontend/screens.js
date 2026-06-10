@@ -111,14 +111,16 @@ const Screens = {
     ]);
   },
 
-  // Symbolic-math (CAS) screen (issue #7). `model` is the bridge's cas_screen();
-  // `ctx.run(op, expr, variable, fields)` -> Promise of cas_run(). The right card
-  // teaches the selected operation before a result and shows SymPy's step-by-step
-  // (green answer lines) after — mirroring the Tk CasPanel's shared right panel.
-  cas(model, ctx) {
+  // Operations screen — backs both the symbolic-math/CAS (#7) and vectors (#8)
+  // tabs. `model` is the bridge's cas_screen() / vector_screen(); each operation
+  // carries an ordered `fields` list and its learning blocks. `ctx.run(op, values)`
+  // (values keyed by field id) -> Promise of cas_run() / vector_run(). The right
+  // card teaches the selected operation before a result and shows the engine's
+  // step-by-step (green answer lines) after — mirroring the Tk shared right panel.
+  operations(model, ctx) {
     if (!model.available) {
-      // SymPy absent: the same friendly notice as the Tk fallback tab.
-      return h('div', { class: 'screen screen--cas' }, [
+      // e.g. SymPy absent: the same friendly notice as the Tk fallback tab.
+      return h('div', { class: 'screen screen--ops' }, [
         UI.card({ title: model.title, body: [UI.errorStrip(model.notice)] }),
       ]);
     }
@@ -128,34 +130,19 @@ const Screens = {
     // `run` is a generation token — see the formula screen: it discards a late
     // in-flight result when the op changes, Clear is pressed, or a newer compute
     // starts.
-    const st = { op: 0, expr: '', variable: '', fields: {}, view: null, run: 0 };
+    const st = { op: 0, values: {}, view: null, run: 0 };
 
     const current = () => ops[st.op];
 
-    const inputsWrap = h('div', { class: 'cas__inputs' }, []);
-    const panelContent = h('div', { class: 'cas__panel' }, []);
+    const inputsWrap = h('div', { class: 'ops__inputs' }, []);
+    const panelContent = h('div', { class: 'ops__panel' }, []);
 
     function renderInputs() {
-      const op = current();
-      const rows = [
+      inputsWrap.replaceChildren(...current().fields.map((f) =>
         UI.textInput({
-          label: L.expression, value: st.expr, mono: true,
-          oninput: (v) => { st.expr = v; },
-        }),
-      ];
-      if (op.usesVariable) {
-        rows.push(UI.textInput({
-          label: L.variable, value: st.variable, mono: true, width: '160px',
-          oninput: (v) => { st.variable = v; },
-        }));
-      }
-      for (const f of op.fields) {
-        rows.push(UI.textInput({
-          label: f.label, value: st.fields[f.id] || '', mono: true,
-          oninput: (v) => { st.fields[f.id] = v; },
-        }));
-      }
-      inputsWrap.replaceChildren(...rows);
+          label: f.label, value: st.values[f.id] || '', mono: f.mono,
+          oninput: (v) => { st.values[f.id] = v; },
+        })));
     }
 
     function renderPanel() {
@@ -165,7 +152,7 @@ const Screens = {
         panelContent.replaceChildren(...st.view.steps.map((s) =>
           s.answer
             ? h('div', { class: 'result' }, [h('span', { class: 'result__value', text: s.text })])
-            : h('p', { class: 'cas-step', text: s.text })));
+            : h('p', { class: 'ops-step', text: s.text })));
       } else {
         // Before a result: teach the selected operation.
         panelContent.replaceChildren(...learningBlocks(current().learning, L));
@@ -175,8 +162,12 @@ const Screens = {
     function selectOp(index) {
       st.run++;
       st.op = index;
-      st.fields = {};
-      st.view = null; // back to the operation's learning material
+      // Keep values for fields the new op still has (e.g. the expression / u),
+      // drop the op-specific ones — mirroring the Tk panels, which preserve the
+      // main inputs but rebuild the extra fields.
+      const ids = new Set(ops[index].fields.map((f) => f.id));
+      for (const key of Object.keys(st.values)) if (!ids.has(key)) delete st.values[key];
+      st.view = null;
       chipsWrap.replaceChildren(opChips());
       renderInputs();
       renderPanel();
@@ -184,7 +175,7 @@ const Screens = {
 
     async function compute() {
       const run = ++st.run;
-      const res = await ctx.run(current().id, st.expr, st.variable, st.fields);
+      const res = await ctx.run(current().id, st.values);
       if (run !== st.run) return; // op changed / cleared / superseded — drop it
       if (!res) return; // no backend (static preview)
       st.view = res.ok ? { type: 'steps', steps: res.steps } : { type: 'error', error: res.error };
@@ -193,9 +184,7 @@ const Screens = {
 
     function clear() {
       st.run++;
-      st.expr = '';
-      st.variable = '';
-      st.fields = {};
+      st.values = {};
       st.view = null;
       renderInputs();
       renderPanel();
@@ -206,7 +195,7 @@ const Screens = {
       active: current().id,
       onselect: (id) => selectOp(ops.findIndex((o) => o.id === id)),
     });
-    const chipsWrap = h('div', { class: 'cas__ops' }, [opChips()]);
+    const chipsWrap = h('div', { class: 'ops__chips' }, [opChips()]);
 
     // Enter in any input solves (parity with the Tk <Return> binding).
     inputsWrap.addEventListener('keydown', (e) => {

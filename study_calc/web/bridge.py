@@ -89,6 +89,14 @@ class Bridge:
         """The symbolic-math screen: operations + labels, or a SymPy-absent notice."""
         return screens.cas_screen()
 
-    def cas_run(self, op: str, expression: str, variable: str = "", fields: dict | None = None) -> dict:
+    def cas_run(self, op: str, values: dict | None = None) -> dict:
         """Run a CAS operation; localized step-by-step (green answers) or error."""
-        return screens.cas_run(op, expression, variable, fields)
+        return screens.cas_run(op, values)
+
+    def vector_screen(self) -> dict:
+        """The vectors screen: operations + labels."""
+        return screens.vector_screen()
+
+    def vector_run(self, op: str, values: dict | None = None) -> dict:
+        """Run a vector operation; localized step-by-step (green answers) or error."""
+        return screens.vector_run(op, values)
