@@ -391,7 +391,7 @@
   "error.cas_needs_point": "Enter the point to use (a number, or oo for infinity).",
   "error.cas_needs_second_function": "Enter the second function g.",
   "error.vec_empty": "Enter a vector, e.g. 3, 4 or 1, 2, 3.",
-  "error.vec_parse": "Could not read the vector \"{value}\". Use 2 or 3 numbers separated by commas.",
+  "error.vec_parse": "Could not read the vector \"{value}\". Use 1, 2, or 3 numbers separated by commas.",
   "error.vec_dim_mismatch": "The vectors must have the same dimension (got {a} and {b}).",
   "error.vec_cross_dim": "The cross product needs 2-D or 3-D vectors.",
   "error.vec_zero": "This is undefined for a zero vector.",

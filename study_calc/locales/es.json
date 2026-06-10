@@ -368,7 +368,7 @@
   "error.cas_needs_point": "Indica el punto (un número, u oo para infinito).",
   "error.cas_needs_second_function": "Introduce la segunda función g.",
   "error.vec_empty": "Introduce un vector, p. ej. 3, 4 o 1, 2, 3.",
-  "error.vec_parse": "No se pudo leer el vector «{value}». Usa 2 o 3 números separados por comas.",
+  "error.vec_parse": "No se pudo leer el vector «{value}». Usa 1, 2 o 3 números separados por comas.",
   "error.vec_dim_mismatch": "Los vectores deben tener la misma dimensión (se obtuvo {a} y {b}).",
   "error.vec_cross_dim": "El producto vectorial necesita vectores 2-D o 3-D.",
   "error.vec_zero": "No está definido para un vector nulo.",

@@ -78,16 +78,20 @@ def _vec(components: Vector) -> str:
 
 
 def parse_vector(text: str) -> Vector:
-    """Parse ``"1, 2, 3"`` into a 2- or 3-component float tuple.
+    """Parse ``"1, 2, 3"`` into a 1-, 2- or 3-component float tuple.
+
+    A lone number (``"30"``) is a valid 1-D vector — magnitude, scaling and the
+    arithmetic operations all make sense in one dimension; only the cross product
+    insists on 2-D/3-D, and it guards that itself.
 
     :raises VectorError: ``vec_empty`` if blank, ``vec_parse`` on a non-number or
-        a dimension other than 2 or 3.
+        a dimension other than 1, 2 or 3.
     """
     text = text.strip()
     if not text:
         raise VectorError("vec_empty")
     parts = [p.strip() for p in text.replace(";", ",").split(",") if p.strip() != ""]
-    if len(parts) not in (2, 3):
+    if len(parts) not in (1, 2, 3):
         raise VectorError("vec_parse", value=text)
     try:
         return tuple(float(p) for p in parts)

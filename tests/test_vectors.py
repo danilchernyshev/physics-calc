@@ -12,6 +12,18 @@ def test_magnitude_pythagorean():
     assert V.run("magnitude", "3, 4").output_text == "|u| = 5"
 
 
+def test_magnitude_of_lone_number_is_its_absolute_value():
+    # A single number is a valid 1-D vector: |30| = 30, |-7| = 7.
+    assert V.run("magnitude", "30").output_text == "|u| = 30"
+    assert V.run("magnitude", "-7").output_text == "|u| = 7"
+
+
+def test_cross_still_rejects_one_dimension():
+    with pytest.raises(V.VectorError) as info:
+        V.run("cross", "3", "4")
+    assert info.value.code == "vec_cross_dim"
+
+
 def test_add_componentwise():
     assert V.run("add", "1,2,3", "4,5,6").output_text == "(5, 7, 9)"
 

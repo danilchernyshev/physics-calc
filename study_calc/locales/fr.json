@@ -368,7 +368,7 @@
   "error.cas_needs_point": "Indiquez le point (un nombre, ou oo pour l'infini).",
   "error.cas_needs_second_function": "Saisissez la deuxième fonction g.",
   "error.vec_empty": "Saisissez un vecteur, p. ex. 3, 4 ou 1, 2, 3.",
-  "error.vec_parse": "Impossible de lire le vecteur « {value} ». Utilisez 2 ou 3 nombres séparés par des virgules.",
+  "error.vec_parse": "Impossible de lire le vecteur « {value} ». Utilisez 1, 2 ou 3 nombres séparés par des virgules.",
   "error.vec_dim_mismatch": "Les vecteurs doivent avoir la même dimension ({a} et {b} obtenus).",
   "error.vec_cross_dim": "Le produit vectoriel nécessite des vecteurs 2-D ou 3-D.",
   "error.vec_zero": "Non défini pour un vecteur nul.",
