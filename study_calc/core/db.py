@@ -35,8 +35,11 @@ import sqlite3
 import threading
 from pathlib import Path
 
-# Resolved at import time so the default is stable even if cwd changes.
-_DEFAULT_DB: Path = Path(__file__).parent.parent / "data" / "knowledgebase.db"
+from study_calc.resources import resource_path
+
+# Resolved at import time so the default is stable even if cwd changes; works
+# from a source checkout and from a frozen bundle (see study_calc.resources).
+_DEFAULT_DB: Path = resource_path("data", "knowledgebase.db")
 
 # Per-thread cache: each thread holds its own ``{resolved_path: Connection}``
 # map, because a sqlite3.Connection must not be shared between threads.

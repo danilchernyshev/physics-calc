@@ -23,9 +23,10 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-TOKENS_PATH = _HERE / "tokens.json"
-CSS_PATH = _HERE / "frontend" / "tokens.css"
+from ..resources import resource_path
+
+TOKENS_PATH = resource_path("web", "tokens.json")
+CSS_PATH = resource_path("web", "frontend", "tokens.css")
 
 # Token groups, in the order they appear in the generated CSS. Every group is a
 # flat ``{name: value}`` map; ``$meta`` is documentation only and never emitted.

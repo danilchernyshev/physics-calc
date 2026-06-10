@@ -20,6 +20,9 @@ graph = ["matplotlib>=3.7", "numpy>=1.24"]
 # Deprecated no-op alias: pywebview moved into core dependencies above. Retained
 # so the documented `--extra web` invocation keeps resolving.
 web = []
+# Build tooling for the frozen desktop bundles (packaging epic #60): PyInstaller
+# drives packaging/study-calc.spec. Build-time only — never a runtime dependency.
+packaging = ["pyinstaller>=6.0"]
 
 [project.scripts]
 study-calc = "study_calc.web.app:run"
