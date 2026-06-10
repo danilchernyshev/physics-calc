@@ -44,7 +44,10 @@ REQUIRED_KEYS = {
     "line-height": {"tight", "normal", "relaxed"},
     "space": {"3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"},
     "radius": {"xs", "sm", "md", "lg", "pill"},
-    "elevation": {"none", "card"},
+    # All four levels are defined and in use: --elevation-raised backs .modal__card
+    # in web/frontend/screens.css, so dropping it would degrade that CSS to an
+    # undefined variable (issue #25).
+    "elevation": {"none", "sm", "card", "raised"},
 }
 
 
