@@ -7,8 +7,9 @@ formula (or, later, a Math topic) needs references.
 
 Two sources are mapped per formula:
 
-- **OpenStax — College Physics**: the textbook section that introduces the equation
-  (https://openstax.org/books/college-physics). Linked at section level.
+- **OpenStax — College Physics 2e**: the textbook section that introduces the
+  equation (https://openstax.org/books/college-physics-2e). Linked at section
+  level, on the current 2nd edition the CollegePhysicsAnswers videos follow.
 - **CollegePhysicsAnswers**: worked, video-explained solutions for the matching
   chapter (https://collegephysicsanswers.com).
 
@@ -19,7 +20,7 @@ from __future__ import annotations
 
 from study_calc.core.explain import Explanation, Reference
 
-_OPENSTAX = "https://openstax.org/books/college-physics/pages/{}"
+_OPENSTAX = "https://openstax.org/books/college-physics-2e/pages/{}"
 _CPANSWERS = "https://collegephysicsanswers.com/{}"
 
 # formula key -> (OpenStax section slug, CollegePhysicsAnswers chapter slug)

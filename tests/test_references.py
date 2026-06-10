@@ -56,6 +56,13 @@ def test_unknown_formula_key_has_no_references():
     assert references_for("does_not_exist") == ()
 
 
+def test_openstax_references_point_at_the_current_2e_edition():
+    """The textbook links track College Physics 2e, the edition the videos follow."""
+    for formula in _all_formulas():
+        openstax = references_for(formula.key)[0]
+        assert "/books/college-physics-2e/" in openstax.url, openstax.url
+
+
 def test_openstax_slugs_have_no_obvious_typos():
     """Cheap guard: section slugs should look like '<chapter>-<section>-<words>'."""
     for formula in _all_formulas():
