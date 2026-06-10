@@ -354,6 +354,148 @@ const Screens = {
     return h('div', { class: 'screen screen--converter' }, [converterCard]);
   },
 
+  // Remove every body-level .modal overlay that a shell re-render would
+  // otherwise orphan over the page (issue #51). Called from render() in
+  // shell.js before rebuilding #app, so a language / subject / item switch
+  // never leaves a stale overlay in the previous language. Both the guide and
+  // concept overlays are .modal nodes appended to document.body.
+  //
+  // Focus: if focus was inside any removed overlay _destroyOverlay returns
+  // true; we then park it on document.body — the safe state before the shell
+  // rebuilds the nav rail (which will produce a fresh #guide-btn).
+  closeOverlays() {
+    document.body.querySelectorAll('.modal').forEach((m) => {
+      if (_destroyOverlay(m)) document.body.focus();
+    });
+  },
+
+  // Periodic-table screen (issue #10). `model` is the bridge's periodic_screen();
+  // `ctx.molarMass(formula)` -> Promise of molar_mass_run() (or null in preview),
+  // `ctx.balance(equation)` -> Promise of balance_run() (or null in preview).
+  // The 118-element grid is placed by xpos/ypos via inline style; cells are
+  // coloured through `.periodic__cell--<series>` classes that map to the
+  // --series-* CSS tokens. The element detail line is built client-side from the
+  // pre-baked element list — no round-trip needed (mirrors converter's approach).
+  periodic(model, ctx) {
+    const L = model.labels;
+    const els = model.elements;
+
+    // Per-tool generation tokens — each tool gets its own counter so a slow
+    // molar-mass request cannot clobber a concurrent balance result and vice versa.
+    const st = { mmRun: 0, balRun: 0 };
+
+    // --- Detail line (updated on cell click; no backend round-trip) ---
+    const detailWrap = h('div', { class: 'periodic__detail' }, []);
+
+    function fmtMass(m) {
+      // Mirror Python's :g format: up to 6 significant digits, no trailing zeros.
+      return parseFloat(m.toPrecision(6)).toString();
+    }
+
+    function renderDetail(el) {
+      const group = el.group != null ? String(el.group) : '—'; // em dash for no group
+      const text = (
+        el.name + '  ·  ' + L.atomicNumber + ' ' + el.number
+        + '  ·  ' + L.atomicMass + ' ' + fmtMass(el.mass) + ' ' + L.gramPerMol
+        + '  ·  ' + L.group + ' ' + group + ', ' + L.period + ' ' + el.period
+        + '  ·  ' + el.category
+      );
+      detailWrap.replaceChildren(h('p', { class: 'periodic__detail-text', text }));
+    }
+
+    // --- Periodic grid: one button per element, placed via xpos/ypos. ---
+    const gridCells = els.map((el) =>
+      h('button', {
+        class: 'periodic__cell periodic__cell--' + el.series,
+        type: 'button',
+        style: 'grid-column:' + el.xpos + ';grid-row:' + el.ypos,
+        title: el.name,
+        onclick: () => renderDetail(el),
+      }, [
+        h('span', { class: 'periodic__num', text: String(el.number) }),
+        h('span', { class: 'periodic__sym', text: el.symbol }),
+      ])
+    );
+    const grid = h('div', { class: 'periodic__grid' }, gridCells);
+
+    // --- Molar-mass tool ---
+    const mmInput = h('input', { class: 'field__control', type: 'text', placeholder: 'H2O' });
+    const mmResultWrap = h('div', { class: 'periodic__tool-result' }, []);
+
+    async function computeMM() {
+      const run = ++st.mmRun;
+      const res = await ctx.molarMass(mmInput.value);
+      if (run !== st.mmRun) return; // superseded by a newer request or Clear
+      if (!res) return;             // no backend (static preview)
+      mmResultWrap.replaceChildren(
+        res.ok ? UI.result({ label: '', value: res.result }) : UI.errorStrip(res.error)
+      );
+    }
+    function clearMM() {
+      st.mmRun++;
+      mmInput.value = '';
+      mmResultWrap.replaceChildren();
+    }
+    // Enter computes (parity with the Tk <Return> binding).
+    mmInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); computeMM(); } });
+
+    // --- Balancer tool ---
+    const balInput = h('input', {
+      class: 'field__control', type: 'text',
+      placeholder: 'CH4 + O2 -> CO2 + H2O',
+    });
+    const balResultWrap = h('div', { class: 'periodic__tool-result' }, []);
+
+    async function computeBal() {
+      const run = ++st.balRun;
+      const res = await ctx.balance(balInput.value);
+      if (run !== st.balRun) return;
+      if (!res) return;
+      balResultWrap.replaceChildren(
+        res.ok ? UI.result({ label: '', value: res.result }) : UI.errorStrip(res.error)
+      );
+    }
+    function clearBal() {
+      st.balRun++;
+      balInput.value = '';
+      balResultWrap.replaceChildren();
+    }
+    balInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); computeBal(); } });
+
+    const toolsCard = UI.card({
+      title: model.title,
+      body: [
+        h('div', { class: 'periodic__tools' }, [
+          h('div', { class: 'periodic__tool-row' }, [
+            UI.field(L.molarMass, mmInput),
+            h('div', { class: 'periodic__tool-actions chips' }, [
+              UI.button({ label: L.compute, variant: 'primary', onclick: computeMM }),
+              UI.button({ label: L.clear, variant: 'ghost', onclick: clearMM }),
+            ]),
+            mmResultWrap,
+          ]),
+          h('div', { class: 'periodic__tool-row' }, [
+            UI.field(L.equation, balInput),
+            h('div', { class: 'periodic__tool-actions chips' }, [
+              UI.button({ label: L.balance, variant: 'primary', onclick: computeBal }),
+              UI.button({ label: L.clear, variant: 'ghost', onclick: clearBal }),
+            ]),
+            balResultWrap,
+          ]),
+        ]),
+      ],
+    });
+
+    const gridCard = UI.card({ body: [grid, detailWrap] });
+
+    // Seed the detail line with hydrogen (element 1), mirroring the Tk panel
+    // which calls `self._select(periodic.element("H"))` in __init__.
+    const hydrogen = els.find((e) => e.symbol === 'H') || els[0];
+    renderDetail(hydrogen);
+
+    return h('div', { class: 'screen screen--periodic' }, [toolsCard, gridCard]);
+  },
+
   // Guide overlay (issue #40). `model` is the bridge's guide_screen() result:
   // {title, intro, sections:[{head,body}]}. All strings are already localized
   // server-side — nothing is hardcoded here.
@@ -382,8 +524,10 @@ const Screens = {
     // reference it even though the assignment happens further down.
     let overlay;
 
+    // Route through _destroyOverlay so guide and concept overlays share one
+    // teardown path — focus-restore logic is never duplicated or divergent.
     function close() {
-      if (overlay) overlay.remove();
+      _destroyOverlay(overlay);
       if (trigger) trigger.focus();
     }
 
@@ -534,6 +678,11 @@ function renderExample(ex) {
 // Key-term pop-up: full definition + related formulas + clickable "see also"
 // terms (resolved one level deep in the model, so this stays self-contained).
 function openConcept(concept, L) {
+  // Capture the element that triggered this pop-up so close() can restore
+  // focus to it — routes through _destroyOverlay for the same teardown path
+  // as openGuide, keeping focus-restore logic in one place (issue #51).
+  const trigger = document.activeElement;
+
   const card = h('div', { class: 'modal__card' }, [
     h('button', {
       class: 'modal__close', type: 'button', 'aria-label': L.close,
@@ -558,8 +707,25 @@ function openConcept(concept, L) {
 
   const overlay = h('div', { class: 'modal' }, [card]);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-  function close() { overlay.remove(); }
+  // _destroyOverlay returns true when focus was inside the removed overlay;
+  // restore it to the element that opened this pop-up if that element is
+  // still in the DOM (it is for a manual close; it won't be after a render).
+  function close() {
+    if (_destroyOverlay(overlay) && trigger && trigger.isConnected) trigger.focus();
+  }
   document.body.append(overlay);
+}
+
+// Shared teardown for body-level modal overlays (openGuide and openConcept).
+// Removes the overlay from the DOM and returns true if focus was inside it,
+// so each caller can decide where to restore focus without duplicating the
+// "was focus in there?" check.  Both overlay types route through this helper
+// so the teardown path is never divergent (issue #51).
+function _destroyOverlay(overlay) {
+  if (!overlay || !overlay.parentNode) return false;
+  const hadFocus = overlay.contains(document.activeElement);
+  overlay.remove();
+  return hadFocus;
 }
 
 window.Screens = Screens;

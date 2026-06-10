@@ -366,6 +366,76 @@ def test_converter_screen_has_dedicated_frontend_renderer():
     assert "convert_run" in shell
 
 
+# --- Periodic-table screen ---
+
+
+def test_periodic_screen_lists_all_elements_with_positions_and_series():
+    screen = screens.periodic_screen()
+    assert screen["available"] is True
+    els = screen["elements"]
+    assert len(els) == 118
+    # Each element must carry the full set of fields the grid renderer needs.
+    required = {"number", "symbol", "name", "mass", "group", "period",
+                "category", "xpos", "ypos", "series"}
+    assert required <= set(els[0].keys())
+    # xpos/ypos must span the 18-column periodic table (columns 1-18, rows 1-10).
+    assert all(1 <= e["xpos"] <= 18 and 1 <= e["ypos"] <= 10 for e in els)
+    # Hydrogen: top-left corner, diatomic nonmetal.
+    h_el = next(e for e in els if e["symbol"] == "H")
+    assert h_el["xpos"] == 1 and h_el["ypos"] == 1
+    assert h_el["series"] == "diatomic-nonmetal"
+    # Synthetic/unknown elements map to the fallback slug, not a hex colour.
+    assert all(not e["series"].startswith("#") for e in els)
+    # Labels are localized prose — never raw i18n keys.
+    L = screen["labels"]
+    assert not L["molarMass"].startswith("ui.")
+    assert not L["equation"].startswith("ui.")
+    assert not L["balance"].startswith("ui.")
+
+
+def test_molar_mass_run_happy_path():
+    # H2O: 2 × 1.008 + 15.999 = 18.015 g/mol.
+    res = screens.molar_mass_run("H2O")
+    assert res["ok"] is True
+    # Mirror the Tk format: "H2O = 18.015 g/mol  (H:2, O:1)".
+    assert "H2O" in res["result"]
+    assert "18." in res["result"]
+    assert "g/mol" in res["result"]       # unit label (English default)
+    assert "H:2" in res["result"] and "O:1" in res["result"]
+
+
+def test_molar_mass_run_unknown_element_returns_localized_error():
+    res = screens.molar_mass_run("Xx")   # "Xx" is not a real element
+    assert res["ok"] is False
+    # Localized prose, not the raw "error.*" key.
+    assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_balance_run_happy_path():
+    # 2H2 + O2 -> 2H2O
+    res = screens.balance_run("H2 + O2 -> H2O")
+    assert res["ok"] is True
+    assert "->" in res["result"] and "H2O" in res["result"]
+
+
+def test_balance_run_no_arrow_returns_localized_error():
+    res = screens.balance_run("H2 O2 H2O")   # no arrow separator
+    assert res["ok"] is False
+    assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_periodic_screen_has_dedicated_frontend_renderer():
+    # The periodic table is its own 118-cell grid — not a section, CAS/vectors
+    # operation, or converter — so it gets its own Screens.periodic renderer.
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    assert "periodic(model, ctx)" in js
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    assert "Screens.periodic" in shell
+    assert "periodic_screen" in shell
+    assert "molar_mass_run" in shell
+    assert "balance_run" in shell
+
+
 # --- language switching ---
 
 
@@ -416,3 +486,98 @@ def test_screens_css_uses_only_tokens():
     # Hex colors are forbidden (token-only); rgba overlays are allowed.
     assert not re.findall(r"#[0-9a-fA-F]{3,8}\b", css)
     assert "var(--color-" in css and "var(--space-" in css
+
+
+# --- issue #51: closeOverlays wiring ---
+
+
+def test_screens_js_exports_close_overlays():
+    """closeOverlays() must be on the Screens object exported to the shell."""
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # The method lives on the Screens object literal (before window.Screens = Screens).
+    assert "closeOverlays()" in js
+    assert "window.Screens = Screens" in js
+
+
+def test_shell_calls_close_overlays_before_rebuild():
+    """render() in shell.js must call Screens.closeOverlays() before rebuilding #app.
+
+    DOM-level verification is not feasible without a headless browser, so this
+    test checks the source wiring: the call must appear in shell.js, and it
+    must come before app.replaceChildren (i.e. before the #app rebuild).
+    """
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    assert "Screens.closeOverlays()" in shell
+    # The closeOverlays call must precede the DOM rebuild within render().
+    close_pos = shell.index("Screens.closeOverlays()")
+    rebuild_pos = shell.index("app.replaceChildren(")
+    assert close_pos < rebuild_pos, (
+        "Screens.closeOverlays() must be called before app.replaceChildren() in render()"
+    )
+
+
+def test_screens_js_uses_shared_destroy_overlay():
+    """Both openGuide and openConcept route teardown through _destroyOverlay.
+
+    The shared helper is the single place that handles focus tracking,
+    preventing duplicated or divergent focus-restore logic (issue #51).
+    """
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # The helper is defined at module level.
+    assert "function _destroyOverlay(" in js
+    # Both overlay types call it.
+    assert js.count("_destroyOverlay(") >= 3  # closeOverlays + openGuide + openConcept
+
+
+# --- issue #52: localized close label ---
+
+
+def test_formula_screen_labels_carry_localized_close():
+    """formula_screen() labels include close == t("ui.close"), not a hardcoded string."""
+    screen = screens.formula_screen("mechanics")
+    labels = screen["labels"]
+    assert "close" in labels, "formula_screen labels must include 'close'"
+    assert labels["close"] == t("ui.close")
+    assert labels["close"] and not labels["close"].startswith("ui.")
+
+
+def test_close_label_changes_with_language_switch():
+    """The close label in both overlay models changes when the language is switched."""
+    try:
+        en_guide = Bridge().guide_screen()
+        en_formula = Bridge().formula_screen("mechanics")
+
+        bridge = Bridge()
+        bridge.set_language("ru")
+        ru_guide = bridge.guide_screen()
+        ru_formula = bridge.formula_screen("mechanics")
+
+        # Guide overlay close label.
+        assert en_guide["close"] != ru_guide["close"], (
+            "guide_screen close label must differ between English and Russian"
+        )
+        # Formula screen labels close (used by openConcept via L.close).
+        assert en_formula["labels"]["close"] != ru_formula["labels"]["close"], (
+            "formula_screen labels.close must differ between English and Russian"
+        )
+    finally:
+        i18n.set_language("en")
+
+
+def test_screens_js_has_no_hardcoded_english_close_string():
+    """No user-facing 'Close' literal must remain in screens.js (issue #52).
+
+    Both overlay buttons read their aria-label from the localized model
+    (model.close for openGuide, L.close for openConcept), so the only
+    occurrences of the word 'Close' in the source should be in comments.
+    """
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # Strip comment lines (// ...) and check no standalone 'Close' string literal remains.
+    non_comment_lines = [
+        line for line in js.splitlines()
+        if not line.lstrip().startswith("//")
+    ]
+    code_only = "\n".join(non_comment_lines)
+    # 'Close' as a quoted JS string literal would be 'Close' or "Close".
+    assert "'Close'" not in code_only, "Hardcoded 'Close' string found in screens.js code"
+    assert '"Close"' not in code_only, 'Hardcoded "Close" string found in screens.js code'

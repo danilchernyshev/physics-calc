@@ -45,6 +45,9 @@ def render_preview_html(state: dict | None = None) -> str:
     cas = json.dumps(screens.cas_screen())
     vectors = json.dumps(screens.vector_screen())
     converter = json.dumps(screens.converter_screen())
+    # periodic_screen() is always available (standard-library only); stub the
+    # two run methods so the preview grid renders but tools do nothing.
+    periodic = json.dumps(screens.periodic_screen())
     guide = json.dumps(screens.guide_screen())
     inject = (
         f"<script>window.__STUDY_CALC_STATE__ = {json.dumps(state)};\n"
@@ -53,6 +56,7 @@ def render_preview_html(state: dict | None = None) -> str:
         f"  var cas = {cas};\n"
         f"  var vectors = {vectors};\n"
         f"  var converter = {converter};\n"
+        f"  var periodic = {periodic};\n"
         f"  var guide = {guide};\n"
         f"  return {{\n"
         f"    formula_screen: function (id) {{ return byId[String(id).split(':').pop()] || null; }},\n"
@@ -63,6 +67,9 @@ def render_preview_html(state: dict | None = None) -> str:
         f"    vector_run: function () {{ return null; }},\n"
         f"    converter_screen: function () {{ return converter; }},\n"
         f"    convert_run: function () {{ return null; }},\n"
+        f"    periodic_screen: function () {{ return periodic; }},\n"
+        f"    molar_mass_run: function () {{ return null; }},\n"
+        f"    balance_run: function () {{ return null; }},\n"
         f"    guide_screen: function () {{ return guide; }}\n"
         f"  }};\n"
         f"}})();</script>"

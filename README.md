@@ -166,15 +166,15 @@ The redesign (a flat, card-based UI — see
 frontend alongside the Tkinter app. The app shell (nav rail + header) — now
 with the **"How to use" guide overlay** wired to the footer button — the
 physics **formula screen**, the symbolic-math **CAS screen**, the
-**vectors screen** and the unit **converter screen** can be run with the
-optional `web` extra:
+**vectors screen**, the unit **converter screen** and the chemistry
+**periodic-table screen** can be run with the optional `web` extra:
 
 ```bash
 uv run --extra web python -m study_calc.web   # or: study-calc-web
 ```
 
 It reuses the same `core`/`domains`/`navigation`/i18n layers; the remaining
-screens land incrementally (issues #10–#11).
+screens land incrementally (issue #11).
 
 ### Windows
 

@@ -109,6 +109,18 @@ class Bridge:
         """Convert a value between units; localized result string or error."""
         return screens.convert_run(category, value, from_unit, to_unit)
 
+    def periodic_screen(self) -> dict:
+        """The periodic-table screen: all 118 elements pre-baked for the CSS grid."""
+        return screens.periodic_screen()
+
+    def molar_mass_run(self, formula: str) -> dict:
+        """Compute the molar mass of a chemical formula; localized result or error."""
+        return screens.molar_mass_run(formula)
+
+    def balance_run(self, equation: str) -> dict:
+        """Balance a chemical equation; localized result or error."""
+        return screens.balance_run(equation)
+
     def guide_screen(self) -> dict:
         """The guide overlay model: title, intro, and six localized sections."""
         return screens.guide_screen()

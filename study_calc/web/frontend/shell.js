@@ -168,10 +168,29 @@ async function mountScreen() {
       return;
     }
   }
+  // The periodic-table tool has its own dedicated renderer (issue #10): a
+  // 118-element CSS grid coloured by series tokens, with molar-mass and
+  // equation-balancer tools. core.periodic is always importable (no fallback).
+  if (item && item.kind === 'tool' && item.id === 'tool:periodic_table') {
+    const model = await callApi('periodic_screen');
+    if (document.getElementById('screen-mount') !== mount) return;
+    if (model) {
+      mount.replaceChildren(Screens.periodic(model, {
+        molarMass: (formula) => callApi('molar_mass_run', formula),
+        balance: (equation) => callApi('balance_run', equation),
+      }));
+      return;
+    }
+  }
   mount.replaceChildren(placeholderNode(data, subject));
 }
 
 function render() {
+  // Close any open body-level overlay (guide or key-term pop-up) before
+  // rebuilding #app: these overlays are appended to document.body, not inside
+  // #app, so the DOM rebuild below would otherwise orphan them over the page
+  // in the previous language / subject / item (issue #51).
+  Screens.closeOverlays();
   const data = state.data;
   const subject = data.subjects[state.subject];
   document.documentElement.lang = data.lang;
