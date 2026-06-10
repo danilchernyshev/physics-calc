@@ -1,0 +1,18 @@
+{
+  "subject": "physics",
+  "title": "Energy of a photon",
+  "given": [
+    "frequency f = 5.0×10¹⁴ Hz",
+    "h = 6.63×10⁻³⁴ J·s"
+  ],
+  "find": "the photon energy",
+  "steps": [
+    "E = h·f = 6.63×10⁻³⁴ · 5.0×10¹⁴.",
+    "E = 3.3×10⁻¹⁹ J."
+  ],
+  "answer": "E ≈ 3.3×10⁻¹⁹ J",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "photon_energy"
+}

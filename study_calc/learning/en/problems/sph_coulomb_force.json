@@ -1,0 +1,21 @@
+{
+  "subject": "physics",
+  "title": "Force between two charges",
+  "given": [
+    "q₁ = q₂ = 2.0×10⁻⁶ C",
+    "separation r = 0.50 m",
+    "k = 8.99×10⁹ N·m²/C²"
+  ],
+  "find": "the electric force between them",
+  "steps": [
+    "F = k·q₁·q₂/r².",
+    "= 8.99×10⁹ · (2.0×10⁻⁶)² / (0.50)².",
+    "= 8.99×10⁹ · 4.0×10⁻¹² / 0.25.",
+    "= 0.144 N."
+  ],
+  "answer": "F ≈ 0.144 N",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "coulomb"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Mole (mol)",
+  "short": "The SI unit for amount of substance: one mole contains 6.022×10²³ particles (Avogadro's number).",
+  "full": "The mole is chemistry's counting unit. One mole of any substance contains Avogadro's number, 6.022×10²³, of its formula units — atoms, molecules or ions. It links the particle scale to the laboratory scale of grams and litres.\n\nThe molar mass (g/mol) converts between mass and moles, and for a gas the molar volume relates moles to volume. Concentration in mol/L (molarity) expresses how many moles of solute sit in each litre of solution, the everyday currency of equilibrium and acid–base calculations.",
+  "formulas": [
+    "n = m / M",
+    "1 mol = 6.022×10²³ particles",
+    "c = n / V"
+  ],
+  "see_also": [
+    "amount_of_substance"
+  ]
+}

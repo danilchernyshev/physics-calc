@@ -1,0 +1,14 @@
+{
+  "title": "Enthalpy (H)",
+  "short": "The heat content of a system at constant pressure; a reaction's enthalpy change ΔH is the heat it absorbs (+) or releases (−).",
+  "full": "Enthalpy H is a state function — its value depends only on the current state, not on the path taken. Chemists almost never need H itself, only the change ΔH for a process at constant pressure, which equals the heat exchanged with the surroundings.\n\nA negative ΔH marks an exothermic reaction (heat released, products lower in energy); a positive ΔH marks an endothermic one. Because enthalpy is a state function, ΔH for an overall reaction is the same no matter what route is taken — the basis of Hess's law.",
+  "formulas": [
+    "ΔH < 0: exothermic",
+    "ΔH > 0: endothermic",
+    "ΔH_rxn = ΣΔH_f(products) − ΣΔH_f(reactants)"
+  ],
+  "see_also": [
+    "heat",
+    "hess_law"
+  ]
+}

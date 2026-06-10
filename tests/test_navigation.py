@@ -54,6 +54,13 @@ def test_problems_subjects_are_known():
             assert item.subject_id in KNOWN_SUBJECTS, item.subject_id
 
 
+def test_chemistry_surfaces_its_problems():
+    """Chemistry is no longer a placeholder — it shows its practice problems."""
+    chemistry = dict(SUBJECTS)["chemistry"]
+    assert any(isinstance(item, Problems) and item.subject_id == "chemistry"
+               for item in chemistry)
+
+
 def test_navigation_labels_resolve_in_english():
     catalog = I18n()._catalogs["en"]
     for subject_id, _it in SUBJECTS:

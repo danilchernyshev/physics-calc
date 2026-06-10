@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "Enthalpy of combustion of methane",
+  "given": [
+    "CH₄ + 2 O₂ → CO₂ + 2 H₂O(l)",
+    "ΔH_f: CH₄ = −74.6, CO₂ = −393.5, H₂O(l) = −285.8 kJ/mol"
+  ],
+  "find": "the standard enthalpy of reaction ΔH_rxn",
+  "steps": [
+    "Products: −393.5 + 2(−285.8) = −965.1 kJ.",
+    "Reactants: −74.6 + 2(0) = −74.6 kJ.",
+    "ΔH_rxn = ΣΔH_f(products) − ΣΔH_f(reactants) = −965.1 − (−74.6).",
+    "ΔH_rxn = −890.5 kJ."
+  ],
+  "answer": "ΔH_rxn = −890.5 kJ/mol (exothermic)",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_thermochem"
+}

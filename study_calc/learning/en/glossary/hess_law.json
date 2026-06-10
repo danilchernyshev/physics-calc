@@ -1,0 +1,13 @@
+{
+  "title": "Hess's law",
+  "short": "The enthalpy change of an overall reaction equals the sum of the enthalpy changes of any steps that add up to it.",
+  "full": "Hess's law follows from enthalpy being a state function: since ΔH depends only on the initial and final states, you can reach the products by any convenient set of steps and add their ΔH values to get the overall ΔH.\n\nIn practice you take known reactions with known enthalpy changes, reverse or scale them (reversing flips the sign of ΔH; scaling multiplies it), and add them so the unwanted species cancel. This lets you find an enthalpy change that would be hard to measure directly, such as the formation of carbon monoxide.",
+  "formulas": [
+    "reverse a step → flip the sign of ΔH",
+    "scale a step ×n → multiply ΔH by n",
+    "ΔH_overall = Σ ΔH_steps"
+  ],
+  "see_also": [
+    "enthalpy"
+  ]
+}

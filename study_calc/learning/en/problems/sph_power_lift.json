@@ -1,0 +1,20 @@
+{
+  "subject": "physics",
+  "title": "Power to lift a load",
+  "given": [
+    "a motor lifts a 200 N load through h = 3.0 m",
+    "in t = 6.0 s at constant speed"
+  ],
+  "find": "the power output of the motor",
+  "steps": [
+    "Work against gravity: W = F·h = 200 · 3.0 = 600 J.",
+    "Power is work per unit time: P = W/t = 600 / 6.0.",
+    "P = 100 W.",
+    "Check with P = F·v: v = 3.0/6.0 = 0.50 m/s, P = 200 · 0.50 = 100 W. ✓"
+  ],
+  "answer": "P = 100 W",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "power"
+}

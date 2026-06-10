@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "Heat to warm water (calorimetry)",
+  "given": [
+    "mass m = 100.0 g of water",
+    "temperature rise ΔT = 25.0 °C",
+    "specific heat c = 4.18 J/(g·°C)"
+  ],
+  "find": "the heat q absorbed by the water",
+  "steps": [
+    "Use q = m·c·ΔT.",
+    "q = 100.0 g · 4.18 J/(g·°C) · 25.0 °C.",
+    "q = 10450 J = 10.45 kJ."
+  ],
+  "answer": "q = 10450 J ≈ 10.5 kJ",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_thermochem"
+}

@@ -1,0 +1,19 @@
+{
+  "subject": "chemistry",
+  "title": "pH of a strong acid",
+  "given": [
+    "0.010 M hydrochloric acid (HCl)",
+    "HCl is a strong acid (ionizes completely)"
+  ],
+  "find": "the pH of the solution",
+  "steps": [
+    "A strong acid ionizes fully, so [H⁺] = 0.010 M.",
+    "pH = −log[H⁺] = −log(0.010).",
+    "pH = 2.00."
+  ],
+  "answer": "pH = 2.00",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_acids_bases"
+}

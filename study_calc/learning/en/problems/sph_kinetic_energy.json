@@ -1,0 +1,18 @@
+{
+  "subject": "physics",
+  "title": "Kinetic energy of a ball",
+  "given": [
+    "mass m = 0.50 kg",
+    "speed v = 10 m/s"
+  ],
+  "find": "the kinetic energy",
+  "steps": [
+    "KE = ½·m·v² = ½·0.50·10².",
+    "= ½·0.50·100 = 25 J."
+  ],
+  "answer": "KE = 25 J",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "kinetic_energy"
+}

@@ -34,13 +34,18 @@ from pathlib import Path
 _LEARNING_DIR = Path(__file__).parent.parent / "learning"
 DEFAULT_LANGUAGE = "en"
 
-# Ontario course code -> grade level, for the curriculum badge shown on a topic.
-# MCR3U: Functions (Gr. 11); MHF4U: Advanced Functions (Gr. 12); MCV4U: Calculus
-# and Vectors (Gr. 12). Codes not listed render without a grade.
+# Ontario course code -> grade level, for the curriculum badge shown on a topic
+# or a practice problem. MCR3U: Functions (Gr. 11); MHF4U: Advanced Functions
+# (Gr. 12); MCV4U: Calculus and Vectors (Gr. 12); MDM4U: Mathematics of Data
+# Management (Gr. 12); SPH4U: Physics (Gr. 12); SCH4U: Chemistry (Gr. 12). Codes
+# not listed render without a grade.
 CURRICULUM_GRADES: dict[str, int] = {
     "MCR3U": 11,
     "MHF4U": 12,
     "MCV4U": 12,
+    "MDM4U": 12,
+    "SPH4U": 12,
+    "SCH4U": 12,
 }
 
 
@@ -119,6 +124,9 @@ class Problem:
     :param example: the statement, solution steps and answer.
     :param video_url: optional link to a video solution (opened in the browser).
     :param topic_id: optional :class:`Topic` id whose theory backs this problem.
+    :param courses: Ontario course codes this problem belongs to (e.g.
+        ``("SCH4U",)``), rendered as a curriculum badge. See
+        :data:`CURRICULUM_GRADES`.
     """
 
     problem_id: str
@@ -126,6 +134,7 @@ class Problem:
     example: WorkedExample
     video_url: str = ""
     topic_id: str = ""
+    courses: tuple[str, ...] = ()
 
 
 def _read_json(language: str, kind: str, item_id: str) -> dict | None:
@@ -207,6 +216,7 @@ def load_problem(problem_id: str, language: str = DEFAULT_LANGUAGE) -> Problem |
         example=_as_example(data) or WorkedExample("", (), "", (), ""),
         video_url=data.get("video_url", ""),
         topic_id=data.get("topic", ""),
+        courses=tuple(data.get("courses", ())),
     )
 
 

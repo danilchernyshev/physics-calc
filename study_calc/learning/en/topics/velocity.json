@@ -1,7 +1,19 @@
 {
+  "courses": [
+    "SPH4U"
+  ],
   "summary": "Under constant acceleration the velocity changes uniformly with time: v = v₀ + a·t. Use it whenever an object speeds up or slows down at a steady rate.",
-  "terms": ["velocity", "acceleration", "time"],
-  "formulas": ["v = v₀ + a·t", "a = (v − v₀) / t", "t = (v − v₀) / a", "v₀ = v − a·t"],
+  "terms": [
+    "velocity",
+    "acceleration",
+    "time"
+  ],
+  "formulas": [
+    "v = v₀ + a·t",
+    "a = (v − v₀) / t",
+    "t = (v − v₀) / a",
+    "v₀ = v − a·t"
+  ],
   "method": [
     "List the four quantities — final velocity v, initial velocity v₀, acceleration a, time t — and mark which one is unknown.",
     "Make sure the acceleration is constant; this equation does not apply if a changes.",
@@ -11,7 +23,11 @@
   ],
   "example": {
     "title": "A car speeding up",
-    "given": ["initial velocity v₀ = 10 m/s", "acceleration a = 3 m/s²", "time t = 4 s"],
+    "given": [
+      "initial velocity v₀ = 10 m/s",
+      "acceleration a = 3 m/s²",
+      "time t = 4 s"
+    ],
     "find": "the final velocity v",
     "steps": [
       "The unknown is v, so use v = v₀ + a·t.",

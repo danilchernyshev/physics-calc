@@ -1,0 +1,18 @@
+{
+  "subject": "math",
+  "title": "Correlation coefficient",
+  "given": [
+    "points (1,2), (2,4), (3,5), (4,4), (5,5)"
+  ],
+  "find": "the correlation coefficient r",
+  "steps": [
+    "Sxx = 10, Syy = 6, Sxy = 6.",
+    "r = Sxy/√(Sxx·Syy) = 6/√60.",
+    "√60 ≈ 7.75, so r ≈ 0.77."
+  ],
+  "answer": "r ≈ 0.77 (strong positive)",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_two_var_stats"
+}

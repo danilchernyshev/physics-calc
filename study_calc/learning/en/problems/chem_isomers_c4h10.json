@@ -1,0 +1,19 @@
+{
+  "subject": "chemistry",
+  "title": "Count the isomers of C₄H₁₀",
+  "given": [
+    "the molecular formula C₄H₁₀"
+  ],
+  "find": "how many structural isomers exist and their names",
+  "steps": [
+    "C₄H₁₀ is a saturated alkane (CₙH₂ₙ₊₂).",
+    "Straight chain: butane.",
+    "Branched chain: 2-methylpropane.",
+    "No other distinct connectivity is possible."
+  ],
+  "answer": "Two isomers: butane and 2-methylpropane",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_organic"
+}

@@ -1,0 +1,20 @@
+{
+  "subject": "math",
+  "title": "Committee with a gender condition",
+  "given": [
+    "7 men and 5 women",
+    "choose a committee of 4 with exactly 2 men and 2 women"
+  ],
+  "find": "the number of possible committees",
+  "steps": [
+    "The two choices are independent, so multiply them.",
+    "Choose 2 men from 7: 7C2 = 21.",
+    "Choose 2 women from 5: 5C2 = 10.",
+    "Total = 21 × 10 = 210."
+  ],
+  "answer": "210 committees",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_combinations"
+}

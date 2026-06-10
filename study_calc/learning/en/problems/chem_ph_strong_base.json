@@ -1,0 +1,19 @@
+{
+  "subject": "chemistry",
+  "title": "pH of a strong base",
+  "given": [
+    "0.010 M NaOH",
+    "strong base — ionizes completely"
+  ],
+  "find": "the pH of the solution at 25 °C",
+  "steps": [
+    "NaOH is a strong base, so [OH⁻] = 0.010 M.",
+    "pOH = −log[OH⁻] = −log(0.010) = 2.00.",
+    "pH + pOH = 14 at 25 °C, so pH = 14 − 2.00."
+  ],
+  "answer": "pH = 12.00",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_acids_bases"
+}

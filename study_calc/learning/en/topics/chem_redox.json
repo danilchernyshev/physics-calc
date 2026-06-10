@@ -1,0 +1,38 @@
+{
+  "courses": [
+    "SCH4U"
+  ],
+  "summary": "SCH4U Unit 5 problems track electron transfer: assign oxidation numbers, identify what is oxidized and reduced, balance half-reactions, and compute a cell's standard potential E°cell from half-cell potentials.",
+  "terms": [
+    "oxidation",
+    "reduction",
+    "cell_potential"
+  ],
+  "formulas": [
+    "OIL RIG: Oxidation Is Loss, Reduction Is Gain",
+    "E°cell = E°cathode − E°anode",
+    "E°cell > 0 → spontaneous cell"
+  ],
+  "method": [
+    "Assign oxidation numbers to every atom on both sides.",
+    "The species whose number rises is oxidized (anode); the one that falls is reduced (cathode).",
+    "Write and balance each half-reaction for atoms and charge, matching electrons lost to electrons gained.",
+    "For a cell, look up the standard reduction potentials of the two half-cells.",
+    "Compute E°cell = E°cathode − E°anode; a positive value means the cell runs spontaneously."
+  ],
+  "example": {
+    "title": "Standard potential of a zinc–copper cell",
+    "given": [
+      "Zn | Zn²⁺ ‖ Cu²⁺ | Cu",
+      "E°(Cu²⁺/Cu) = +0.34 V, E°(Zn²⁺/Zn) = −0.76 V"
+    ],
+    "find": "the standard cell potential E°cell",
+    "steps": [
+      "Copper has the higher reduction potential, so it is the cathode; zinc is the anode.",
+      "E°cell = E°cathode − E°anode = (+0.34 V) − (−0.76 V).",
+      "E°cell = 0.34 + 0.76 = 1.10 V.",
+      "It is positive, so the cell reaction is spontaneous."
+    ],
+    "answer": "E°cell = +1.10 V (spontaneous)"
+  }
+}

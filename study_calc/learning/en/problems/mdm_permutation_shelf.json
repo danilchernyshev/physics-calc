@@ -1,0 +1,19 @@
+{
+  "subject": "math",
+  "title": "Arrange 3 of 5 books",
+  "given": [
+    "5 distinct books",
+    "3 ordered shelf positions"
+  ],
+  "find": "the number of arrangements",
+  "steps": [
+    "Order matters → permutations, n = 5, r = 3.",
+    "5P3 = 5!/2! = 120/2.",
+    "= 60."
+  ],
+  "answer": "60 arrangements",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_permutations"
+}

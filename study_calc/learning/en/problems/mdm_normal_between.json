@@ -1,0 +1,20 @@
+{
+  "subject": "math",
+  "title": "Probability between two values (normal)",
+  "given": [
+    "normal model with μ = 70, σ = 10",
+    "interval 60 < X < 85"
+  ],
+  "find": "P(60 < X < 85)",
+  "steps": [
+    "Convert each bound to a z-score: z = (x − μ)/σ.",
+    "z₁ = (60 − 70)/10 = −1.00 and z₂ = (85 − 70)/10 = 1.50.",
+    "P(60 < X < 85) = P(Z < 1.50) − P(Z < −1.00).",
+    "Standard normal table: 0.9332 − 0.1587 = 0.7745."
+  ],
+  "answer": "P ≈ 0.7745",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_normal"
+}

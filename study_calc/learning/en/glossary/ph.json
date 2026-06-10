@@ -1,0 +1,13 @@
+{
+  "title": "pH",
+  "short": "A logarithmic scale for acidity: pH = −log[H⁺]. Lower pH is more acidic, 7 is neutral at 25 °C.",
+  "full": "pH measures the hydrogen-ion concentration of a solution on a logarithmic scale, pH = −log₁₀[H⁺]. Because it is logarithmic, a drop of one pH unit means ten times more H⁺.\n\nAt 25 °C pure water has [H⁺] = 1×10⁻⁷ mol/L, so pH 7 is neutral; acids fall below 7 and bases rise above it. The companion quantity pOH = −log[OH⁻] satisfies pH + pOH = 14 at 25 °C, so either ion concentration gives the other. For a strong acid that ionizes completely, [H⁺] equals the acid concentration directly.",
+  "formulas": [
+    "pH = −log[H⁺]",
+    "pOH = −log[OH⁻]",
+    "pH + pOH = 14 (at 25 °C)"
+  ],
+  "see_also": [
+    "acid_dissociation"
+  ]
+}

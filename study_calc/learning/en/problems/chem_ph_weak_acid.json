@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "pH of a weak acid",
+  "given": [
+    "0.10 M acetic acid",
+    "Ka = 1.8×10⁻⁵"
+  ],
+  "find": "the pH of the solution",
+  "steps": [
+    "Weak acid: [H⁺] ≈ √(Ka·c).",
+    "[H⁺] ≈ √(1.8×10⁻⁵ · 0.10) = √(1.8×10⁻⁶).",
+    "[H⁺] ≈ 1.34×10⁻³ M.",
+    "pH = −log(1.34×10⁻³) ≈ 2.87."
+  ],
+  "answer": "pH ≈ 2.87",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_acids_bases"
+}

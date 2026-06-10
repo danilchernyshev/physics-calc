@@ -1,0 +1,13 @@
+{
+  "title": "Electronegativity",
+  "short": "A measure of how strongly an atom in a bond pulls shared electrons toward itself; larger values mean a stronger pull.",
+  "full": "Electronegativity describes the tendency of a bonded atom to attract the shared pair of electrons. Fluorine is the most electronegative element; values fall going down a group and rise going across a period.\n\nThe difference in electronegativity (ΔEN) between two bonded atoms predicts bond character: a very small difference gives a nonpolar covalent bond, a moderate difference (roughly 0.4–1.7) a polar covalent bond, and a large difference an ionic bond. Whether the whole molecule is polar also depends on its shape, because bond dipoles add as vectors.",
+  "formulas": [
+    "ΔEN small → nonpolar covalent",
+    "ΔEN ≈ 0.4–1.7 → polar covalent",
+    "ΔEN large → ionic"
+  ],
+  "see_also": [
+    "vsepr"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "subject": "chemistry",
+  "title": "Write an equilibrium expression",
+  "given": [
+    "the reaction 2 SO₂(g) + O₂(g) ⇌ 2 SO₃(g)"
+  ],
+  "find": "the equilibrium constant expression Kc",
+  "steps": [
+    "Products over reactants, each raised to its coefficient.",
+    "Numerator: [SO₃]².",
+    "Denominator: [SO₂]²·[O₂].",
+    "All species are gases, so none are omitted."
+  ],
+  "answer": "Kc = [SO₃]² / ([SO₂]²·[O₂])",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_equilibrium"
+}

@@ -1,0 +1,19 @@
+{
+  "subject": "math",
+  "title": "Exactly 3 heads in 5 flips",
+  "given": [
+    "n = 5 fair coin flips",
+    "p = 0.5, want k = 3 heads"
+  ],
+  "find": "P(exactly 3 heads)",
+  "steps": [
+    "P(X=3) = 5C3·(0.5)³·(0.5)².",
+    "5C3 = 10, (0.5)⁵ = 1/32.",
+    "P = 10/32 = 0.3125."
+  ],
+  "answer": "P = 0.3125",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_binomial"
+}

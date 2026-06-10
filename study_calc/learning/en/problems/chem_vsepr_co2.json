@@ -1,0 +1,19 @@
+{
+  "subject": "chemistry",
+  "title": "Shape and polarity of CO₂",
+  "given": [
+    "the molecule CO₂",
+    "carbon is the central atom"
+  ],
+  "find": "the molecular shape and whether the molecule is polar",
+  "steps": [
+    "Carbon forms two double bonds to oxygen and has no lone pairs: two electron groups.",
+    "Two electron groups point 180° apart, giving a linear shape.",
+    "Each C=O bond is polar, but the two equal dipoles point in opposite directions and cancel."
+  ],
+  "answer": "Linear and nonpolar",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_bonding"
+}

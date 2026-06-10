@@ -1,0 +1,38 @@
+{
+  "courses": [
+    "SCH4U"
+  ],
+  "summary": "SCH4U Unit 3 problems measure heat with calorimetry (q = m·c·ΔT) and find reaction enthalpies from formation enthalpies or by Hess's law. Enthalpy is a state function, so the route does not matter — only the start and end.",
+  "terms": [
+    "enthalpy",
+    "hess_law",
+    "heat"
+  ],
+  "formulas": [
+    "q = m·c·ΔT",
+    "ΔH_rxn = ΣΔH_f(products) − ΣΔH_f(reactants)",
+    "Hess: add scaled/reversed steps so ΔH adds"
+  ],
+  "method": [
+    "For calorimetry, find the heat with q = m·c·ΔT using the substance's specific heat.",
+    "For a reaction, look up the standard formation enthalpy ΔH_f of every species (elements are 0).",
+    "Subtract: ΔH_rxn = ΣΔH_f(products) − ΣΔH_f(reactants), each scaled by its coefficient.",
+    "If formation data is missing, combine known reactions by Hess's law (reverse flips the sign, scaling multiplies).",
+    "Watch the sign: negative ΔH is exothermic, positive is endothermic."
+  ],
+  "example": {
+    "title": "Enthalpy of combustion of methane",
+    "given": [
+      "CH₄ + 2 O₂ → CO₂ + 2 H₂O(l)",
+      "ΔH_f: CH₄ = −74.6, CO₂ = −393.5, H₂O(l) = −285.8 kJ/mol",
+      "ΔH_f(O₂) = 0"
+    ],
+    "find": "the standard enthalpy of combustion ΔH_rxn",
+    "steps": [
+      "Products: ΔH_f(CO₂) + 2·ΔH_f(H₂O) = −393.5 + 2(−285.8) = −965.1 kJ.",
+      "Reactants: ΔH_f(CH₄) + 2·ΔH_f(O₂) = −74.6 + 0 = −74.6 kJ.",
+      "ΔH_rxn = −965.1 − (−74.6) = −890.5 kJ."
+    ],
+    "answer": "ΔH_rxn = −890.5 kJ/mol (exothermic)"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Isomer",
+  "short": "One of two or more compounds with the same molecular formula but a different arrangement of atoms.",
+  "full": "Isomers share a molecular formula yet differ in structure, which gives them different properties. Structural (constitutional) isomers connect the same atoms in a different order — butane and 2-methylpropane are both C₄H₁₀ but one is a straight chain and the other branched.\n\nStereoisomers have the same connectivity but a different arrangement in space (for example cis/trans isomers across a double bond). The number of isomers grows quickly with the number of carbon atoms, which is why organic nomenclature must specify exactly where branches and functional groups sit.",
+  "formulas": [
+    "C₄H₁₀: butane and 2-methylpropane"
+  ],
+  "see_also": []
+}

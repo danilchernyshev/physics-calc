@@ -1,0 +1,20 @@
+{
+  "subject": "math",
+  "title": "Arrangements of letters in a word",
+  "given": [
+    "the word BANANA (6 letters)",
+    "letters repeat: 3 A's, 2 N's, 1 B"
+  ],
+  "find": "the number of distinct arrangements",
+  "steps": [
+    "Permutations with repeats: n! divided by the factorial of each repeat count.",
+    "= 6! / (3!·2!·1!).",
+    "= 720 / (6·2·1).",
+    "= 720 / 12 = 60."
+  ],
+  "answer": "60 distinct arrangements",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_permutations"
+}

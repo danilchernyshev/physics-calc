@@ -1,0 +1,36 @@
+{
+  "courses": [
+    "MDM4U"
+  ],
+  "summary": "MDM4U one-variable statistics problems summarize a data set with a measure of centre (mean) and a measure of spread (standard deviation σ = √(Σ(x−μ)²/N)).",
+  "terms": [
+    "standard_deviation",
+    "expected_value"
+  ],
+  "formulas": [
+    "mean μ = (Σx) / N",
+    "variance = Σ(x − μ)² / N",
+    "σ = √variance"
+  ],
+  "method": [
+    "Add the values and divide by N to get the mean μ.",
+    "Subtract the mean from each value to get the deviations.",
+    "Square the deviations and average them to get the variance.",
+    "Take the square root for the standard deviation σ.",
+    "Report centre (mean) and spread (σ) together — neither alone describes the data."
+  ],
+  "example": {
+    "title": "Mean and standard deviation of a data set",
+    "given": [
+      "data: 2, 4, 4, 4, 5, 5, 7, 9 (N = 8)"
+    ],
+    "find": "the mean and the (population) standard deviation",
+    "steps": [
+      "Mean = (2+4+4+4+5+5+7+9)/8 = 40/8 = 5.",
+      "Squared deviations: 9, 1, 1, 1, 0, 0, 4, 16 — sum 32.",
+      "Variance = 32/8 = 4.",
+      "σ = √4 = 2."
+    ],
+    "answer": "mean = 5, σ = 2"
+  }
+}

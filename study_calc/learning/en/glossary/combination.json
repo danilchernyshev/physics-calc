@@ -1,0 +1,13 @@
+{
+  "title": "Combination",
+  "short": "An unordered selection of objects. The number of ways to choose r of n distinct objects is nCr = n!/(r!(n−r)!).",
+  "full": "A combination is a selection in which order does not matter — choosing players A, B, C for a team is the same as choosing C, B, A. The count is nCr = n!/(r!·(n−r)!), also written C(n,r) or the binomial coefficient.\n\nCombinations divide the permutation count nPr by r! to remove the orderings of the chosen objects. They appear throughout probability, most notably in the binomial distribution.",
+  "formulas": [
+    "nCr = n! / (r!·(n−r)!)",
+    "nCr = nPr / r!"
+  ],
+  "see_also": [
+    "permutation",
+    "factorial"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "subject": "physics",
+  "title": "Net force on a sliding box",
+  "given": [
+    "mass m = 10 kg",
+    "applied force 50 N forward",
+    "friction 20 N backward"
+  ],
+  "find": "the acceleration of the box",
+  "steps": [
+    "Net force = 50 N − 20 N = 30 N.",
+    "Newton's second law: a = F_net/m = 30/10.",
+    "a = 3.0 m/s²."
+  ],
+  "answer": "a = 3.0 m/s²",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "newton_2"
+}

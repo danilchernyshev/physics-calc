@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "Cell potential under non-standard conditions (Nernst)",
+  "given": [
+    "Zn(s) | Zn²⁺(0.10 M) || Cu²⁺(1.0 M) | Cu(s)",
+    "E°cell = 1.10 V, n = 2 electrons transferred"
+  ],
+  "find": "the cell potential E at 25 °C",
+  "steps": [
+    "Nernst equation at 25 °C: E = E°cell − (0.0592/n)·log Q.",
+    "Q = [Zn²⁺] / [Cu²⁺] = 0.10 / 1.0 = 0.10.",
+    "E = 1.10 − (0.0592/2)·log(0.10).",
+    "= 1.10 − 0.0296·(−1) = 1.10 + 0.0296."
+  ],
+  "answer": "E ≈ 1.13 V",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_redox"
+}

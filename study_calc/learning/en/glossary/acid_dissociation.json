@@ -1,0 +1,14 @@
+{
+  "title": "Acid dissociation constant (Ka)",
+  "short": "The equilibrium constant for a weak acid giving up its proton; a larger Ka means a stronger acid.",
+  "full": "A weak acid HA only partly ionizes in water: HA ⇌ H⁺ + A⁻. Its acid dissociation constant Ka = [H⁺][A⁻]/[HA] measures how far that ionization goes. A larger Ka (or smaller pKa = −log Ka) means a stronger acid that gives up its proton more readily.\n\nFor a weak acid of initial concentration c, the small-x approximation gives [H⁺] ≈ √(Ka·c) when ionization is slight, from which the pH follows. This is the standard route to the pH of a weak-acid solution such as acetic acid.",
+  "formulas": [
+    "Ka = [H⁺][A⁻] / [HA]",
+    "[H⁺] ≈ √(Ka·c) for a weak acid",
+    "pKa = −log Ka"
+  ],
+  "see_also": [
+    "ph",
+    "equilibrium_constant"
+  ]
+}

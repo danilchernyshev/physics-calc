@@ -1,0 +1,19 @@
+{
+  "subject": "physics",
+  "title": "Time dilation at 0.6c",
+  "given": [
+    "proper time Δt₀ = 1.0 s",
+    "speed v = 0.6c"
+  ],
+  "find": "the time measured by a stationary observer",
+  "steps": [
+    "γ = 1/√(1 − 0.6²) = 1/√0.64 = 1.25.",
+    "Δt = γ·Δt₀ = 1.25 · 1.0 s.",
+    "= 1.25 s."
+  ],
+  "answer": "Δt = 1.25 s",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "sph_relativity"
+}

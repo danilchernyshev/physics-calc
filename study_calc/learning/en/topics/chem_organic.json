@@ -1,0 +1,35 @@
+{
+  "courses": [
+    "SCH4U"
+  ],
+  "summary": "SCH4U Unit 2 problems name organic molecules with IUPAC rules and recognize isomers and functional groups. Naming pins down the longest carbon chain, the branches and where they attach, and any functional group that defines the family.",
+  "terms": [
+    "isomer"
+  ],
+  "formulas": [
+    "Alkanes: CₙH₂ₙ₊₂",
+    "name = (substituents)(longest chain root)(family suffix)",
+    "structural isomers: same formula, different connectivity"
+  ],
+  "method": [
+    "Find the longest continuous carbon chain — that sets the root name (meth, eth, prop, but, …).",
+    "Identify the functional group to choose the suffix (-ane, -ene, -ol, -oic acid, …).",
+    "Number the chain from the end nearest the first point of difference.",
+    "Name and number each branch (substituent) and list them alphabetically.",
+    "Combine substituents + root + suffix into the full IUPAC name."
+  ],
+  "example": {
+    "title": "Name the isomers of C₄H₁₀",
+    "given": [
+      "the molecular formula C₄H₁₀"
+    ],
+    "find": "the two structural isomers and their names",
+    "steps": [
+      "C₄H₁₀ fits CₙH₂ₙ₊₂, so it is a saturated alkane.",
+      "A straight four-carbon chain is butane.",
+      "Branching the chain gives a three-carbon chain with a methyl group on the middle carbon.",
+      "That branched isomer is 2-methylpropane."
+    ],
+    "answer": "Butane and 2-methylpropane (two structural isomers)"
+  }
+}

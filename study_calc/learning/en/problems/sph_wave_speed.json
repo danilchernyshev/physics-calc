@@ -1,0 +1,18 @@
+{
+  "subject": "physics",
+  "title": "Speed of a wave",
+  "given": [
+    "wavelength λ = 0.50 m",
+    "frequency f = 512 Hz"
+  ],
+  "find": "the wave speed",
+  "steps": [
+    "v = λ·f = 0.50 · 512.",
+    "v = 256 m/s."
+  ],
+  "answer": "v = 256 m/s",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "wave_speed"
+}

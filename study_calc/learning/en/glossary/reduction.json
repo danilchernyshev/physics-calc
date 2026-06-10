@@ -1,0 +1,12 @@
+{
+  "title": "Reduction",
+  "short": "The gain of electrons by a species; its oxidation number decreases.",
+  "full": "Reduction is the gain of electrons. The species that gains electrons is reduced and acts as the oxidizing agent (OIL RIG: Reduction Is Gain).\n\nA decrease in oxidation number marks reduction. Because electrons must come from somewhere, reduction is always coupled to the oxidation of another species; balancing the electrons lost and gained is the heart of balancing redox equations and analysing electrochemical cells.",
+  "formulas": [
+    "reduction = gain of electrons",
+    "oxidation number decreases"
+  ],
+  "see_also": [
+    "oxidation"
+  ]
+}

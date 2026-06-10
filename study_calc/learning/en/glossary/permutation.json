@@ -1,0 +1,13 @@
+{
+  "title": "Permutation",
+  "short": "An ordered arrangement of objects. The number of ways to arrange r of n distinct objects is nPr = n!/(n−r)!.",
+  "full": "A permutation is a selection in which order matters — first, second and third place are different outcomes. The number of permutations of r objects chosen from n distinct objects is nPr = n!/(n−r)!.\n\nUse permutations when the positions are distinguishable (seating, finishing order, passwords). If all n objects are arranged, the count is simply n!. When order does NOT matter, use combinations instead.",
+  "formulas": [
+    "nPr = n! / (n−r)!",
+    "arrange all n: n!"
+  ],
+  "see_also": [
+    "combination",
+    "factorial"
+  ]
+}

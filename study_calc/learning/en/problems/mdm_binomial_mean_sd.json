@@ -1,0 +1,19 @@
+{
+  "subject": "math",
+  "title": "Mean and spread of a binomial count",
+  "given": [
+    "n = 20 independent trials",
+    "success probability p = 0.3"
+  ],
+  "find": "the mean and standard deviation of the number of successes",
+  "steps": [
+    "Mean = n·p = 20·0.3 = 6.",
+    "Variance = n·p·(1−p) = 20·0.3·0.7 = 4.2.",
+    "σ = √4.2 ≈ 2.05."
+  ],
+  "answer": "mean = 6, σ ≈ 2.05",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_binomial"
+}

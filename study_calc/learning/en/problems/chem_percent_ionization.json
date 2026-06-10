@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "Percent ionization of a weak acid",
+  "given": [
+    "0.10 M acetic acid (CH₃COOH)",
+    "Ka = 1.8×10⁻⁵"
+  ],
+  "find": "the percent ionization of the acid",
+  "steps": [
+    "For a weak acid, [H⁺] ≈ √(Ka·c).",
+    "[H⁺] ≈ √(1.8×10⁻⁵ · 0.10) = √(1.8×10⁻⁶) ≈ 1.34×10⁻³ M.",
+    "Percent ionization = ([H⁺] / c) × 100%.",
+    "= (1.34×10⁻³ / 0.10) × 100% ≈ 1.3%."
+  ],
+  "answer": "≈ 1.3 % ionized",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_acids_bases"
+}

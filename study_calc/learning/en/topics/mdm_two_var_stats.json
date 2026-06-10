@@ -1,0 +1,36 @@
+{
+  "courses": [
+    "MDM4U"
+  ],
+  "summary": "MDM4U two-variable statistics problems fit a least-squares regression line ŷ = a + bx to paired data and measure the fit with the correlation coefficient r (between −1 and +1).",
+  "terms": [
+    "correlation",
+    "linear_regression"
+  ],
+  "formulas": [
+    "b = Sxy / Sxx, a = ȳ − b·x̄",
+    "ŷ = a + bx",
+    "r = Sxy / √(Sxx·Syy)"
+  ],
+  "method": [
+    "Find the means x̄ and ȳ.",
+    "Compute the deviations and the sums Sxx = Σ(x−x̄)², Syy = Σ(y−ȳ)², Sxy = Σ(x−x̄)(y−ȳ).",
+    "Slope b = Sxy/Sxx; intercept a = ȳ − b·x̄ — that gives the line ŷ = a + bx.",
+    "Correlation r = Sxy/√(Sxx·Syy) measures the strength and direction of the linear fit.",
+    "Use the line only to predict within the range of the data."
+  ],
+  "example": {
+    "title": "Regression line and correlation",
+    "given": [
+      "points (1,2), (2,4), (3,5), (4,4), (5,5)"
+    ],
+    "find": "the least-squares line and the correlation r",
+    "steps": [
+      "Means: x̄ = 3, ȳ = 4.",
+      "Sxx = 4+1+0+1+4 = 10; Sxy = 4+0+0+0+2 = 6; Syy = 4+0+1+0+1 = 6.",
+      "Slope b = 6/10 = 0.6; intercept a = 4 − 0.6·3 = 2.2.",
+      "r = 6/√(10·6) = 6/√60 ≈ 0.77."
+    ],
+    "answer": "ŷ = 2.2 + 0.6x, r ≈ 0.77"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "subject": "math",
+  "title": "Binomial 'at least one' (complement)",
+  "given": [
+    "a fair die is rolled 4 times",
+    "success = rolling a 6, P(success) = 1/6"
+  ],
+  "find": "P(at least one 6)",
+  "steps": [
+    "'At least one' is easiest as 1 − P(none).",
+    "P(no 6 on one roll) = 5/6, and rolls are independent.",
+    "P(no 6 in 4 rolls) = (5/6)⁴ = 625/1296 ≈ 0.4823.",
+    "P(at least one 6) = 1 − 0.4823 ≈ 0.5177."
+  ],
+  "answer": "P ≈ 0.518",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_binomial"
+}

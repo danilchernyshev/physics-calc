@@ -1,0 +1,38 @@
+{
+  "courses": [
+    "MDM4U"
+  ],
+  "summary": "MDM4U probability-distribution problems on n independent two-outcome trials use the binomial distribution: P(X=k) = nCk·p^k·(1−p)^(n−k), with mean n·p and standard deviation √(n·p·(1−p)).",
+  "terms": [
+    "binomial_distribution",
+    "probability"
+  ],
+  "formulas": [
+    "P(X=k) = nCk·p^k·(1−p)^(n−k)",
+    "mean = n·p",
+    "σ = √(n·p·(1−p))"
+  ],
+  "method": [
+    "Check the trials are independent, fixed in number n, with constant success probability p.",
+    "Identify n, p and the number of successes k you want.",
+    "Substitute into P(X=k) = nCk·p^k·(1−p)^(n−k).",
+    "For a mean or spread, use n·p and √(n·p·(1−p)) directly.",
+    "Add the probabilities of several k values for 'at least'/'at most' questions."
+  ],
+  "example": {
+    "title": "Exactly 3 heads in 5 coin flips",
+    "given": [
+      "n = 5 fair coin flips",
+      "success = heads, p = 0.5",
+      "k = 3"
+    ],
+    "find": "P(exactly 3 heads)",
+    "steps": [
+      "P(X=3) = 5C3·(0.5)³·(0.5)².",
+      "5C3 = 10 and (0.5)⁵ = 1/32.",
+      "P = 10 · (1/32) = 10/32.",
+      "= 0.3125."
+    ],
+    "answer": "P = 0.3125 (10/32)"
+  }
+}

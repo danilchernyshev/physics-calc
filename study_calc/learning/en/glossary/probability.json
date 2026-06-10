@@ -1,0 +1,13 @@
+{
+  "title": "Probability",
+  "short": "A number from 0 to 1 giving how likely an event is; for equally likely outcomes it is favourable ÷ total.",
+  "full": "Probability measures how likely an event is, on a scale from 0 (impossible) to 1 (certain). When every outcome is equally likely, P(event) = (number of favourable outcomes) / (total number of outcomes), which is why counting techniques matter.\n\nProbabilities of all outcomes sum to 1, and the probability of an event not happening is 1 − P(event). Combinations and permutations supply the favourable and total counts in many problems.",
+  "formulas": [
+    "P(event) = favourable / total",
+    "0 ≤ P ≤ 1",
+    "P(not A) = 1 − P(A)"
+  ],
+  "see_also": [
+    "expected_value"
+  ]
+}

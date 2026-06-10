@@ -1,0 +1,20 @@
+{
+  "subject": "physics",
+  "title": "Work done by a force at an angle",
+  "given": [
+    "force F = 50 N at θ = 30° above the horizontal",
+    "displacement d = 10 m (horizontal)"
+  ],
+  "find": "the work done by the force",
+  "steps": [
+    "Only the component of force along the motion does work: W = F·d·cosθ.",
+    "W = 50 · 10 · cos30°.",
+    "cos30° ≈ 0.866, so W = 500 · 0.866.",
+    "W ≈ 433 J."
+  ],
+  "answer": "W ≈ 433 J",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "work"
+}

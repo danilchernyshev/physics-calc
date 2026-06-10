@@ -1,0 +1,12 @@
+{
+  "title": "Time dilation",
+  "short": "A moving clock runs slow as seen by a stationary observer: Δt = Δt₀/√(1 − v²/c²).",
+  "full": "Special relativity predicts that a clock moving relative to an observer ticks more slowly than one at rest. The moving (proper) time interval Δt₀ measured in the clock's own frame is stretched to Δt = Δt₀/√(1 − v²/c²) = γ·Δt₀ in the observer's frame.\n\nThe Lorentz factor γ = 1/√(1 − v²/c²) is essentially 1 at everyday speeds, so the effect is hidden until v approaches the speed of light c. It has been confirmed with fast-moving particles and precise atomic clocks on aircraft.",
+  "formulas": [
+    "Δt = Δt₀/√(1 − v²/c²)",
+    "γ = 1/√(1 − v²/c²)"
+  ],
+  "see_also": [
+    "speed_of_light"
+  ]
+}

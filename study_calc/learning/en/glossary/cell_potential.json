@@ -1,0 +1,13 @@
+{
+  "title": "Standard cell potential (E°cell)",
+  "short": "The voltage a galvanic cell produces under standard conditions, found from the two half-cell potentials.",
+  "full": "A galvanic (voltaic) cell turns a spontaneous redox reaction into electrical work. Its standard cell potential is the difference between the standard reduction potentials of the cathode (reduction) and the anode (oxidation): E°cell = E°cathode − E°anode.\n\nA positive E°cell means the reaction as written is spontaneous. Standard reduction potentials are tabulated against the standard hydrogen electrode, so any two half-reactions can be combined; the half-reaction with the higher reduction potential becomes the cathode.",
+  "formulas": [
+    "E°cell = E°cathode − E°anode",
+    "E°cell > 0 → spontaneous"
+  ],
+  "see_also": [
+    "oxidation",
+    "reduction"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Linear regression",
+  "short": "Fitting the best straight line ŷ = a + bx through two-variable data by least squares.",
+  "full": "Linear regression finds the straight line ŷ = a + bx that best predicts y from x by minimizing the sum of squared vertical distances to the points (least squares).\n\nThe slope is b = Sxy/Sxx and the intercept is a = ȳ − b·x̄, where Sxy and Sxx are the sums of cross-products and squared x-deviations. The line passes through the mean point (x̄, ȳ) and lets you predict y for a new x within the data's range.",
+  "formulas": [
+    "ŷ = a + bx",
+    "b = Sxy / Sxx",
+    "a = ȳ − b·x̄"
+  ],
+  "see_also": [
+    "correlation"
+  ]
+}

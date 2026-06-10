@@ -1,0 +1,18 @@
+{
+  "subject": "chemistry",
+  "title": "Identify the oxidized species",
+  "given": [
+    "the reaction Zn(s) + Cu²⁺(aq) → Zn²⁺(aq) + Cu(s)"
+  ],
+  "find": "which species is oxidized and which is reduced",
+  "steps": [
+    "Zn goes from oxidation number 0 to +2 — it loses electrons.",
+    "Cu goes from +2 to 0 — it gains electrons.",
+    "Loss of electrons is oxidation; gain is reduction (OIL RIG)."
+  ],
+  "answer": "Zn is oxidized; Cu²⁺ is reduced",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_redox"
+}

@@ -1,7 +1,19 @@
 {
+  "courses": [
+    "SPH4U"
+  ],
   "summary": "Kinetic energy is the energy of motion, E = ½·m·v². Because it depends on the square of the speed, doubling the speed quadruples the energy.",
-  "terms": ["kinetic_energy", "mass", "velocity", "energy"],
-  "formulas": ["E = ½·m·v²", "v = √(2·E / m)", "m = 2·E / v²"],
+  "terms": [
+    "kinetic_energy",
+    "mass",
+    "velocity",
+    "energy"
+  ],
+  "formulas": [
+    "E = ½·m·v²",
+    "v = √(2·E / m)",
+    "m = 2·E / v²"
+  ],
   "method": [
     "Identify the moving object's mass and speed.",
     "Decide which quantity is unknown — energy, mass, or speed.",
@@ -11,7 +23,10 @@
   ],
   "example": {
     "title": "Kinetic energy of a sprinter",
-    "given": ["mass m = 70 kg", "speed v = 8 m/s"],
+    "given": [
+      "mass m = 70 kg",
+      "speed v = 8 m/s"
+    ],
     "find": "the kinetic energy E",
     "steps": [
       "The unknown is E, so use E = ½·m·v².",

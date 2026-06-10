@@ -1,0 +1,38 @@
+{
+  "courses": [
+    "SCH4U"
+  ],
+  "summary": "SCH4U Unit 1 problems ask you to draw a molecule's Lewis structure, use VSEPR to name its shape, and decide whether it is polar. Shape comes from how electron groups spread around the central atom; polarity comes from bond dipoles plus that shape.",
+  "terms": [
+    "vsepr",
+    "electronegativity"
+  ],
+  "formulas": [
+    "Octet: bonding pairs + lone pairs ≈ 8 e⁻",
+    "2/3/4 groups → linear / trigonal planar / tetrahedral",
+    "ΔEN ≳ 0.4 → polar bond",
+    "molecule polar if bond dipoles don't cancel"
+  ],
+  "method": [
+    "Count the total valence electrons from all atoms.",
+    "Place the least electronegative atom in the centre and draw single bonds.",
+    "Add lone pairs to complete octets; form double/triple bonds if needed.",
+    "Count electron groups on the central atom and apply VSEPR for the shape.",
+    "Check bond polarities (ΔEN) and whether they cancel by symmetry to decide molecular polarity."
+  ],
+  "example": {
+    "title": "Shape and polarity of carbon dioxide",
+    "given": [
+      "the molecule CO₂",
+      "EN: O ≈ 3.4, C ≈ 2.6"
+    ],
+    "find": "the molecular shape and whether CO₂ is polar",
+    "steps": [
+      "Carbon is central with two double bonds to oxygen and no lone pairs on C — two electron groups.",
+      "Two groups arrange linearly, so the shape is linear (O=C=O, 180°).",
+      "Each C=O bond is polar (ΔEN ≈ 0.8), but the two dipoles point in exactly opposite directions.",
+      "Equal and opposite dipoles cancel."
+    ],
+    "answer": "Linear molecule; nonpolar overall (the bond dipoles cancel)"
+  }
+}

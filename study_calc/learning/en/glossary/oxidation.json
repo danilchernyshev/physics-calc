@@ -1,0 +1,12 @@
+{
+  "title": "Oxidation",
+  "short": "The loss of electrons by a species; its oxidation number increases.",
+  "full": "Oxidation is the loss of electrons. The species that loses electrons is oxidized and acts as the reducing agent. A handy memory aid is OIL RIG: Oxidation Is Loss, Reduction Is Gain.\n\nOxidation numbers track the electron bookkeeping: an increase in oxidation number signals oxidation. Oxidation never happens alone — every electron lost by one species is gained by another, so oxidation is always paired with reduction in a redox reaction.",
+  "formulas": [
+    "oxidation = loss of electrons",
+    "oxidation number increases"
+  ],
+  "see_also": [
+    "reduction"
+  ]
+}

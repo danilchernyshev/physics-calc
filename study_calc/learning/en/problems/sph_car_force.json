@@ -1,0 +1,18 @@
+{
+  "subject": "physics",
+  "title": "Force to accelerate a car",
+  "given": [
+    "mass m = 1500 kg",
+    "acceleration a = 3.0 m/s²"
+  ],
+  "find": "the net force on the car",
+  "steps": [
+    "F = m·a = 1500 · 3.0.",
+    "F = 4500 N."
+  ],
+  "answer": "F = 4500 N",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "newton_2"
+}

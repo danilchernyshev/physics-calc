@@ -1,0 +1,19 @@
+{
+  "subject": "math",
+  "title": "Least-squares regression line",
+  "given": [
+    "points (1,2), (2,4), (3,5), (4,4), (5,5)"
+  ],
+  "find": "the regression line ŷ = a + bx",
+  "steps": [
+    "Means x̄ = 3, ȳ = 4.",
+    "Sxx = 10, Sxy = 6.",
+    "Slope b = Sxy/Sxx = 0.6.",
+    "Intercept a = 4 − 0.6·3 = 2.2."
+  ],
+  "answer": "ŷ = 2.2 + 0.6x",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_two_var_stats"
+}

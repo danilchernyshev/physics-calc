@@ -1,0 +1,18 @@
+{
+  "subject": "math",
+  "title": "Mean and standard deviation",
+  "given": [
+    "data set: 2, 4, 4, 4, 5, 5, 7, 9 (N = 8)"
+  ],
+  "find": "the mean and population standard deviation",
+  "steps": [
+    "Mean = 40/8 = 5.",
+    "Squared deviations sum to 9+1+1+1+0+0+4+16 = 32.",
+    "Variance = 32/8 = 4; σ = √4 = 2."
+  ],
+  "answer": "mean = 5, σ = 2",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_one_var_stats"
+}

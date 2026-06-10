@@ -1,0 +1,13 @@
+{
+  "title": "VSEPR theory",
+  "short": "Valence-Shell Electron-Pair Repulsion: electron groups around a central atom spread out as far apart as possible, setting the molecule's shape.",
+  "full": "VSEPR theory predicts molecular geometry by treating each bonding region and each lone pair around a central atom as an 'electron group' that repels the others. The groups arrange themselves to be as far apart as possible.\n\nTwo groups give a linear shape (180°), three give trigonal planar (120°), four give tetrahedral (109.5°). Lone pairs occupy more room than bonds, so they squeeze bond angles slightly and change the named shape — four groups with two lone pairs (as in water) give a bent molecule. Shape, together with bond polarity, decides whether the molecule is polar overall.",
+  "formulas": [
+    "2 groups → linear (180°)",
+    "3 groups → trigonal planar (120°)",
+    "4 groups → tetrahedral (109.5°)"
+  ],
+  "see_also": [
+    "electronegativity"
+  ]
+}

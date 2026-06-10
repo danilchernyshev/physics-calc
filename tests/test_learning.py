@@ -129,6 +129,11 @@ def test_expected_topics_carry_their_course_code():
     assert load_topic("cas_logarithm", "en").courses == ("MHF4U",)
     assert load_topic("cas_rate", "en").courses == ("MHF4U", "MCV4U")
     assert load_topic("vec_dot", "en").courses == ("MCV4U",)
+    # Grade-12 chemistry, data-management and physics topics carry their codes.
+    assert load_topic("chem_acids_bases", "en").courses == ("SCH4U",)
+    assert load_topic("mdm_binomial", "en").courses == ("MDM4U",)
+    assert load_topic("sph_photoelectric", "en").courses == ("SPH4U",)
+    assert load_topic("newton_2", "en").courses == ("SPH4U",)
 
 
 @pytest.mark.parametrize("key", _UI_LABELS)

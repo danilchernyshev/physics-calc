@@ -8,6 +8,7 @@ subject filter and English fallback behave.
 import pytest
 
 from study_calc.core.learning import (
+    CURRICULUM_GRADES,
     Problem,
     available_problem_ids,
     load_problem,
@@ -58,10 +59,28 @@ def test_problem_video_urls_are_https():
             assert problem.video_url.startswith("https://"), problem.video_url
 
 
-def test_problems_for_subject_filters_and_empty_subject_is_empty():
+def test_problems_for_subject_filters_by_subject():
     physics = problems_for_subject("physics", "en")
     assert physics and all(p.subject == "physics" for p in physics)
-    assert problems_for_subject("chemistry", "en") == ()
+    chemistry = problems_for_subject("chemistry", "en")
+    assert chemistry and all(p.subject == "chemistry" for p in chemistry)
+    # An unknown subject yields nothing.
+    assert problems_for_subject("nonsense", "en") == ()
+
+
+def test_problem_courses_are_known_curriculum_codes():
+    """Any Ontario course code tagged on a problem must be a known code."""
+    for pid in _ids():
+        for code in load_problem(pid, "en").courses:
+            assert code in CURRICULUM_GRADES, f"{pid} has unknown course code '{code}'"
+
+
+def test_each_subject_course_has_problems():
+    """The three Grade-12 courses requested each ship at least one problem."""
+    by_course = {"SCH4U": "chemistry", "MDM4U": "math", "SPH4U": "physics"}
+    for course, subject in by_course.items():
+        tagged = [p for p in problems_for_subject(subject, "en") if course in p.courses]
+        assert tagged, f"no {course} problems found under subject '{subject}'"
 
 
 def test_unknown_problem_returns_none():

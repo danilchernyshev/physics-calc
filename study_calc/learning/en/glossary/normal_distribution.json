@@ -1,0 +1,14 @@
+{
+  "title": "Normal distribution",
+  "short": "A symmetric bell-shaped distribution described by its mean μ and standard deviation σ.",
+  "full": "The normal (Gaussian) distribution is the familiar symmetric bell curve, fully described by its mean μ (the centre) and standard deviation σ (the spread). Many natural measurements — heights, errors, test scores — are approximately normal.\n\nThe empirical (68–95–99.7) rule says about 68% of data lie within 1σ of the mean, 95% within 2σ, and 99.7% within 3σ. To find probabilities, convert a value to a z-score and read the standard normal table.",
+  "formulas": [
+    "68% within μ ± σ",
+    "95% within μ ± 2σ",
+    "99.7% within μ ± 3σ"
+  ],
+  "see_also": [
+    "z_score",
+    "standard_deviation"
+  ]
+}

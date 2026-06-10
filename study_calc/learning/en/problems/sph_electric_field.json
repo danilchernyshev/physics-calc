@@ -1,0 +1,21 @@
+{
+  "subject": "physics",
+  "title": "Electric field of a point charge",
+  "given": [
+    "point charge q = 1.0×10⁻⁶ C",
+    "distance r = 0.10 m",
+    "k = 8.99×10⁹ N·m²/C²"
+  ],
+  "find": "the electric field magnitude at that point",
+  "steps": [
+    "E = k·q/r².",
+    "= 8.99×10⁹ · 1.0×10⁻⁶ / (0.10)².",
+    "= 8.99×10⁹ · 1.0×10⁻⁶ / 0.010.",
+    "= 8.99×10⁵ N/C."
+  ],
+  "answer": "E ≈ 9.0×10⁵ N/C",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "coulomb"
+}

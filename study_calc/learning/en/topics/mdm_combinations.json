@@ -1,0 +1,37 @@
+{
+  "courses": [
+    "MDM4U"
+  ],
+  "summary": "MDM4U counting problems where order does NOT matter use combinations: the number of ways to choose r objects from n is nCr = n!/(r!(n−r)!). Think committees, teams, or lottery draws.",
+  "terms": [
+    "combination",
+    "factorial"
+  ],
+  "formulas": [
+    "nCr = n! / (r!·(n−r)!)",
+    "nCr = nPr / r!",
+    "nCr = nC(n−r)"
+  ],
+  "method": [
+    "Decide whether order matters — if it does NOT, use combinations.",
+    "Identify n (objects available) and r (objects chosen).",
+    "Apply nCr = n!/(r!(n−r)!).",
+    "Cancel factorials to simplify the arithmetic.",
+    "For probability, use combinations to count favourable and total outcomes."
+  ],
+  "example": {
+    "title": "Choose a committee of 3 from 10",
+    "given": [
+      "10 people",
+      "a committee of 3, order does not matter"
+    ],
+    "find": "the number of possible committees",
+    "steps": [
+      "Order does not matter, so use combinations with n = 10, r = 3.",
+      "10C3 = 10!/(3!·7!).",
+      "= (10·9·8)/(3·2·1) = 720/6.",
+      "= 120."
+    ],
+    "answer": "120 committees"
+  }
+}

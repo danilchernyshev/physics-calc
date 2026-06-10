@@ -1,0 +1,40 @@
+{
+  "courses": [
+    "SPH4U"
+  ],
+  "summary": "SPH4U modern-physics problems on the photoelectric effect treat light as photons of energy E = hf. An electron is ejected only if hf exceeds the work function W, and the surplus is its kinetic energy: KE_max = hf − W.",
+  "terms": [
+    "photoelectric_effect",
+    "work_function",
+    "photon_energy"
+  ],
+  "formulas": [
+    "E = hf",
+    "KE_max = hf − W",
+    "threshold: f₀ = W/h",
+    "h = 6.63×10⁻³⁴ J·s"
+  ],
+  "method": [
+    "Find the photon energy E = hf from the light's frequency.",
+    "Compare it with the metal's work function W.",
+    "If hf < W, no electron is ejected.",
+    "If hf > W, the maximum kinetic energy is KE_max = hf − W.",
+    "The threshold frequency that just frees an electron is f₀ = W/h."
+  ],
+  "example": {
+    "title": "Kinetic energy of a photoelectron",
+    "given": [
+      "light frequency f = 1.0×10¹⁵ Hz",
+      "work function W = 3.0×10⁻¹⁹ J",
+      "h = 6.63×10⁻³⁴ J·s"
+    ],
+    "find": "the maximum kinetic energy of an ejected electron",
+    "steps": [
+      "Photon energy E = hf = 6.63×10⁻³⁴ · 1.0×10¹⁵ = 6.63×10⁻¹⁹ J.",
+      "E > W, so an electron is ejected.",
+      "KE_max = hf − W = 6.63×10⁻¹⁹ − 3.0×10⁻¹⁹.",
+      "= 3.63×10⁻¹⁹ J."
+    ],
+    "answer": "KE_max = 3.63×10⁻¹⁹ J"
+  }
+}

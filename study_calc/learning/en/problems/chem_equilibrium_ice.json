@@ -1,0 +1,23 @@
+{
+  "subject": "chemistry",
+  "title": "Equilibrium concentrations from an ICE table",
+  "given": [
+    "H₂(g) + I₂(g) ⇌ 2 HI(g)",
+    "Kc = 50.0",
+    "initial [H₂] = [I₂] = 1.00 M, [HI] = 0"
+  ],
+  "find": "the equilibrium concentrations",
+  "steps": [
+    "ICE table: [H₂] = 1.00 − x, [I₂] = 1.00 − x, [HI] = 2x.",
+    "Kc = [HI]² / ([H₂]·[I₂]) = (2x)² / (1.00 − x)² = 50.0.",
+    "Take the square root of both sides: 2x / (1.00 − x) = √50.0 = 7.07.",
+    "Solve: 2x = 7.07(1.00 − x) → 9.07x = 7.07 → x = 0.780.",
+    "[HI] = 2x = 1.56 M; [H₂] = [I₂] = 1.00 − 0.780 = 0.22 M.",
+    "Check: (1.56)² / (0.22)² ≈ 50. ✓"
+  ],
+  "answer": "[HI] ≈ 1.56 M, [H₂] = [I₂] ≈ 0.22 M",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_equilibrium"
+}

@@ -1,0 +1,18 @@
+{
+  "subject": "math",
+  "title": "Probability below a value (z-score)",
+  "given": [
+    "normal model with μ = 70, σ = 10",
+    "value x = 85"
+  ],
+  "find": "P(X < 85)",
+  "steps": [
+    "z = (85 − 70)/10 = 1.5.",
+    "Standard normal table: P(Z < 1.5) ≈ 0.9332."
+  ],
+  "answer": "P ≈ 0.9332",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_normal"
+}

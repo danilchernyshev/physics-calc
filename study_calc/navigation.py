@@ -76,7 +76,7 @@ SUBJECTS: tuple[tuple[str, tuple[object, ...]], ...] = (
         Tool("converter"),
     )),
     ("chemistry", (
-        Placeholder("chemistry.coming_soon"),
+        Problems("chemistry"),
     )),
 )
 

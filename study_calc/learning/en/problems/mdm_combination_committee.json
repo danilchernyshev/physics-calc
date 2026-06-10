@@ -1,0 +1,19 @@
+{
+  "subject": "math",
+  "title": "Form a committee of 3 from 10",
+  "given": [
+    "10 people",
+    "choose 3, order does not matter"
+  ],
+  "find": "the number of committees",
+  "steps": [
+    "Order does not matter → combinations.",
+    "10C3 = 10!/(3!·7!) = (10·9·8)/6.",
+    "= 720/6 = 120."
+  ],
+  "answer": "120 committees",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_combinations"
+}

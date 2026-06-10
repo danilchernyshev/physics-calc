@@ -1,0 +1,13 @@
+{
+  "title": "Equilibrium constant (K)",
+  "short": "A number that fixes the ratio of product to reactant concentrations once a reversible reaction has reached equilibrium.",
+  "full": "For a reversible reaction at equilibrium, the equilibrium constant K is the ratio of product concentrations to reactant concentrations, each raised to its coefficient in the balanced equation. For aA + bB ⇌ cC + dD, Kc = [C]^c·[D]^d / ([A]^a·[B]^b).\n\nPure solids and liquids are left out. A large K means products dominate at equilibrium; a small K means reactants do. K depends only on temperature, so changing concentrations shifts the position of equilibrium but not the value of K. Comparing the reaction quotient Q to K tells you which way the reaction will move.",
+  "formulas": [
+    "Kc = [C]^c·[D]^d / ([A]^a·[B]^b)",
+    "Q < K → shifts forward",
+    "Q > K → shifts backward"
+  ],
+  "see_also": [
+    "mole"
+  ]
+}

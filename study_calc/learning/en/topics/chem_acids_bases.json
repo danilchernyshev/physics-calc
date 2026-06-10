@@ -1,0 +1,38 @@
+{
+  "courses": [
+    "SCH4U"
+  ],
+  "summary": "SCH4U acid–base problems find pH and pOH. A strong acid ionizes completely, so [H⁺] equals its concentration; a weak acid needs its Ka and the approximation [H⁺] ≈ √(Ka·c).",
+  "terms": [
+    "ph",
+    "acid_dissociation"
+  ],
+  "formulas": [
+    "pH = −log[H⁺]",
+    "pH + pOH = 14 (25 °C)",
+    "strong acid: [H⁺] = c",
+    "weak acid: [H⁺] ≈ √(Ka·c)"
+  ],
+  "method": [
+    "Decide whether the acid is strong (ionizes fully) or weak (partial, needs Ka).",
+    "Strong acid: set [H⁺] equal to the acid concentration.",
+    "Weak acid: approximate [H⁺] ≈ √(Ka·c) from the equilibrium HA ⇌ H⁺ + A⁻.",
+    "Take pH = −log[H⁺].",
+    "If asked for pOH, use pH + pOH = 14 at 25 °C."
+  ],
+  "example": {
+    "title": "pH of a weak acetic-acid solution",
+    "given": [
+      "0.10 M acetic acid (CH₃COOH)",
+      "Ka = 1.8×10⁻⁵"
+    ],
+    "find": "the pH of the solution",
+    "steps": [
+      "Acetic acid is weak, so use [H⁺] ≈ √(Ka·c).",
+      "[H⁺] ≈ √(1.8×10⁻⁵ · 0.10) = √(1.8×10⁻⁶).",
+      "[H⁺] ≈ 1.34×10⁻³ M.",
+      "pH = −log(1.34×10⁻³) ≈ 2.87."
+    ],
+    "answer": "pH ≈ 2.87"
+  }
+}

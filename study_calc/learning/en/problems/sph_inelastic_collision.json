@@ -1,0 +1,19 @@
+{
+  "subject": "physics",
+  "title": "Perfectly inelastic collision",
+  "given": [
+    "2.0 kg cart at 3.0 m/s hits a 1.0 kg cart at rest",
+    "the carts stick together"
+  ],
+  "find": "the common velocity after collision",
+  "steps": [
+    "Momentum is conserved: m₁v₁ = (m₁+m₂)v'.",
+    "(2.0)(3.0) = (2.0+1.0)·v'.",
+    "6.0 = 3.0·v' → v' = 2.0 m/s."
+  ],
+  "answer": "v' = 2.0 m/s",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "momentum"
+}

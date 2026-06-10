@@ -1,0 +1,14 @@
+{
+  "title": "Binomial distribution",
+  "short": "The distribution of the number of successes in n independent trials, each with success probability p.",
+  "full": "The binomial distribution models the number of successes X in n independent trials when each trial succeeds with the same probability p (a Bernoulli trial). The probability of exactly k successes is P(X=k) = nCk·p^k·(1−p)^(n−k).\n\nIts mean is n·p and its standard deviation is √(n·p·(1−p)). It applies whenever trials are independent, fixed in number, and have two outcomes — like coin flips, multiple-choice guesses, or defective-item counts.",
+  "formulas": [
+    "P(X=k) = nCk·p^k·(1−p)^(n−k)",
+    "mean = n·p",
+    "σ = √(n·p·(1−p))"
+  ],
+  "see_also": [
+    "probability",
+    "standard_deviation"
+  ]
+}

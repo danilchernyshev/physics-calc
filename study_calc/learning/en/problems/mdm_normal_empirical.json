@@ -1,0 +1,17 @@
+{
+  "subject": "math",
+  "title": "Empirical rule (68–95–99.7)",
+  "given": [
+    "heights are normal with μ = 170 cm, σ = 8 cm"
+  ],
+  "find": "the percentage of people between 162 cm and 178 cm",
+  "steps": [
+    "162 cm and 178 cm are μ − σ and μ + σ.",
+    "The empirical rule: about 68% of data lie within one σ of the mean."
+  ],
+  "answer": "≈ 68%",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_normal"
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Expected value",
+  "short": "The long-run average of a random variable: the sum of each value times its probability.",
+  "full": "The expected value E(X) of a discrete random variable is the average you would expect over very many trials. It is computed as E(X) = Σ x·P(x), summing each possible value times its probability.\n\nExpected value is the 'centre of mass' of a probability distribution. For a fair game the expected gain is zero; for the binomial distribution the expected number of successes is n·p.",
+  "formulas": [
+    "E(X) = Σ x·P(x)",
+    "binomial: E(X) = n·p"
+  ],
+  "see_also": [
+    "probability"
+  ]
+}

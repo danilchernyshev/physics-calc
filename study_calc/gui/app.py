@@ -395,6 +395,7 @@ class ExplanationPanel(ttk.Frame):
         text = self._text
         text.begin()
         text.heading(ex.title or t("ui.problem_statement"))
+        self._curriculum(problem.courses)
         if ex.given:
             text.write(t("ui.given") + ":\n", "label")
             for item in ex.given:

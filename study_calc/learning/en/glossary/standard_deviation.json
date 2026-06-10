@@ -1,0 +1,12 @@
+{
+  "title": "Standard deviation (σ)",
+  "short": "A measure of spread: the square root of the average squared distance of the data from the mean.",
+  "full": "Standard deviation measures how spread out a data set is. It is the square root of the variance, the average squared deviation from the mean: σ = √(Σ(x − μ)² / N) for a whole population.\n\nA small σ means the values cluster near the mean; a large σ means they are widely scattered. Standard deviation shares the units of the data, which is why it is preferred over variance for describing spread, and it sets the scale for z-scores and the normal distribution.",
+  "formulas": [
+    "variance = Σ(x − μ)² / N",
+    "σ = √variance"
+  ],
+  "see_also": [
+    "normal_distribution"
+  ]
+}

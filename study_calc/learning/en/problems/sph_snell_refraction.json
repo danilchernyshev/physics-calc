@@ -1,0 +1,19 @@
+{
+  "subject": "physics",
+  "title": "Refraction into glass",
+  "given": [
+    "light goes from air (n₁ = 1.00) into glass (n₂ = 1.50)",
+    "angle of incidence θ₁ = 30°"
+  ],
+  "find": "the angle of refraction θ₂",
+  "steps": [
+    "Snell's law: n₁·sin θ₁ = n₂·sin θ₂.",
+    "sin θ₂ = (1.00·sin 30°)/1.50 = 0.500/1.50 = 0.333.",
+    "θ₂ = arcsin(0.333) ≈ 19.5°."
+  ],
+  "answer": "θ₂ ≈ 19.5°",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "snell"
+}

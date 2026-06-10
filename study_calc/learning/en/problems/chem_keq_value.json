@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "Compute Kc for ammonia synthesis",
+  "given": [
+    "N₂ + 3 H₂ ⇌ 2 NH₃ at equilibrium",
+    "[N₂] = 0.10 M, [H₂] = 0.20 M, [NH₃] = 0.30 M"
+  ],
+  "find": "the equilibrium constant Kc",
+  "steps": [
+    "Kc = [NH₃]² / ([N₂]·[H₂]³).",
+    "= (0.30)² / (0.10 · (0.20)³).",
+    "= 0.090 / (0.10 · 0.0080) = 0.090 / 0.00080.",
+    "Kc = 112.5."
+  ],
+  "answer": "Kc ≈ 1.1×10² (112.5)",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_equilibrium"
+}

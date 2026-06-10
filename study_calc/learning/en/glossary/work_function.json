@@ -1,0 +1,12 @@
+{
+  "title": "Work function (W)",
+  "short": "The minimum energy needed to free an electron from a metal's surface in the photoelectric effect.",
+  "full": "The work function W is the least energy required to remove an electron from the surface of a particular metal. It is a property of the metal, usually quoted in electron-volts (eV).\n\nIn the photoelectric effect a photon must supply at least W to eject an electron; any extra photon energy becomes the electron's kinetic energy, KE_max = hf − W. The threshold frequency f₀ = W/h is the lowest frequency of light that can free an electron from that metal.",
+  "formulas": [
+    "KE_max = hf − W",
+    "threshold frequency: f₀ = W/h"
+  ],
+  "see_also": [
+    "photoelectric_effect"
+  ]
+}

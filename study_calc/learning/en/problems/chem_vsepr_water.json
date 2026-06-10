@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "Shape and polarity of water",
+  "given": [
+    "the molecule H₂O",
+    "oxygen is the central atom with two lone pairs"
+  ],
+  "find": "the molecular shape, bond angle and polarity",
+  "steps": [
+    "Oxygen has two bonding pairs and two lone pairs: four electron groups.",
+    "Four groups are tetrahedral, but the two lone pairs leave a bent shape.",
+    "Lone-pair repulsion squeezes the H–O–H angle to about 104.5°.",
+    "The two O–H bond dipoles do not cancel in a bent shape, so the molecule is polar."
+  ],
+  "answer": "Bent, ~104.5°, polar",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_bonding"
+}

@@ -1,0 +1,19 @@
+{
+  "subject": "physics",
+  "title": "Speed from a height (energy conservation)",
+  "given": [
+    "a ball falls from rest, height h = 5.0 m",
+    "g = 9.8 m/s², ignore air resistance"
+  ],
+  "find": "the speed at the bottom",
+  "steps": [
+    "Energy conservation: m·g·h = ½·m·v², so v = √(2gh).",
+    "v = √(2·9.8·5.0) = √98.",
+    "v ≈ 9.9 m/s."
+  ],
+  "answer": "v ≈ 9.9 m/s",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "potential_energy"
+}

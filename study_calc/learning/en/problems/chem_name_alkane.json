@@ -1,0 +1,20 @@
+{
+  "subject": "chemistry",
+  "title": "Name a branched alkane",
+  "given": [
+    "a chain of three carbons with a methyl (CH₃) group on the middle carbon",
+    "all other bonds are to hydrogen"
+  ],
+  "find": "the IUPAC name",
+  "steps": [
+    "The longest chain has three carbons → propane root.",
+    "All single bonds, no functional group → suffix -ane.",
+    "A methyl branch sits on carbon 2.",
+    "Combine: 2-methylpropane."
+  ],
+  "answer": "2-methylpropane",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_organic"
+}

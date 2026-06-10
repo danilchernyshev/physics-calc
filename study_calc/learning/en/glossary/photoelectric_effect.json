@@ -1,0 +1,13 @@
+{
+  "title": "Photoelectric effect",
+  "short": "Light ejects electrons from a metal only when each photon carries enough energy; the leftover energy is the electron's kinetic energy.",
+  "full": "When light strikes a metal surface it can knock out electrons — but only if the photon energy hf exceeds the metal's work function W, the minimum energy needed to free an electron. Brighter light below that threshold ejects nothing; the threshold depends on frequency, not intensity.\n\nEinstein explained this by treating light as photons of energy E = hf. Energy conservation gives the maximum kinetic energy of the ejected electron: KE_max = hf − W. This particle picture of light earned Einstein the Nobel Prize and helped launch quantum theory.",
+  "formulas": [
+    "KE_max = hf − W",
+    "threshold: hf = W"
+  ],
+  "see_also": [
+    "photon_energy",
+    "work_function"
+  ]
+}

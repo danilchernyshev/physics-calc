@@ -1,0 +1,19 @@
+{
+  "subject": "chemistry",
+  "title": "Standard potential of a zinc–copper cell",
+  "given": [
+    "Zn | Zn²⁺ ‖ Cu²⁺ | Cu",
+    "E°(Cu²⁺/Cu) = +0.34 V, E°(Zn²⁺/Zn) = −0.76 V"
+  ],
+  "find": "the standard cell potential E°cell",
+  "steps": [
+    "Copper has the higher reduction potential → cathode; zinc → anode.",
+    "E°cell = E°cathode − E°anode = 0.34 − (−0.76).",
+    "E°cell = 1.10 V (positive → spontaneous)."
+  ],
+  "answer": "E°cell = +1.10 V",
+  "courses": [
+    "SCH4U"
+  ],
+  "topic": "chem_redox"
+}

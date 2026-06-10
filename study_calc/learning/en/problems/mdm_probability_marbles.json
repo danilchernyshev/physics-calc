@@ -1,0 +1,19 @@
+{
+  "subject": "math",
+  "title": "Probability of drawing two red marbles",
+  "given": [
+    "a bag of 3 red and 2 blue marbles",
+    "draw 2 at once (no replacement)"
+  ],
+  "find": "P(both red)",
+  "steps": [
+    "Favourable: choose 2 reds from 3 → 3C2 = 3.",
+    "Total: choose 2 from 5 → 5C2 = 10.",
+    "P = favourable/total = 3/10."
+  ],
+  "answer": "P = 3/10 = 0.30",
+  "courses": [
+    "MDM4U"
+  ],
+  "topic": "mdm_combinations"
+}

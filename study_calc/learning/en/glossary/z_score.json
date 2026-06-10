@@ -1,0 +1,13 @@
+{
+  "title": "Z-score",
+  "short": "How many standard deviations a value lies from the mean: z = (x − μ) / σ.",
+  "full": "A z-score (standard score) rescales a value by stating how many standard deviations it sits above or below the mean: z = (x − μ) / σ. A positive z is above the mean, a negative z below.\n\nConverting to z-scores 'standardizes' any normal distribution to the standard normal (μ = 0, σ = 1), so a single table of probabilities works for all of them. For example a z of 1.5 corresponds to a cumulative probability of about 0.9332.",
+  "formulas": [
+    "z = (x − μ) / σ",
+    "standard normal: μ = 0, σ = 1"
+  ],
+  "see_also": [
+    "normal_distribution",
+    "standard_deviation"
+  ]
+}

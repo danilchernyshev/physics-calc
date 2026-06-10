@@ -1,0 +1,37 @@
+{
+  "courses": [
+    "SCH4U"
+  ],
+  "summary": "SCH4U Unit 4 problems write the equilibrium expression Kc for a reversible reaction and compute it from equilibrium concentrations, or use an ICE table to find an unknown concentration. K depends only on temperature.",
+  "terms": [
+    "equilibrium_constant",
+    "mole"
+  ],
+  "formulas": [
+    "aA + bB ⇌ cC + dD",
+    "Kc = [C]^c·[D]^d / ([A]^a·[B]^b)",
+    "ICE: Initial, Change, Equilibrium"
+  ],
+  "method": [
+    "Write the balanced equation and the Kc expression (products over reactants, each to its coefficient; omit pure solids/liquids).",
+    "For a value of Kc, substitute the equilibrium concentrations directly.",
+    "For an unknown, build an ICE table: initial amounts, the change ±x by stoichiometry, and the equilibrium row.",
+    "Substitute the equilibrium row into Kc and solve for x.",
+    "Use the small-x approximation when Kc is small, then check it is valid."
+  ],
+  "example": {
+    "title": "Kc for the synthesis of ammonia",
+    "given": [
+      "N₂ + 3 H₂ ⇌ 2 NH₃ at equilibrium",
+      "[N₂] = 0.10 M, [H₂] = 0.20 M, [NH₃] = 0.30 M"
+    ],
+    "find": "the equilibrium constant Kc",
+    "steps": [
+      "Write the expression: Kc = [NH₃]² / ([N₂]·[H₂]³).",
+      "Substitute: Kc = (0.30)² / (0.10 · (0.20)³).",
+      "Numerator = 0.090; denominator = 0.10 · 0.0080 = 0.00080.",
+      "Divide: Kc = 0.090 / 0.00080 = 112.5."
+    ],
+    "answer": "Kc ≈ 1.1×10² (112.5)"
+  }
+}

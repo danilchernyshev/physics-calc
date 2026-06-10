@@ -1,7 +1,19 @@
 {
+  "courses": [
+    "SPH4U"
+  ],
   "summary": "Momentum is mass in motion, p = m·v. It is the natural quantity for collisions and pushes, because the total momentum of an isolated system is conserved.",
-  "terms": ["momentum", "mass", "velocity"],
-  "formulas": ["p = m·v", "v = p / m", "m = p / v", "F = Δp / Δt"],
+  "terms": [
+    "momentum",
+    "mass",
+    "velocity"
+  ],
+  "formulas": [
+    "p = m·v",
+    "v = p / m",
+    "m = p / v",
+    "F = Δp / Δt"
+  ],
   "method": [
     "Identify the moving object and note its mass and velocity.",
     "Decide which quantity is unknown — momentum, mass, or velocity.",
@@ -11,7 +23,10 @@
   ],
   "example": {
     "title": "Momentum of a rolling ball",
-    "given": ["mass m = 0.5 kg", "velocity v = 4 m/s"],
+    "given": [
+      "mass m = 0.5 kg",
+      "velocity v = 4 m/s"
+    ],
     "find": "the momentum p",
     "steps": [
       "The unknown is p, so use p = m·v.",

@@ -1,0 +1,12 @@
+{
+  "title": "Factorial (n!)",
+  "short": "The product of all positive integers up to n: n! = n·(n−1)·…·2·1, with 0! = 1.",
+  "full": "The factorial n! counts the number of ways to arrange n distinct objects in a row. It is defined as n! = n·(n−1)·(n−2)·…·1, and by convention 0! = 1 so that the counting formulas work at the boundary.\n\nFactorials grow extremely fast and are the building block of permutation and combination formulas, where ratios of factorials count arrangements and selections.",
+  "formulas": [
+    "n! = n·(n−1)·…·2·1",
+    "0! = 1"
+  ],
+  "see_also": [
+    "permutation"
+  ]
+}

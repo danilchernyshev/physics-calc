@@ -1,0 +1,36 @@
+{
+  "courses": [
+    "MDM4U"
+  ],
+  "summary": "MDM4U continuous-distribution problems model data with the normal (bell) curve. Convert a value to a z-score z = (x−μ)/σ, then read the standard normal table for the probability; the 68–95–99.7 rule gives quick estimates.",
+  "terms": [
+    "normal_distribution",
+    "z_score",
+    "standard_deviation"
+  ],
+  "formulas": [
+    "z = (x − μ) / σ",
+    "68% within μ ± σ, 95% within μ ± 2σ, 99.7% within μ ± 3σ"
+  ],
+  "method": [
+    "Note the mean μ and standard deviation σ of the normal model.",
+    "Convert the value of interest to a z-score: z = (x − μ)/σ.",
+    "Look up the cumulative probability P(Z < z) in the standard normal table.",
+    "For a 'greater than' use 1 − P(Z < z); for a range subtract two table values.",
+    "Use the 68–95–99.7 rule when the value is a whole number of σ from the mean."
+  ],
+  "example": {
+    "title": "Probability below a test score",
+    "given": [
+      "scores are normal with μ = 70, σ = 10",
+      "x = 85"
+    ],
+    "find": "P(score < 85)",
+    "steps": [
+      "Convert to a z-score: z = (85 − 70)/10.",
+      "z = 15/10 = 1.5.",
+      "From the standard normal table, P(Z < 1.5) ≈ 0.9332."
+    ],
+    "answer": "P ≈ 0.9332 (about 93%)"
+  }
+}

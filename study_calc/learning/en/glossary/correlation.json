@@ -1,0 +1,12 @@
+{
+  "title": "Correlation coefficient (r)",
+  "short": "A number from −1 to +1 measuring the strength and direction of a linear relationship between two variables.",
+  "full": "The correlation coefficient r summarizes how well two variables follow a straight-line relationship. It ranges from −1 (perfect negative) through 0 (no linear relationship) to +1 (perfect positive).\n\nValues near ±1 mean the points hug a line; values near 0 mean little linear association. Correlation does not imply causation, and r only captures linear patterns — a strong curved relationship can still give a small r. It is computed from the same sums used for the regression line.",
+  "formulas": [
+    "r = Sxy / √(Sxx·Syy)",
+    "−1 ≤ r ≤ 1"
+  ],
+  "see_also": [
+    "linear_regression"
+  ]
+}

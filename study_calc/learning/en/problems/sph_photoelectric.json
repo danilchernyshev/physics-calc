@@ -1,0 +1,20 @@
+{
+  "subject": "physics",
+  "title": "Photoelectron kinetic energy",
+  "given": [
+    "light frequency f = 1.0×10¹⁵ Hz",
+    "work function W = 3.0×10⁻¹⁹ J",
+    "h = 6.63×10⁻³⁴ J·s"
+  ],
+  "find": "the maximum kinetic energy of an ejected electron",
+  "steps": [
+    "Photon energy E = hf = 6.63×10⁻³⁴ · 1.0×10¹⁵ = 6.63×10⁻¹⁹ J.",
+    "KE_max = hf − W = 6.63×10⁻¹⁹ − 3.0×10⁻¹⁹.",
+    "= 3.63×10⁻¹⁹ J."
+  ],
+  "answer": "KE_max = 3.63×10⁻¹⁹ J",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "sph_photoelectric"
+}

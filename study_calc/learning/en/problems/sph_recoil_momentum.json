@@ -1,0 +1,20 @@
+{
+  "subject": "physics",
+  "title": "Recoil speed (momentum conservation)",
+  "given": [
+    "a 5.0 kg rifle fires a 0.020 kg bullet",
+    "bullet leaves at 400 m/s; rifle initially at rest"
+  ],
+  "find": "the recoil speed of the rifle",
+  "steps": [
+    "Total momentum is conserved and starts at zero: 0 = m_b·v_b + m_r·v_r.",
+    "v_r = −(m_b·v_b) / m_r.",
+    "v_r = −(0.020 · 400) / 5.0 = −8.0 / 5.0.",
+    "v_r = −1.6 m/s (the minus sign means opposite to the bullet)."
+  ],
+  "answer": "v_r ≈ 1.6 m/s (backwards)",
+  "courses": [
+    "SPH4U"
+  ],
+  "topic": "momentum"
+}
