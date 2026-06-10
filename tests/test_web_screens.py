@@ -232,8 +232,9 @@ def test_screens_js_handles_enter_and_guards_stale_solves():
     js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
     # Enter in a field solves (parity with the Tk <Return> binding).
     assert "'Enter'" in js and "compute()" in js
-    # The async solve drops its result if the formula changed while in flight.
-    assert "current().key !== key" in js
+    # A generation token drops a late async result (formula/op change, Clear, or
+    # a newer compute) so it never clobbers the current panel.
+    assert "run !== st.run" in js
 
 
 def test_screens_css_uses_only_tokens():

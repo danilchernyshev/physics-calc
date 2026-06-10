@@ -12,7 +12,10 @@ const Screens = {
   formula(model, ctx) {
     const L = model.labels;
     const formulas = model.formulas;
-    const st = { index: 0, values: {}, solution: null };
+    // `run` is a generation token: any state change (select / clear / a newer
+    // compute) bumps it, so a late in-flight solve discards its result instead of
+    // clobbering the panel. The synchronous Tk panel can't hit this race.
+    const st = { index: 0, values: {}, solution: null, run: 0 };
 
     const current = () => formulas[st.index];
 
@@ -50,6 +53,7 @@ const Screens = {
     }
 
     function select(index) {
+      st.run++;
       st.index = index;
       st.values = {};
       st.solution = null;
@@ -61,17 +65,17 @@ const Screens = {
     }
 
     async function compute() {
-      // Capture the formula being solved; drop the result if the user switched
-      // formula while the (async) solve was in flight, so a stale answer never
-      // lands under a different formula's solution card.
-      const key = current().key;
-      const res = await ctx.solve(key, st.values);
-      if (current().key !== key) return;
+      // Drop the result if anything changed (formula switch, Clear, a newer
+      // compute) while the async solve was in flight.
+      const run = ++st.run;
+      const res = await ctx.solve(current().key, st.values);
+      if (run !== st.run) return;
       st.solution = res || null;
       renderSolution();
     }
 
     function clear() {
+      st.run++;
       st.values = {};
       st.solution = null;
       renderFields();
@@ -121,7 +125,10 @@ const Screens = {
 
     const L = model.labels;
     const ops = model.operations;
-    const st = { op: 0, expr: '', variable: '', fields: {}, view: null };
+    // `run` is a generation token — see the formula screen: it discards a late
+    // in-flight result when the op changes, Clear is pressed, or a newer compute
+    // starts.
+    const st = { op: 0, expr: '', variable: '', fields: {}, view: null, run: 0 };
 
     const current = () => ops[st.op];
 
@@ -166,6 +173,7 @@ const Screens = {
     }
 
     function selectOp(index) {
+      st.run++;
       st.op = index;
       st.fields = {};
       st.view = null; // back to the operation's learning material
@@ -175,15 +183,16 @@ const Screens = {
     }
 
     async function compute() {
-      const op = current().id;
-      const res = await ctx.run(op, st.expr, st.variable, st.fields);
-      if (current().id !== op) return; // operation changed while awaiting — drop it
+      const run = ++st.run;
+      const res = await ctx.run(current().id, st.expr, st.variable, st.fields);
+      if (run !== st.run) return; // op changed / cleared / superseded — drop it
       if (!res) return; // no backend (static preview)
       st.view = res.ok ? { type: 'steps', steps: res.steps } : { type: 'error', error: res.error };
       renderPanel();
     }
 
     function clear() {
+      st.run++;
       st.expr = '';
       st.variable = '';
       st.fields = {};
