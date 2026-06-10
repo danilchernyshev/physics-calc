@@ -163,7 +163,8 @@ study-calc
 
 The redesign (a flat, card-based UI — see
 [ADR 0001](docs/adr/0001-ui-framework.md)) is being built as a PyWebView
-frontend alongside the Tkinter app. The app shell (nav rail + header), the
+frontend alongside the Tkinter app. The app shell (nav rail + header) — now
+with the **"How to use" guide overlay** wired to the footer button — the
 physics **formula screen**, the symbolic-math **CAS screen**, the
 **vectors screen** and the unit **converter screen** can be run with the
 optional `web` extra:
