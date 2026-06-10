@@ -42,6 +42,7 @@ def render_preview_html(state: dict | None = None) -> str:
     state = state if state is not None else Bridge().get_state()
     html = INDEX_HTML.read_text(encoding="utf-8")
     formula_screens = json.dumps(screens.all_formula_screens())
+    problem_screens = json.dumps(screens.all_problem_screens())
     cas = json.dumps(screens.cas_screen())
     vectors = json.dumps(screens.vector_screen())
     converter = json.dumps(screens.converter_screen())
@@ -53,6 +54,7 @@ def render_preview_html(state: dict | None = None) -> str:
         f"<script>window.__STUDY_CALC_STATE__ = {json.dumps(state)};\n"
         f"window.__STUDY_CALC_API__ = (function () {{\n"
         f"  var byId = {formula_screens};\n"
+        f"  var problemsById = {problem_screens};\n"
         f"  var cas = {cas};\n"
         f"  var vectors = {vectors};\n"
         f"  var converter = {converter};\n"
@@ -61,6 +63,7 @@ def render_preview_html(state: dict | None = None) -> str:
         f"  return {{\n"
         f"    formula_screen: function (id) {{ return byId[String(id).split(':').pop()] || null; }},\n"
         f"    solve_formula: function () {{ return null; }},\n"
+        f"    problems_screen: function (id) {{ return problemsById[String(id).split(':').pop()] || null; }},\n"
         f"    cas_screen: function () {{ return cas; }},\n"
         f"    cas_run: function () {{ return null; }},\n"
         f"    vector_screen: function () {{ return vectors; }},\n"

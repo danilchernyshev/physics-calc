@@ -121,6 +121,10 @@ class Bridge:
         """Balance a chemical equation; localized result or error."""
         return screens.balance_run(equation)
 
+    def problems_screen(self, subject_id: str) -> dict:
+        """The practice-problems screen for a subject: every problem + its solution."""
+        return screens.problems_screen(subject_id)
+
     def guide_screen(self) -> dict:
         """The guide overlay model: title, intro, and six localized sections."""
         return screens.guide_screen()

@@ -123,8 +123,8 @@ function placeholderNode(data, subject) {
 }
 
 // Fill the content area for the active item. Section items render the physics
-// formula screen (issue #6); everything else falls back to the placeholder
-// until its own screen lands (#7–#11).
+// formula screen (issue #6); tools and the problems surface (#7–#11) each have
+// their own renderer; anything still without one falls back to the placeholder.
 async function mountScreen() {
   const mount = document.getElementById('screen-mount');
   if (!mount) return;
@@ -179,6 +179,18 @@ async function mountScreen() {
         molarMass: (formula) => callApi('molar_mass_run', formula),
         balance: (equation) => callApi('balance_run', equation),
       }));
+      return;
+    }
+  }
+  // The practice-problems surface (issue #11): a problem list on the left and the
+  // selected problem's worked solution on the right. Everything (statement,
+  // hidden steps/answer, video link, related-topic blocks) is baked into the
+  // model, so the renderer reveals and swaps with no further round-trip.
+  if (item && item.kind === 'problems') {
+    const model = await callApi('problems_screen', item.id);
+    if (document.getElementById('screen-mount') !== mount) return;
+    if (model) {
+      mount.replaceChildren(Screens.problems(model));
       return;
     }
   }
