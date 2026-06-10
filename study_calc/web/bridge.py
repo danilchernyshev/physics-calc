@@ -15,6 +15,7 @@ the Tkinter shell does.
 
 from __future__ import annotations
 
+from . import screens
 from .. import navigation
 from ..i18n import i18n, t
 
@@ -73,3 +74,13 @@ class Bridge:
         """Switch the active language and return the freshly localized state."""
         i18n.set_language(code)
         return self.get_state()
+
+    # --- per-screen content (issue #6 onward) ---
+
+    def formula_screen(self, section_id: str) -> dict:
+        """The physics formula screen for a ``section`` item: labels + formulas."""
+        return screens.formula_screen(section_id)
+
+    def solve_formula(self, formula_key: str, values: dict) -> dict:
+        """Solve a formula from the input fields; localized result or error."""
+        return screens.solve_formula(formula_key, values)

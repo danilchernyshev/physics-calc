@@ -15,6 +15,16 @@ async function loadState() {
   return window.pywebview.api.get_state();
 }
 
+// Call a bridge method, with a static fallback for the browser/screenshot
+// preview (which injects `__STUDY_CALC_API__` instead of a live PyWebView API).
+async function callApi(method, ...args) {
+  const api = window.pywebview && window.pywebview.api;
+  if (api && typeof api[method] === 'function') return api[method](...args);
+  const preview = window.__STUDY_CALC_API__;
+  if (preview && typeof preview[method] === 'function') return preview[method](...args);
+  return null;
+}
+
 async function setLanguage(code) {
   state.langOpen = false;
   if (window.pywebview && window.pywebview.api) {
@@ -81,18 +91,46 @@ function renderContent(data, subject) {
       onclick: () => selectItem(index),
     }, [item.label])));
 
-  const active = subject.items[state.item];
-  const placeholder = h('div', { class: 'placeholder' }, [
-    h('p', { class: 'placeholder__title', text: active ? active.label : subject.label }),
-    h('p', { class: 'placeholder__note', text: data.labels.placeholder }),
-  ]);
+  // The per-screen content is mounted asynchronously (it may need a bridge call).
+  const screenMount = h('div', { class: 'screen-mount', id: 'screen-mount' }, []);
 
   return h('main', { class: 'content' }, [
     h('h1', { class: 'header__title', text: subject.label }),
     h('p', { class: 'header__subtitle', text: subject.tagline }),
     tabs,
-    placeholder,
+    screenMount,
   ]);
+}
+
+function placeholderNode(data, subject) {
+  const active = subject.items[state.item];
+  return h('div', { class: 'placeholder' }, [
+    h('p', { class: 'placeholder__title', text: active ? active.label : subject.label }),
+    h('p', { class: 'placeholder__note', text: data.labels.placeholder }),
+  ]);
+}
+
+// Fill the content area for the active item. Section items render the physics
+// formula screen (issue #6); everything else falls back to the placeholder
+// until its own screen lands (#7–#11).
+async function mountScreen() {
+  const mount = document.getElementById('screen-mount');
+  if (!mount) return;
+  const data = state.data;
+  const subject = data.subjects[state.subject];
+  const item = subject.items[state.item];
+  if (item && item.kind === 'section') {
+    const model = await callApi('formula_screen', item.id);
+    // Ignore a stale response if the selection changed while we awaited.
+    if (document.getElementById('screen-mount') !== mount) return;
+    if (model) {
+      mount.replaceChildren(Screens.formula(model, {
+        solve: (key, values) => callApi('solve_formula', key, values),
+      }));
+      return;
+    }
+  }
+  mount.replaceChildren(placeholderNode(data, subject));
 }
 
 function render() {
@@ -102,6 +140,7 @@ function render() {
   const app = document.getElementById('app');
   app.replaceChildren(renderNav(data), renderContent(data, subject));
   app.removeAttribute('aria-busy');
+  mountScreen();
 }
 
 async function init() {

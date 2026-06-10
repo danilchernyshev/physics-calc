@@ -18,8 +18,9 @@ Components are plain factory functions returning DOM nodes.
 | `dom.js` | `h(tag, attrs, children)` hyperscript helper → `window.h`. Loaded first. |
 | `components.js` | The shared component factories → `window.UI`. |
 | `components.css` | Component styles, **entirely on the design tokens** (`../tokens.css`). |
-| `shell.js` / `shell.css` | The app shell (nav rail + header, issue #4). |
-| `index.html` | The window: loads tokens → components → shell, in order. |
+| `screens.js` / `screens.css` | Per-screen renderers → `window.Screens` (the physics formula screen, issue #6). |
+| `shell.js` / `shell.css` | The app shell (nav rail + header, issue #4) and the screen dispatcher. |
+| `index.html` | The window: loads tokens → components → screens → shell, in order. |
 | `gallery.html` | Living component reference / visual-check page (open in a browser). |
 
 ## Components (`window.UI`)
@@ -41,6 +42,21 @@ Each consumes the design tokens — no hardcoded colors or sizes
 | `UI.badge` / `UI.eyebrow` / `UI.hint` | Small text primitives. |
 
 Per-screen surfaces (#6–#11) compose these — no per-screen re-implementation.
+
+## Screens (`window.Screens`)
+
+`screens.js` turns a per-screen model from the bridge into a self-contained
+interactive node: typing and solving update the node in place, so only a nav or
+language change triggers the shell's full re-render. `shell.js` dispatches on the
+active item's `kind` (a `section` item → `Screens.formula`).
+
+| Screen | Renders |
+| --- | --- |
+| `Screens.formula(model, ctx)` | Physics formula screen (#6): an **input card** (formula picker + per-variable fields + Compute/Clear), a **solution card** (green result or red error), and the **learning card** (theory, useful formulas, how-to-solve, key terms with a pop-up, worked example, study links). `ctx.solve(key, values)` calls the bridge. |
+
+The screen models are built server-side in `web/screens.py` (pure Python, so the
+solve flow and the learning blocks are unit-tested headlessly) and reach the
+frontend via `bridge.formula_screen()` / `bridge.solve_formula()`.
 
 ## Running
 
