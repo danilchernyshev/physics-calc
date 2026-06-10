@@ -1,0 +1,224 @@
+/* Shared card & control components (issue #5).
+   Every value comes from the design tokens (tokens.css) — no hardcoded colors
+   or sizes. These classes back the factories in components.js and are reused by
+   every per-screen surface (#6–#11). */
+
+/* ---- Card ------------------------------------------------------------ */
+
+.card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-card);
+  padding: var(--space-2xl);
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.card__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+}
+
+.card__body { display: flex; flex-direction: column; gap: var(--space-lg); }
+
+/* ---- Badge / eyebrow / hint ----------------------------------------- */
+
+.badge {
+  display: inline-block;
+  padding: var(--space-3xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--font-size-eyebrow);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.hint { margin: 0; font-size: var(--font-size-sm); color: var(--color-text-body); }
+
+/* ---- Fields (labeled input / select) -------------------------------- */
+
+.field { display: flex; flex-direction: column; gap: var(--space-2xs); }
+
+.field__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-body);
+}
+
+.field__control {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-strong);
+  font: inherit;
+}
+
+.field__control::placeholder { color: var(--color-text-muted); }
+
+.field__control:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px var(--color-brand-soft);
+}
+
+.field__control--mono { font-family: var(--font-family-mono); color: var(--color-formula); }
+
+.field__row { display: flex; gap: var(--space-sm); align-items: flex-end; }
+.field__row .field { flex: 1 1 auto; }
+
+select.field__control { appearance: none; cursor: pointer; padding-right: var(--space-xl); }
+
+/* ---- Buttons -------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.btn--primary { background: var(--color-brand-primary); color: var(--color-text-on-brand); }
+.btn--primary:hover:not(:disabled) { background: var(--color-brand-hover); }
+
+.btn--secondary {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-strong);
+}
+.btn--secondary:hover:not(:disabled) { background: var(--color-bg-subtle); }
+
+.btn--ghost { background: none; color: var(--color-text-muted); }
+.btn--ghost:hover:not(:disabled) { color: var(--color-text-body); }
+
+/* ---- Chips / segmented control -------------------------------------- */
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+
+.chip {
+  padding: var(--space-2xs) var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-surface);
+  color: var(--color-text-body);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.chip:hover { border-color: var(--color-brand-primary); color: var(--color-text-strong); }
+
+.chip--active {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-on-brand);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---- Result / answer chip (green) ----------------------------------- */
+
+.result {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-success-soft);
+}
+
+.result__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-success);
+}
+
+.result__value {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+}
+
+/* ---- Error strip ---------------------------------------------------- */
+
+.error-strip {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+}
+
+/* ---- Step-by-step list ---------------------------------------------- */
+
+.steps { display: flex; flex-direction: column; gap: var(--space-md); margin: 0; padding: 0; list-style: none; }
+
+.step { display: flex; gap: var(--space-md); }
+
+.step__num {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-soft);
+  color: var(--color-brand-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step__body { display: flex; flex-direction: column; gap: var(--space-3xs); }
+.step__text { color: var(--color-text-body); }
+.step__formula { font-family: var(--font-family-mono); color: var(--color-formula); }
+
+/* ---- Rich text (folds the Tk _RichText vocabulary) ------------------ */
+
+.rich { display: flex; flex-direction: column; gap: var(--space-sm); }
+.rich__heading {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+}
+.rich__body { margin: 0; color: var(--color-text-body); }
+.rich__formula { font-family: var(--font-family-mono); color: var(--color-formula); }
+.rich__label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-body); }
+.rich__link {
+  color: var(--color-accent-link);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+}
+.rich__link:hover { text-decoration: underline; }

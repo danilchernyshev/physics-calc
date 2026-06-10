@@ -88,8 +88,16 @@ language-agnostic:
   lazily imports PyWebView (the optional `web` extra) to open the window over
   `frontend/` (`index.html` + `shell.css` using the tokens + vanilla-JS `shell.js`),
   and `render_preview_html()` inlines the state for a browser/screenshot preview
-  without the bridge. The shell (nav rail + header) is issue #4; per-screen panels
-  are #6–#11. Run it with `python -m study_calc.web`.
+  without the bridge. The frontend is **vanilla JS, no build step** (the framework
+  choice settled in #5): `frontend/dom.js` exposes the `h()` hyperscript helper and
+  `frontend/components.js` (`window.UI`) the shared component factories — `card`,
+  `textInput`, `select`, `button`, `chips`, `result` (green answer chip),
+  `errorStrip`, `steps`, `rich` (folds the Tk `_RichText` vocabulary) — all styled
+  by `components.css` strictly on the tokens (no hardcoded colors;
+  `tests/test_web_components.py` lints this). Per-screen surfaces (#6–#11) compose
+  these factories; `frontend/gallery.html` is the living component reference. See
+  `frontend/README.md`. The shell (nav rail + header) is issue #4; per-screen
+  panels are #6–#11. Run it with `python -m study_calc.web`.
 
 - **`domains/`** — declarative formula sets, one module per section: physics
   (mechanics, thermodynamics, electromagnetism, waves) plus `chemistry.py`

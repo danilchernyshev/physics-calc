@@ -52,7 +52,7 @@ body {
 
 .nav__wordmark {
   font-weight: var(--font-weight-bold);
-  color: #fff;
+  color: var(--color-text-on-brand);
 }
 
 .nav__heading {
@@ -85,7 +85,7 @@ body {
 
 .nav__item--active {
   background: var(--color-bg-nav-active);
-  color: #fff;
+  color: var(--color-text-on-brand);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -105,7 +105,7 @@ body {
 
 .nav__item--active .nav__badge {
   background: var(--color-brand-primary);
-  color: #fff;
+  color: var(--color-text-on-brand);
 }
 
 .nav__spacer { flex: 1 1 auto; }
@@ -149,7 +149,7 @@ body {
 }
 
 .nav__lang-option:hover { background: rgba(255, 255, 255, 0.08); }
-.nav__lang-option.is-active { font-weight: var(--font-weight-semibold); color: #fff; }
+.nav__lang-option.is-active { font-weight: var(--font-weight-semibold); color: var(--color-text-on-brand); }
 
 /* ---- Content + header ------------------------------------------------ */
 

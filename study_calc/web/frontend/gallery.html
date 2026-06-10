@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Components — Study Calculator</title>
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="components.css">
+  <style>
+    body { margin: 0; background: var(--color-bg-app); font-family: var(--font-family-sans);
+           color: var(--color-text-body); padding: var(--space-2xl); }
+    h1 { color: var(--color-text-strong); font-size: var(--font-size-2xl); }
+    .gallery { display: grid; gap: var(--space-2xl); max-width: 760px; }
+  </style>
+</head>
+<body>
+  <h1>Component gallery</h1>
+  <p>Living reference for the shared components (issue #5). Each consumes the
+     design tokens — open against the Figma frames for the visual check.</p>
+  <div id="gallery" class="gallery"></div>
+
+  <script src="dom.js"></script>
+  <script src="components.js"></script>
+  <script>
+    'use strict';
+    const g = document.getElementById('gallery');
+
+    // InputCard-style example.
+    g.append(UI.card({
+      title: 'Operation', badge: 'Derivative',
+      body: [
+        UI.select({ label: 'Operation', value: 'derivative', options: [
+          { value: 'simplify', label: 'Simplify' },
+          { value: 'derivative', label: 'Derivative' },
+          { value: 'integral', label: 'Integral' },
+        ] }),
+        UI.chips({ items: [
+          { id: 'analyze', label: 'Analyze' }, { id: 'simplify', label: 'Simplify' },
+          { id: 'factor', label: 'Factor' }, { id: 'derivative', label: 'Derivative' },
+          { id: 'integral', label: 'Integral' }, { id: 'solve', label: 'Solve' },
+        ], active: 'derivative' }),
+        UI.hint('Type an expression (e.g. x^2 − 4). Leave Variable empty to auto-detect.'),
+        UI.textInput({ label: 'Expression', value: 'x^2 − 4', mono: true }),
+        UI.textInput({ label: 'Variable', value: 'x', mono: true, width: '120px' }),
+        h('div', { class: 'chips' }, [
+          UI.button({ label: 'Compute', variant: 'primary' }),
+          UI.button({ label: 'Plot', variant: 'secondary' }),
+          UI.button({ label: 'Clear', variant: 'ghost' }),
+        ]),
+      ],
+    }));
+
+    // SolutionCard-style example.
+    g.append(UI.card({
+      title: 'Step-by-step solution', badge: 'Derivative',
+      body: [
+        UI.steps([
+          { text: 'Differentiate term by term.', formula: 'f(x) = x² − 4' },
+          { text: 'Power rule: d/dx(xⁿ) = n·xⁿ⁻¹', formula: 'd/dx(x²) = 2x' },
+          { text: 'The derivative of a constant is zero.', formula: 'd/dx(−4) = 0' },
+        ]),
+        UI.result({ label: 'Result', value: "f'(x) = 2x" }),
+        UI.errorStrip('Could not parse the expression.'),
+        UI.eyebrow('Learn more'),
+        UI.chips({ items: [
+          { id: 'expl', label: 'Explanation' }, { id: 'formulas', label: 'Useful formulas' },
+          { id: 'terms', label: 'Key terms' }, { id: 'example', label: 'Worked example' },
+        ] }),
+        UI.rich([
+          { kind: 'heading', text: 'Power rule' },
+          { kind: 'body', text: 'The derivative of xⁿ is n·xⁿ⁻¹.' },
+          { kind: 'link', text: '↗ OpenStax Calculus Vol. 1, §3.3', href: 'https://openstax.org' },
+        ]),
+      ],
+    }));
+  </script>
+</body>
+</html>
