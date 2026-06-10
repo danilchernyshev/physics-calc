@@ -23,8 +23,9 @@ def test_detect_flatpak_from_env():
     assert fmt == "flatpak"
 
 
-def test_detect_appimage_from_env():
-    fmt = detect_format(frozen=True, platform="linux", environ={"APPIMAGE": "/tmp/x.AppImage"})
+def test_detect_appimage_from_env(tmp_path):
+    appimage = tmp_path / "x.AppImage"
+    fmt = detect_format(frozen=True, platform="linux", environ={"APPIMAGE": str(appimage)})
     assert fmt == "appimage"
 
 

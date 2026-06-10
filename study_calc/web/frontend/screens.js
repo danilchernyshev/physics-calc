@@ -1039,37 +1039,53 @@ const Screens = {
     // checking -> up_to_date/available/error) without rebuilding the dialog.
     const status = h('div', { class: 'updates__status', id: 'updates-status' }, []);
 
+    // Per-format apply guidance (#75): how to install on this packaging format,
+    // plus the exact command where one applies (Flatpak/source). Returns nodes.
+    function applyNodes(apply) {
+      const out = [
+        h('h3', { class: 'learn__heading', text: apply.heading }),
+        h('p', { class: 'rich__body', text: apply.instructions }),
+      ];
+      if (apply.command) {
+        if (apply.commandLabel) {
+          out.push(h('p', { class: 'updates__cmd-label', text: apply.commandLabel }));
+        }
+        out.push(h('pre', { class: 'updates__command', text: apply.command }));
+      }
+      return out;
+    }
+
+    // The "an update is available" body: message, optional bump note, release
+    // notes, release link, and the per-format apply guidance.
+    function availableNodes(m) {
+      const out = [h('p', { class: 'result result--answer', text: m.message })];
+      if (m.bumpNote) out.push(h('p', { class: 'rich__body', text: m.bumpNote }));
+      if (m.notes) {
+        out.push(
+          h('h3', { class: 'learn__heading', text: m.notesHeading }),
+          h('pre', { class: 'updates__notes', text: m.notes }),
+        );
+      }
+      if (m.url) {
+        out.push(h('a', {
+          class: 'updates__link', href: m.url,
+          target: '_blank', rel: 'noopener noreferrer',
+        }, [m.viewRelease]));
+      }
+      if (m.apply) out.push(...applyNodes(m.apply));
+      return out;
+    }
+
     function fillStatus(m) {
-      const nodes = [];
+      let nodes;
       if (m.status === 'available') {
-        nodes.push(h('p', { class: 'result result--answer', text: m.message }));
-        if (m.bumpNote) nodes.push(h('p', { class: 'rich__body', text: m.bumpNote }));
-        if (m.notes) {
-          nodes.push(h('h3', { class: 'learn__heading', text: m.notesHeading }));
-          nodes.push(h('pre', { class: 'updates__notes', text: m.notes }));
-        }
-        if (m.url) {
-          nodes.push(h('a', {
-            class: 'updates__link', href: m.url,
-            target: '_blank', rel: 'noopener noreferrer',
-          }, [m.viewRelease]));
-        }
-        // Per-format apply guidance (#75): how to install on this packaging
-        // format, plus the exact command where one applies (Flatpak/source).
-        if (m.apply) {
-          nodes.push(h('h3', { class: 'learn__heading', text: m.apply.heading }));
-          nodes.push(h('p', { class: 'rich__body', text: m.apply.instructions }));
-          if (m.apply.command) {
-            if (m.apply.commandLabel) {
-              nodes.push(h('p', { class: 'updates__cmd-label', text: m.apply.commandLabel }));
-            }
-            nodes.push(h('pre', { class: 'updates__command', text: m.apply.command }));
-          }
-        }
+        nodes = availableNodes(m);
       } else if (m.status === 'up_to_date') {
-        nodes.push(h('p', { class: 'updates__ok', text: m.message }));
+        nodes = [h('p', { class: 'updates__ok', text: m.message })];
       } else if (m.status === 'error') {
-        nodes.push(UI.errorStrip(m.message));
+        nodes = [UI.errorStrip(m.message)];
+      } else {
+        nodes = [];
       }
       status.replaceChildren(...nodes);
     }
