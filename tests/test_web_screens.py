@@ -231,6 +231,97 @@ def test_operations_screens_share_one_frontend_renderer():
     assert "cas_screen" in shell and "vector_screen" in shell
 
 
+# --- Unit converter screen ---
+
+
+def test_converter_screen_lists_categories_with_units_and_labels():
+    from study_calc.core.units import categories, units_of
+
+    screen = screens.converter_screen()
+    assert screen["available"] is True
+    # All categories from the engine are present and in the same order.
+    assert [c["id"] for c in screen["categories"]] == categories()
+    # Each category carries localized labels and its unit list.
+    first = screen["categories"][0]
+    assert not first["label"].startswith("category.")   # localized, not a raw key
+    assert [u["id"] for u in first["units"]] == units_of(first["id"])
+    assert not first["units"][0]["label"].startswith("unit.")
+    # Temperature is the special-cased category; its units must also be present.
+    temp = next(c for c in screen["categories"] if c["id"] == "temperature")
+    assert {u["id"] for u in temp["units"]} == {"celsius", "kelvin", "fahrenheit"}
+    # Chrome labels use the same i18n keys as the Tk ConverterPanel.
+    labels = screen["labels"]
+    assert labels["category"] == t("ui.category")
+    assert labels["value"] == t("ui.value")
+    assert labels["from"] == t("ui.from")
+    assert labels["to"] == t("ui.to")
+    assert labels["convert"] == t("ui.convert")
+    assert labels["clear"] == t("ui.clear")
+    assert labels["result"] == t("ui.result")
+
+
+def test_convert_run_linear_happy_path():
+    # 1 km  =  1000 m (a linear category, integer result).
+    res = screens.convert_run("length", "1", "kilometer", "meter")
+    assert res["ok"] is True
+    assert "1 km" in res["result"] and "1000 m" in res["result"]
+    assert "=" in res["result"]
+
+
+def test_convert_run_accepts_comma_decimal_separator():
+    res = screens.convert_run("length", "1,5", "kilometer", "meter")
+    assert res["ok"] is True
+    assert "1500 m" in res["result"]
+
+
+def test_convert_run_temperature_happy_path():
+    # Temperature is special-cased (offset conversion, not linear).
+    res = screens.convert_run("temperature", "0", "celsius", "kelvin")
+    assert res["ok"] is True
+    # 0 °C = 273.15 K (not a whole number, so 6 sig-digit formatting applies).
+    assert "273.15" in res["result"] or "273.15 K" in res["result"]
+    assert "0 °C" in res["result"]
+
+
+def test_convert_run_maps_conversion_error_to_localized_message():
+    res = screens.convert_run("length", "5", "meter", "celsius")  # mismatched units
+    assert res["ok"] is False
+    assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_convert_run_maps_not_a_number_to_localized_message():
+    res = screens.convert_run("length", "abc", "meter", "kilometer")
+    assert res["ok"] is False
+    assert "abc" in res["error"]
+
+
+def test_converter_screen_is_localized_on_language_switch():
+    try:
+        en = Bridge().converter_screen()
+        bridge = Bridge()
+        bridge.set_language("ru")
+        ru = bridge.converter_screen()
+        # Category labels must differ between English and Russian.
+        en_labels = [c["label"] for c in en["categories"]]
+        ru_labels = [c["label"] for c in ru["categories"]]
+        assert en_labels != ru_labels
+        # Chrome labels must differ too.
+        assert en["labels"]["convert"] != ru["labels"]["convert"]
+    finally:
+        i18n.set_language("en")
+
+
+def test_converter_screen_has_dedicated_frontend_renderer():
+    # The converter is category+units shaped, not operation+fields shaped, so it
+    # warrants its own renderer rather than reusing Screens.operations.
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    assert "converter(model, ctx)" in js
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    assert "Screens.converter" in shell
+    assert "converter_screen" in shell
+    assert "convert_run" in shell
+
+
 # --- language switching ---
 
 

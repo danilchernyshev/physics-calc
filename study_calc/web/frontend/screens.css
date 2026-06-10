@@ -93,6 +93,27 @@
 .rich__body-inline { color: var(--color-text-body); font-weight: var(--font-weight-regular); }
 .rich__answer { font-family: var(--font-family-mono); color: var(--color-success); font-weight: var(--font-weight-semibold); }
 
+/* ---- Converter screen ----------------------------------------------- */
+
+/* Single-card layout; constrained width since there is no aside learning panel
+   (the converter is a pure tool, matching the Tk ConverterPanel's simplicity). */
+.screen--converter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+  max-width: 640px;
+}
+
+/* Category chip strip — same flex-wrap pattern as .ops__chips. */
+.converter__chips { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+
+/* Stacked label+control pairs for the value input and unit selects. */
+.converter__fields { display: flex; flex-direction: column; gap: var(--space-md); }
+
+/* Result/error slot: a stable minimum height prevents the card from visually
+   collapsing between conversions — mirrors the Tk ResultArea visual weight. */
+.converter__result { min-height: var(--space-2xl); }
+
 /* ---- Key-term pop-up ------------------------------------------------ */
 
 .modal {
