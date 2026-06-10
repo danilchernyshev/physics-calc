@@ -55,9 +55,38 @@ a = Analysis(
     hiddenimports=["sympy"],
     hookspath=[],
     runtime_hooks=[],
-    excludes=[],
+    # The graphing surface (matplotlib/numpy/Pillow — the `graph` extra) is not
+    # wired into the web UI yet and no shipping code path imports it, so keep it
+    # out of the frozen bundle. Excluding here makes the build lean regardless of
+    # which extras happen to be installed in the build environment.
+    excludes=[
+        "matplotlib", "numpy", "PIL", "Pillow", "kiwisolver",
+        "scipy", "pandas", "IPython",
+        "tkinter", "pytest", "_pytest",
+    ],
     noarchive=False,
 )
+
+# PyInstaller's GTK/GdkPixbuf hooks vacuum the *build host's* entire icon and
+# theme trees (``/usr/share/icons`` + ``/usr/share/themes``) into the bundle —
+# well over a gigabyte on a themed desktop. The Linux build is not self-contained
+# for graphics (the AppImage relies on the host's GTK/WebKit; see
+# packaging/linux/README.md), so these are dead weight. Drop them and other host
+# data trees the app never reads, keeping the bundle within the AppImage size
+# budget (#66).
+_DATA_PREFIX_EXCLUDES = (
+    "share/icons",
+    "share/themes",
+    "share/fonts",
+    "share/locale",
+    "share/cursors",
+    "share/backgrounds",
+)
+a.datas = [
+    entry
+    for entry in a.datas
+    if not entry[0].replace("\\", "/").startswith(_DATA_PREFIX_EXCLUDES)
+]
 
 pyz = PYZ(a.pure)
 
