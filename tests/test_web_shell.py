@@ -101,6 +101,23 @@ def test_preview_html_inlines_state():
     assert '"subjects"' in html
 
 
+def test_preview_html_injects_bridge_api_stubs():
+    # The browser/screenshot preview stands in for the live PyWebView bridge via
+    # window.__STUDY_CALC_API__. If any per-screen stub were dropped, that screen
+    # would silently fail to mount in the preview with no failing test (issue #24).
+    html = web_app.render_preview_html()
+    assert "window.__STUDY_CALC_API__" in html
+    for method in (
+        "formula_screen",
+        "solve_formula",
+        "cas_screen",
+        "cas_run",
+        "vector_screen",
+        "vector_run",
+    ):
+        assert method in html, f"preview API stub for {method!r} is missing"
+
+
 # --- favicon / window icon assets (issue #57) --------------------------------
 
 def test_favicon_svg_exists():
