@@ -233,6 +233,10 @@ study_calc/
 │   └── waves.py
 ├── gui/             # Tkinter interface
 │   └── app.py
+├── web/             # redesign frontend layer (ADR 0001): design tokens
+│   ├── tokens.json  #   canonical, framework-agnostic token definitions
+│   ├── tokens.py    #   loader + CSS-custom-property generator
+│   └── tokens.css   #   generated :root variables for the frontend
 ├── navigation.py    # subject grouping for the GUI tabs (Tk-free)
 ├── learning/        # learning content: topics, glossary, practice problems
 ├── i18n.py          # runtime localization engine
@@ -276,6 +280,12 @@ Architecture decisions are recorded as ADRs under [`docs/adr/`](docs/adr/):
 - [0001 — UI framework for the redesign](docs/adr/0001-ui-framework.md): adopts
   a PyWebView web frontend (reusing the existing `core`/`domains`/i18n layers)
   for the upcoming flat, card-based redesign.
+
+The redesign's visual style (colors, typography, spacing, radii, elevation) is
+captured as a single source of truth in
+[`study_calc/web/tokens.json`](study_calc/web/tokens.json) and documented in
+[`docs/design-tokens.md`](docs/design-tokens.md); `tokens.py` emits them as the
+CSS custom properties the frontend consumes.
 
 ## License
 
