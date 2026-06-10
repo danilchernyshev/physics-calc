@@ -210,8 +210,9 @@ class AboutWindow(tk.Toplevel):
         text.write("Mark Chernyshev\n", "body")
         text.write(t("about.role") + "\n", "body")
         text.write("Applewood Heights Secondary School\n", "body")
-        text.write("2024 – 2027\n", "body")
+        text.write("2023 – 2027\n", "body")
         text.write("Peel District School Board\n", "body")
+        text.write("Mississauga, Ontario, Canada\n", "body")
         text.end()
 
 
