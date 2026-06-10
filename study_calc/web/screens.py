@@ -228,6 +228,142 @@ def all_formula_screens() -> dict[str, dict]:
     return {section_id: formula_screen(section_id) for section_id in SECTIONS}
 
 
+# --- CAS (symbolic math) screen ---
+#
+# SymPy lives behind ``core.cas`` and is an optional dependency; importing it
+# eagerly here would break the whole web package (and the formula screen) when it
+# is absent. So, exactly like the Tk ``CasPanel``, ``cas`` is imported *lazily*
+# inside the functions below — a missing SymPy degrades to the notice instead.
+
+# Step keys whose line is the actual answer (rendered green), mirroring
+# ``gui.app.CasPanel._is_answer`` / ``_ANSWER_KEYS``.
+_CAS_ANSWER_KEYS = {
+    "cas.step.result",
+    "cas.step.solve_root",
+    "cas.step.inequality_solution",
+    "cas.step.identity_true",
+    "cas.step.identity_false",
+}
+
+
+def _is_cas_answer(step_key: str) -> bool:
+    return step_key in _CAS_ANSWER_KEYS or step_key.startswith("cas.step.card.")
+
+
+def _topic_blocks(title_text: str, topic) -> list[dict]:
+    """Learning blocks for a CAS operation (mirror of ``ExplanationPanel.show_topic``)."""
+    blocks: list[dict] = [{"type": "heading", "text": title_text}]
+    badge = _curriculum_text(topic.courses)
+    if badge:
+        blocks.append({"type": "badge", "text": badge})
+    if topic.summary:
+        blocks.append({"type": "body", "text": topic.summary})
+    if topic.formulas:
+        blocks.append({"type": "heading", "text": t("ui.useful_formulas")})
+        for formula in topic.formulas:
+            blocks.append({"type": "formula", "text": formula})
+    if topic.method:
+        blocks.append({"type": "heading", "text": t("ui.how_to_solve")})
+        blocks.append({"type": "steps", "items": list(topic.method)})
+    if topic.terms:
+        terms = []
+        for term_id in topic.terms:
+            concept = load_concept(term_id, i18n.language)
+            if concept is not None:
+                terms.append(_concept_model(concept))
+        if terms:
+            blocks.append({"type": "heading", "text": t("ui.key_terms")})
+            blocks.append({"type": "terms", "items": terms})
+    if topic.example is not None:
+        blocks.append({"type": "heading", "text": t("ui.worked_example")})
+        blocks.append(_example_block(topic.example))
+    return blocks
+
+
+def _cas_operation_learning(op: str) -> list[dict]:
+    """The before-a-result learning panel for an op: its topic, else a hint."""
+    topic = load_topic(f"cas_{op}", i18n.language)
+    if topic is not None:
+        return _topic_blocks(t(f"cas.op.{op}"), topic)
+    return [
+        {"type": "heading", "text": t("cas.steps_title")},
+        {"type": "hint", "text": t("cas.steps_placeholder")},
+    ]
+
+
+def cas_screen() -> dict:
+    """The CAS screen model: operations + labels, or a SymPy-absent notice.
+
+    When SymPy is not installed the model is ``{"available": False, ...}`` and the
+    frontend shows the notice (mirroring the Tk ``cas.unavailable`` fallback).
+    """
+    try:
+        from ..core import cas
+    except ImportError:
+        return {"available": False, "title": t("tab.cas"), "notice": t("cas.unavailable")}
+
+    operations = [
+        {
+            "id": op,
+            "label": t(f"cas.op.{op}"),
+            "usesVariable": op in cas.USES_VARIABLE,
+            "fields": [
+                {"id": fid, "label": t(f"cas.field.{fid}")}
+                for fid in cas.OP_FIELDS.get(op, ())
+            ],
+            "learning": _cas_operation_learning(op),
+        }
+        for op in cas.OPERATIONS
+    ]
+    return {
+        "available": True,
+        "title": t("tab.cas"),
+        "labels": {
+            "operation": t("cas.operation"),
+            "expression": t("cas.expression"),
+            "variable": t("cas.variable"),
+            "hint": t("cas.hint"),
+            "compute": t("ui.compute"),
+            "clear": t("ui.clear"),
+            "stepsTitle": t("cas.steps_title"),
+            "openFull": t("ui.open_full"),
+            "relatedFormulas": t("ui.related_formulas"),
+            "seeAlso": t("ui.see_also"),
+        },
+        "operations": operations,
+    }
+
+
+def cas_run(op: str, expression: str, variable: str = "", fields: Mapping[str, str] | None = None) -> dict:
+    """Run a CAS operation; mirror of ``CasPanel._compute``.
+
+    Returns ``{"ok": True, "title", "steps"}`` (each step ``{"text", "answer"}``,
+    ``answer`` marking the green result line) or ``{"ok": False, "error"}`` — both
+    localized. Powers are rendered ``x^2`` (not SymPy's ``x**2``), as in the GUI.
+    """
+    try:
+        from ..core import cas
+    except ImportError:
+        return {"ok": False, "error": t("cas.unavailable")}
+
+    extra = {fid: str(value or "").strip() for fid, value in (fields or {}).items()}
+    try:
+        result = cas.run(op, (expression or "").strip(), (variable or "").strip(), **extra)
+    except cas.CasError as exc:
+        return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
+
+    steps = [
+        {
+            "text": t(step.key, **step.params).replace("**", "^"),
+            "answer": _is_cas_answer(step.key),
+        }
+        for step in result.steps
+    ]
+    if not steps:  # defensive: an op without steps still shows an answer line
+        steps = [{"text": f"{result.input_text}  →  {result.output_text}", "answer": True}]
+    return {"ok": True, "title": t("cas.steps_title"), "steps": steps}
+
+
 def solve_formula(formula_key: str, values: Mapping[str, str]) -> dict:
     """Solve ``formula_key`` from string ``values`` (symbol -> text field).
 

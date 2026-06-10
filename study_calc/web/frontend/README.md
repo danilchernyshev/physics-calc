@@ -18,7 +18,7 @@ Components are plain factory functions returning DOM nodes.
 | `dom.js` | `h(tag, attrs, children)` hyperscript helper → `window.h`. Loaded first. |
 | `components.js` | The shared component factories → `window.UI`. |
 | `components.css` | Component styles, **entirely on the design tokens** (`../tokens.css`). |
-| `screens.js` / `screens.css` | Per-screen renderers → `window.Screens` (the physics formula screen, issue #6). |
+| `screens.js` / `screens.css` | Per-screen renderers → `window.Screens` (formula screen #6, CAS screen #7). |
 | `shell.js` / `shell.css` | The app shell (nav rail + header, issue #4) and the screen dispatcher. |
 | `index.html` | The window: loads tokens → components → screens → shell, in order. |
 | `gallery.html` | Living component reference / visual-check page (open in a browser). |
@@ -53,10 +53,13 @@ active item's `kind` (a `section` item → `Screens.formula`).
 | Screen | Renders |
 | --- | --- |
 | `Screens.formula(model, ctx)` | Physics formula screen (#6): an **input card** (formula picker + per-variable fields + Compute/Clear), a **solution card** (green result or red error), and the **learning card** (theory, useful formulas, how-to-solve, key terms with a pop-up, worked example, study links). `ctx.solve(key, values)` calls the bridge. |
+| `Screens.cas(model, ctx)` | Symbolic-math screen (#7): an **input card** (operation chips + expression/variable + per-op extra fields + Compute/Clear) and a **solution card** that teaches the selected operation before a result and shows SymPy's step-by-step (green answer lines) after. Degrades to the SymPy-absent notice. `ctx.run(op, expr, variable, fields)` calls the bridge. |
 
 The screen models are built server-side in `web/screens.py` (pure Python, so the
 solve flow and the learning blocks are unit-tested headlessly) and reach the
-frontend via `bridge.formula_screen()` / `bridge.solve_formula()`.
+frontend via the bridge (`formula_screen` / `solve_formula`, `cas_screen` /
+`cas_run`). `core.cas` (SymPy) is imported lazily there, so a missing SymPy
+degrades to the notice instead of breaking the package.
 
 ## Running
 

@@ -130,6 +130,16 @@ async function mountScreen() {
       return;
     }
   }
+  if (item && item.kind === 'tool' && item.id === 'tool:cas') {
+    const model = await callApi('cas_screen');
+    if (document.getElementById('screen-mount') !== mount) return;
+    if (model) {
+      mount.replaceChildren(Screens.cas(model, {
+        run: (op, expr, variable, fields) => callApi('cas_run', op, expr, variable, fields),
+      }));
+      return;
+    }
+  }
   mount.replaceChildren(placeholderNode(data, subject));
 }
 
