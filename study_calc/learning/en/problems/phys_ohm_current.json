@@ -1,0 +1,17 @@
+{
+  "subject": "physics",
+  "title": "Current through a resistor",
+  "given": [
+    "voltage U = 12 V",
+    "resistance R = 4 Ω"
+  ],
+  "find": "the current I",
+  "steps": [
+    "Rearrange Ohm's law U = I·R for the current: I = U / R.",
+    "Substitute the values: I = 12 V / 4 Ω.",
+    "Divide: I = 3 A."
+  ],
+  "answer": "I = 3 A",
+  "video_url": "https://collegephysicsanswers.com/chapter-20-electric-current-resistance-and-ohms-law",
+  "topic": "ohm"
+}

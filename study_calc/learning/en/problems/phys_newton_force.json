@@ -1,0 +1,17 @@
+{
+  "subject": "physics",
+  "title": "Net force on an accelerating car",
+  "given": [
+    "mass m = 1200 kg",
+    "acceleration a = 2.5 m/s²"
+  ],
+  "find": "the net force F on the car",
+  "steps": [
+    "The unknown is force, so use Newton's second law directly: F = m·a.",
+    "Substitute the values: F = 1200 kg · 2.5 m/s².",
+    "Multiply: F = 3000 kg·m/s²."
+  ],
+  "answer": "F = 3000 N",
+  "video_url": "https://collegephysicsanswers.com/chapter-4-dynamics-force-and-newtons-laws-motion",
+  "topic": "newton_2"
+}

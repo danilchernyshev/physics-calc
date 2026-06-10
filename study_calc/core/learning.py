@@ -106,6 +106,28 @@ class Topic:
     courses: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class Problem:
+    """One practice problem for the Problems helper.
+
+    A :class:`WorkedExample` (statement + steps + answer) tagged with the subject it
+    belongs to and, optionally, a video walkthrough and the learning topic that
+    teaches it.
+
+    :param problem_id: stable id, also the problem file name.
+    :param subject: navigation subject id (e.g. ``"physics"``, ``"math"``).
+    :param example: the statement, solution steps and answer.
+    :param video_url: optional link to a video solution (opened in the browser).
+    :param topic_id: optional :class:`Topic` id whose theory backs this problem.
+    """
+
+    problem_id: str
+    subject: str
+    example: WorkedExample
+    video_url: str = ""
+    topic_id: str = ""
+
+
 def _read_json(language: str, kind: str, item_id: str) -> dict | None:
     """Read ``learning/<language>/<kind>/<item_id>.json`` or ``None`` if absent."""
     path = _LEARNING_DIR / language / kind / f"{item_id}.json"
@@ -169,3 +191,36 @@ def available_topic_ids(language: str = DEFAULT_LANGUAGE) -> tuple[str, ...]:
     if not directory.is_dir():
         return ()
     return tuple(sorted(p.stem for p in directory.glob("*.json")))
+
+
+@lru_cache(maxsize=None)
+def load_problem(problem_id: str, language: str = DEFAULT_LANGUAGE) -> Problem | None:
+    """Load one practice problem, falling back to English, or ``None`` if unknown."""
+    data = _read_json(language, "problems", problem_id)
+    if data is None and language != DEFAULT_LANGUAGE:
+        data = _read_json(DEFAULT_LANGUAGE, "problems", problem_id)
+    if data is None:
+        return None
+    return Problem(
+        problem_id=problem_id,
+        subject=data.get("subject", ""),
+        example=_as_example(data) or WorkedExample("", (), "", (), ""),
+        video_url=data.get("video_url", ""),
+        topic_id=data.get("topic", ""),
+    )
+
+
+def available_problem_ids(language: str = DEFAULT_LANGUAGE) -> tuple[str, ...]:
+    """Sorted ids of every problem file present (English is the canonical set)."""
+    directory = _LEARNING_DIR / DEFAULT_LANGUAGE / "problems"
+    if not directory.is_dir():
+        return ()
+    return tuple(sorted(p.stem for p in directory.glob("*.json")))
+
+
+def problems_for_subject(
+    subject: str, language: str = DEFAULT_LANGUAGE
+) -> tuple[Problem, ...]:
+    """Every problem tagged with ``subject``, in id order, for the Problems helper."""
+    problems = (load_problem(pid, language) for pid in available_problem_ids(language))
+    return tuple(p for p in problems if p is not None and p.subject == subject)

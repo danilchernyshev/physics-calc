@@ -6,7 +6,10 @@ thermodynamics, electromagnetism and waves**, for **symbolic math (CAS)**,
 units of measurement** — with **built-in learning materials** (key terms,
 useful formulas, a step-by-step method and a worked example) shown alongside
 every problem. A simple, clear Tkinter interface: pick a formula, fill in every
-field but one — the program computes the missing quantity.
+field but one — the program computes the missing quantity. Tabs are grouped by
+subject — **Physics**, **Math** and **Tools**, with **Chemistry** on the way — and
+the Physics and Math subjects each carry a **Problems** tab of worked practice
+questions you can solve step by step.
 
 The symbolic-math, graphing and vector tabs are aligned with the Ontario Grade 12
 **Advanced Functions (MHF4U)** and **Calculus and Vectors (MCV4U)** courses:
@@ -54,6 +57,9 @@ and the language can be switched at runtime.
   addition/subtraction, scalar multiplication, the **dot** and **cross**
   products, the **angle** between vectors, **projections** and **unit vectors**,
   each with worked steps.
+- **Practice problems**: a *Problems* tab inside Physics and Math lists worked
+  questions; read the statement, then reveal the solution steps and the answer at
+  your own pace, with a link to a video walkthrough and the underlying theory.
 - **Runtime language switching** across English, Spanish, French, Russian and
   Ukrainian.
 - **Two lightweight dependencies** — SymPy (symbolic math) and matplotlib
@@ -227,6 +233,8 @@ study_calc/
 │   └── waves.py
 ├── gui/             # Tkinter interface
 │   └── app.py
+├── navigation.py    # subject grouping for the GUI tabs (Tk-free)
+├── learning/        # learning content: topics, glossary, practice problems
 ├── i18n.py          # runtime localization engine
 ├── locales/         # translation catalogs (en, es, fr, ru, uk)
 └── __main__.py      # entry point for `python -m study_calc`

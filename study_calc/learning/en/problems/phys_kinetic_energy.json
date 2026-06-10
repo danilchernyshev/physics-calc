@@ -1,0 +1,18 @@
+{
+  "subject": "physics",
+  "title": "Kinetic energy of a thrown baseball",
+  "given": [
+    "mass m = 0.145 kg",
+    "speed v = 40 m/s"
+  ],
+  "find": "the kinetic energy KE",
+  "steps": [
+    "Use the kinetic-energy formula: KE = ½·m·v².",
+    "Square the speed first: v² = 40² = 1600 m²/s².",
+    "Substitute: KE = ½ · 0.145 kg · 1600 m²/s².",
+    "Multiply: KE = 116 kg·m²/s²."
+  ],
+  "answer": "KE = 116 J",
+  "video_url": "https://collegephysicsanswers.com/chapter-7-work-energy-and-energy-resources",
+  "topic": "kinetic_energy"
+}

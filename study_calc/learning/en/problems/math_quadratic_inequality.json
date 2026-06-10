@@ -1,0 +1,17 @@
+{
+  "subject": "math",
+  "title": "Solve a quadratic inequality",
+  "given": [
+    "x² − x − 6 ≥ 0"
+  ],
+  "find": "all x that satisfy the inequality",
+  "steps": [
+    "Factor the quadratic: x² − x − 6 = (x − 3)(x + 2).",
+    "The product is zero at the roots x = −2 and x = 3.",
+    "A upward parabola is ≥ 0 outside its roots, so test a point in each region.",
+    "x = −3 gives (−)(−) = + ≥ 0 ✓; x = 0 gives (−)(+) = − < 0 ✗; x = 4 gives (+)(+) = + ✓.",
+    "Include the roots themselves because the inequality is ≥ (not strict)."
+  ],
+  "answer": "x ≤ −2 or x ≥ 3, i.e. (−∞, −2] ∪ [3, ∞)",
+  "topic": "cas_inequality"
+}

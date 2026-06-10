@@ -1,0 +1,16 @@
+{
+  "subject": "math",
+  "title": "Evaluate a logarithm with the laws of logs",
+  "given": [
+    "log₂ 48 − log₂ 3"
+  ],
+  "find": "the exact value",
+  "steps": [
+    "A difference of logs with the same base is the log of a quotient: log₂(48 / 3).",
+    "Divide inside: 48 / 3 = 16, so the expression is log₂ 16.",
+    "Write 16 as a power of the base: 16 = 2⁴.",
+    "log₂(2⁴) = 4, because the log and the base-2 power undo each other."
+  ],
+  "answer": "4",
+  "topic": "cas_logarithm"
+}

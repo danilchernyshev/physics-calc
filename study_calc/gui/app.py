@@ -1,9 +1,11 @@
 """Tkinter desktop window for the study calculator.
 
-The UI is a set of tabs: one per physics section plus a unit-converter tab.
-Inside a section the user picks a formula, fills every variable but one, and
-clicks "Compute" — the empty field is filled with the result. That "solve for
-any variable" behaviour comes from :class:`~study_calc.core.formula.Formula`.
+The UI is an outer notebook of *subjects* (Physics, Math, Tools, Chemistry — see
+:data:`study_calc.navigation.SUBJECTS`); each groups its sections and tool panels in
+an inner notebook. Inside a physics section the user picks a formula, fills every
+variable but one, and clicks "Compute" — the empty field is filled with the result.
+That "solve for any variable" behaviour comes from
+:class:`~study_calc.core.formula.Formula`.
 
 All user-facing text comes from :mod:`study_calc.i18n`. A language selector at
 the top switches the catalog at runtime; the window is then rebuilt so every
@@ -23,14 +25,17 @@ from study_calc.core.formula import Formula, SolveError
 from study_calc.core.learning import (
     CURRICULUM_GRADES,
     Concept,
+    Problem,
     Topic,
     load_concept,
     load_topic,
+    problems_for_subject,
 )
 from study_calc.core.units import categories, convert, units_of, ConversionError
 from study_calc.domains import SECTIONS
 from study_calc.domains.references import explanation_for
 from study_calc.i18n import i18n, t
+from study_calc import navigation
 
 _OK_COLOR = "#0a6"
 _ERROR_COLOR = "#c33"
@@ -339,6 +344,42 @@ class ExplanationPanel(ttk.Frame):
             self._key_terms(topic.terms)
         if topic.example is not None:
             self._worked_example(topic.example)
+        text.end()
+
+    def show_problem(
+        self, problem: Problem, reveal_steps: bool = False, reveal_answer: bool = False
+    ) -> None:
+        """Render a practice problem with a reveal-the-solution flow.
+
+        The statement (given + find) always shows; the solution steps and the final
+        answer appear only once the student asks for them. A video-solution link and
+        a "learn the theory" link (which swaps the panel to the related topic) render
+        below when the problem provides them.
+        """
+        ex = problem.example
+        text = self._text
+        text.begin()
+        text.heading(ex.title or t("ui.problem_statement"))
+        if ex.given:
+            text.write(t("ui.given") + ":\n", "label")
+            for item in ex.given:
+                text.write(f"   • {item}\n", "step")
+        if ex.find:
+            text.write(t("ui.find") + ": ", "label")
+            text.write(ex.find + "\n", "body")
+        if reveal_steps and ex.steps:
+            text.write(t("ui.solution") + ":\n", "label")
+            for index, step in enumerate(ex.steps, start=1):
+                text.write(f"   {index}. {step}\n", "step")
+        if reveal_answer and ex.answer:
+            text.write(t("ui.answer") + ": ", "label")
+            text.write(ex.answer + "\n", "answer")
+        if problem.video_url:
+            text.link(t("ui.video_solution"), problem.video_url)
+        topic = load_topic(problem.topic_id, i18n.language) if problem.topic_id else None
+        if topic is not None:
+            text.link(t("ui.related_topic"),
+                      lambda tp=topic: self.show_topic("ui.related_topic", tp))
         text.end()
 
     def show_hint(self, title_key: str, hint_key: str) -> None:
@@ -914,15 +955,77 @@ class VectorPanel(ttk.Frame):
         self._explain.show_steps("vector.steps_title", segments)
 
 
-def _build_cas_tab(notebook: ttk.Notebook) -> None:
-    """Add the CAS tab, or a notice tab if SymPy is not installed."""
-    try:
-        notebook.add(CasPanel(notebook), text=t("tab.cas"))
-    except ImportError:
-        notice = ttk.Frame(notebook, padding=18)
-        ttk.Label(notice, text=t("cas.unavailable"), foreground=_HINT_COLOR,
-                  wraplength=560, justify="left").pack(anchor="w")
-        notebook.add(notice, text=t("tab.cas"))
+class ProblemsPanel(ttk.Frame):
+    """The practice-problems surface for one subject (the "problems helper").
+
+    Mirrors the other panels' left/right split: a list of the subject's problems on
+    the left with *Reveal steps* / *Reveal answer* buttons, and the selected
+    problem's statement — then its solution, on request — in the learning area on the
+    right (see :meth:`ExplanationPanel.show_problem`). Problems come from
+    :func:`study_calc.core.learning.problems_for_subject`; an empty subject shows a
+    quiet hint instead of an empty list.
+    """
+
+    def __init__(self, master: tk.Misc, subject: str) -> None:
+        super().__init__(master, padding=12)
+        self._subject = subject
+        self._problems = problems_for_subject(subject, i18n.language)
+        self._reveal_steps = False
+        self._reveal_answer = False
+
+        paned = ttk.PanedWindow(self, orient="horizontal")
+        paned.pack(fill="both", expand=True)
+        left = ttk.Frame(paned)
+        self._explain = ExplanationPanel(paned)
+        paned.add(left, weight=3)
+        paned.add(self._explain, weight=2)
+
+        ttk.Label(left, text=t("ui.choose_problem")).pack(anchor="w")
+        self._list = tk.Listbox(left, height=12, exportselection=False, activestyle="none")
+        for problem in self._problems:
+            self._list.insert("end", problem.example.title or problem.problem_id)
+        self._list.pack(fill="both", expand=True, pady=(4, 8))
+        self._list.bind("<<ListboxSelect>>", lambda _e: self._on_select())
+
+        buttons = ttk.Frame(left)
+        buttons.pack(fill="x")
+        self._steps_btn = ttk.Button(buttons, text=t("ui.reveal_steps"),
+                                     command=self._on_reveal_steps)
+        self._steps_btn.pack(side="left")
+        self._answer_btn = ttk.Button(buttons, text=t("ui.reveal_answer"),
+                                      command=self._on_reveal_answer)
+        self._answer_btn.pack(side="left", padx=6)
+
+        if self._problems:
+            self._list.selection_set(0)
+            self._on_select()
+        else:
+            for button in (self._steps_btn, self._answer_btn):
+                button.config(state="disabled")
+            self._explain.show_hint("tab.problems", "problems.empty")
+
+    def _current(self) -> Problem | None:
+        selection = self._list.curselection()
+        return self._problems[selection[0]] if selection else None
+
+    def _render(self) -> None:
+        problem = self._current()
+        if problem is not None:
+            self._explain.show_problem(problem, self._reveal_steps, self._reveal_answer)
+
+    def _on_select(self) -> None:
+        # A fresh problem starts hidden — the student reveals the solution on demand.
+        self._reveal_steps = False
+        self._reveal_answer = False
+        self._render()
+
+    def _on_reveal_steps(self) -> None:
+        self._reveal_steps = True
+        self._render()
+
+    def _on_reveal_answer(self) -> None:
+        self._reveal_answer = True
+        self._render()
 
 
 class App:
@@ -958,26 +1061,97 @@ class App:
         self._lang_combo.current(codes.index(i18n.language))
         self._lang_combo.bind("<<ComboboxSelected>>", lambda _e: self._on_language_change())
 
-        # --- Tabs. ---
+        # --- Tabs: an outer notebook of subjects, each grouping its sections/tools
+        # (see study_calc.navigation.SUBJECTS). A subject with a single item shows
+        # that panel directly; one with several gets its own inner notebook. ---
         self._notebook = ttk.Notebook(self.root)
         self._notebook.pack(fill="both", expand=True, padx=8, pady=8)
-        for section_id, formulas in SECTIONS.items():
-            self._notebook.add(FormulaPanel(self._notebook, formulas), text=t(f"section.{section_id}"))
-        self._notebook.add(ConverterPanel(self._notebook), text=t("tab.converter"))
-        _build_cas_tab(self._notebook)
-        self._notebook.add(VectorPanel(self._notebook), text=t("tab.vectors"))
+        self._inner_notebooks: dict[int, ttk.Notebook] = {}
+        for index, (subject_id, items) in enumerate(navigation.SUBJECTS):
+            subject = self._build_subject(self._notebook, items)
+            self._notebook.add(subject, text=t(f"subject.{subject_id}"))
+            if isinstance(subject, ttk.Notebook):
+                self._inner_notebooks[index] = subject
+
+    def _build_subject(self, master: tk.Misc, items: tuple) -> tk.Widget:
+        """Build a subject's content: a lone panel, or an inner notebook of items."""
+        if len(items) == 1:
+            widget, _label = self._make_item(master, items[0])
+            return widget
+        inner = ttk.Notebook(master)
+        for item in items:
+            widget, label = self._make_item(inner, item)
+            inner.add(widget, text=label)
+        return inner
+
+    def _make_item(self, master: tk.Misc, item) -> tuple[tk.Widget, str]:
+        """Map one navigation item to its (widget, tab label)."""
+        if isinstance(item, navigation.Section):
+            panel = FormulaPanel(master, SECTIONS[item.section_id])
+            return panel, t(f"section.{item.section_id}")
+        if isinstance(item, navigation.Tool):
+            if item.name == "converter":
+                return ConverterPanel(master), t("tab.converter")
+            if item.name == "vectors":
+                return VectorPanel(master), t("tab.vectors")
+            if item.name == "cas":
+                try:
+                    return CasPanel(master), t("tab.cas")
+                except ImportError:
+                    return self._notice(master, "cas.unavailable"), t("tab.cas")
+            raise ValueError(f"unknown tool {item.name!r}")
+        if isinstance(item, navigation.Problems):
+            return ProblemsPanel(master, item.subject_id), t("tab.problems")
+        if isinstance(item, navigation.Placeholder):
+            return self._notice(master, item.message_key), ""
+        raise TypeError(f"unknown navigation item {item!r}")
+
+    def _notice(self, master: tk.Misc, message_key: str) -> ttk.Frame:
+        """A padded, muted notice frame (CAS-missing fallback, 'coming soon', ...)."""
+        frame = ttk.Frame(master, padding=18)
+        ttk.Label(frame, text=t(message_key), foreground=_HINT_COLOR,
+                  wraplength=560, justify="left").pack(anchor="w")
+        return frame
 
     def _on_language_change(self) -> None:
-        """Switch language and rebuild the UI, keeping the selected tab."""
+        """Switch language and rebuild the UI, keeping the selected subject/tab."""
         code = self._languages[self._lang_combo.current()][0]
         if code == i18n.language:
             return
-        selected_tab = self._notebook.index(self._notebook.select())
+        selection = self._current_selection()
         i18n.set_language(code)
         for child in self.root.winfo_children():
             child.destroy()
         self._build()
-        self._notebook.select(selected_tab)
+        self._restore_selection(selection)
+
+    def _current_selection(self) -> tuple[int, int]:
+        """The selected (outer subject index, inner tab index) before a rebuild."""
+        try:
+            outer = self._notebook.index(self._notebook.select())
+        except tk.TclError:
+            return (0, 0)
+        inner_nb = self._inner_notebooks.get(outer)
+        inner = 0
+        if inner_nb is not None:
+            try:
+                inner = inner_nb.index(inner_nb.select())
+            except tk.TclError:
+                inner = 0
+        return (outer, inner)
+
+    def _restore_selection(self, selection: tuple[int, int]) -> None:
+        outer, inner = selection
+        try:
+            self._notebook.select(outer)
+        except tk.TclError:
+            return
+        inner_nb = self._inner_notebooks.get(outer)
+        if inner_nb is not None:
+            try:
+                inner_nb.select(inner)
+            except tk.TclError:
+                pass
 
     def _show_about(self) -> None:
         AboutWindow(self.root)
