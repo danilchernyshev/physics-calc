@@ -254,6 +254,15 @@
   flex: 1;
 }
 
+/* Copyright footer inside the guide overlay (issue #41). Rendered beneath all
+   sections as a small, muted line — purely informational, not interactive. */
+.guide__copyright {
+  margin: var(--space-lg) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
 /* ---- Key-term pop-up ------------------------------------------------ */
 
 .modal {
