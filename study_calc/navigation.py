@@ -1,9 +1,10 @@
-"""The GUI's subject grouping — what tabs exist and how they nest.
+"""The app's subject grouping — what tabs exist and how they nest.
 
 This is the single source of truth for the *navigation* layer, kept deliberately
-free of Tkinter (and of any panel class) so it can be imported and unit-tested
-headlessly. :mod:`study_calc.gui.app` reads :data:`SUBJECTS` and maps each item to
-a concrete widget; the structure here only names *what* goes where.
+free of any UI framework (and of any widget class) so it can be imported and
+unit-tested headlessly. The web front end (:mod:`study_calc.web.bridge`) reads
+:data:`SUBJECTS` and maps each item to a screen; the structure here only names
+*what* goes where.
 
 The top level is a subject (Physics, Math, Tools, Chemistry). Each subject holds an
 ordered list of items, every item one of four kinds:
