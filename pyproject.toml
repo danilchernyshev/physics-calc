@@ -5,7 +5,7 @@ description = "Study calculator: physics (mechanics, thermodynamics, electromagn
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Danil Chernyshev", email = "danil.chernyshev@gmail.com" }]
+authors = [{ name = "Mark Chernyshev" }, { name = "Danil Chernyshev", email = "danil.chernyshev@gmail.com" }]
 keywords = ["learning", "education", "physics", "math", "calculator", "units", "tkinter", "gui", "cas", "sympy"]
 dependencies = ["sympy>=1.12", "matplotlib>=3.7"]
 

@@ -62,6 +62,40 @@ def test_guide_screen_model():
     assert not model["copyright"].startswith("guide."), "copyright must be resolved, not a raw key"
 
 
+def test_guide_credits_names_both_authors_and_matches_license():
+    """Credits & licence names both authors and stays aligned with LICENSE (#41).
+
+    QA on #41 required the displayed author name to be reconciled with the
+    repository LICENSE; the follow-up decision keeps *both* names (Mark
+    Chernyshev, the student author, and his father Danil Chernyshev). This
+    guards that the in-app credits and the LICENSE copyright holder list both
+    names, and that the © line is byte-identical across every locale.
+    """
+    import json
+
+    repo_root = Path(__file__).resolve().parent.parent
+    names = ("Mark Chernyshev", "Danil Chernyshev")
+
+    # LICENSE lists both authors on its copyright line.
+    license_text = (repo_root / "LICENSE").read_text(encoding="utf-8")
+    assert "Copyright (c) 2026 Mark Chernyshev and Danil Chernyshev" in license_text
+
+    # The © line is a legal notice: byte-identical across every locale and
+    # carrying both names in canonical Latin form. (The body prose may
+    # transliterate the names per each language's convention — e.g. ru renders
+    # "Марком Чернышевым" — so only the © line is asserted name-for-name.)
+    locales_dir = repo_root / "study_calc" / "locales"
+    copyrights = set()
+    for path in sorted(locales_dir.glob("*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        cr = data["guide.credits.copyright"]
+        copyrights.add(cr)
+        for name in names:
+            assert name in cr, f"{path.name}: copyright missing {name!r}"
+
+    assert len(copyrights) == 1, f"copyright line differs across locales: {copyrights}"
+
+
 # --- formula screen model ---
 
 
