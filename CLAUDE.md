@@ -5,20 +5,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Run the app (opens the PyWebView web shell; needs the `web` extra)
-uv run --extra web python -m study_calc   # or: uv run study-calc-web
+# Run the app (opens the PyWebView desktop window)
+uv run python -m study_calc   # or: uv run study-calc-web
 
-# Tests (no graphical environment needed — they cover core + i18n, not the GUI)
+# Tests (no graphical environment needed — they cover core + i18n, not the web UI)
 uv run --extra dev pytest       # or: pytest
 uv run --extra dev pytest tests/test_formulas.py::test_name   # a single test
 ```
 
-Requires Python ≥ 3.10 and Tkinter (a separate system package on some Linux
-distros: `sudo apt-get install -y python3-tk`). The only runtime dependency is
-`sympy` (powers the symbolic-math / CAS tab); the physics/chemistry-formula,
-converter, vectors and periodic-table tabs use nothing but the standard library,
-and the GUI degrades to a notice tab if `sympy` is somehow absent. `pytest` is
-the sole dev dependency.
+Requires Python ≥ 3.10 and a graphical session (the app is a desktop window).
+The runtime dependencies are `sympy` (powers the symbolic-math / CAS screen) and
+`pywebview` (draws the window over each platform's native web view — WebView2 on
+Windows, WebKit on macOS, WebKit2GTK on Linux); on Linux that GTK backend also
+needs the distro's PyGObject + WebKit2GTK system packages (see README.md). The
+physics/chemistry-formula, converter, vectors and periodic-table screens use
+nothing but the standard library, and the CAS screen degrades to a notice if
+`sympy` is somehow absent. `pytest` is the sole dev dependency. (`matplotlib`
+lives behind the reserved `graph` extra for a not-yet-built web graphing surface,
+and the historical `web` extra is now a no-op alias kept so older `--extra web`
+invocations still resolve.)
 
 ## Architecture
 
@@ -65,46 +70,51 @@ language-agnostic:
   `Fraction` null space of the element-count matrix). Failures raise `ChemError`
   with a stable `code`, mirroring `SolveError`/`CasError`/`VectorError`.
 
-- **`navigation.py`** — the **navigation layer**, kept free of Tkinter so it is
-  unit-testable headlessly. `SUBJECTS` is the single source of truth for the tab
-  tree: an ordered list of subjects (Physics, Math, Tools, Chemistry), each holding
-  items of four kinds — `Section` (a `domains.SECTIONS` id), `Tool` (`converter`/
-  `cas`/`vectors`/`periodic_table`), `Problems` (a subject's practice surface), or
-  `Placeholder` (a "coming soon" notice). The Chemistry subject bundles two formula
-  `Section`s, the periodic-table `Tool`, and its `Problems`. `gui/app.py` maps each
-  item to a concrete widget; adding or
-  reordering a subject is a one-line edit here with no widget code to touch. The
-  `item_kind` / `item_id` / `item_label_key` helpers expose each item's kind, a
-  stable id, and its i18n label key, so both front ends derive labels the same way.
+- **`navigation.py`** — the **navigation layer**, kept free of any UI framework so
+  it is unit-testable headlessly. `SUBJECTS` is the single source of truth for the
+  nav tree: an ordered list of subjects (Physics, Math, Tools, Chemistry), each
+  holding items of four kinds — `Section` (a `domains.SECTIONS` id), `Tool`
+  (`converter`/`cas`/`vectors`/`periodic_table`), `Problems` (a subject's practice
+  surface), or `Placeholder` (a "coming soon" notice). The Chemistry subject
+  bundles two formula `Section`s, the periodic-table `Tool`, and its `Problems`.
+  `web/bridge.py` maps each item to a screen; adding or reordering a subject is a
+  one-line edit here with no frontend code to touch. The `item_kind` / `item_id` /
+  `item_label_key` helpers expose each item's kind, a stable id, and its i18n label
+  key, so the bridge derives every label the same way.
 
-- **`web/`** — the **redesign frontend** (ADR 0001 chose a PyWebView web UI over
-  Tkinter; see `docs/adr/0001-ui-framework.md`). It reuses `core`/`domains`/
-  `navigation`/i18n unchanged and is built incrementally beside the Tkinter app.
-  `tokens.json` is the framework-agnostic design-token source of truth (`tokens.py`
-  emits `frontend/tokens.css` — beside the other stylesheets, since PyWebView serves
-  `frontend/` as the web root; `docs/design-tokens.md`). `bridge.py` is the **JS↔Python
-  `js_api`** — pure Python, no PyWebView import, so it's unit-tested headlessly: it
-  builds the localized shell model (subjects/items + chrome labels) entirely from
-  `navigation.SUBJECTS`, and `set_language` relabels without restructuring. `app.py`
-  lazily imports PyWebView (the optional `web` extra) to open the window over
-  `frontend/` (`index.html` + `shell.css` using the tokens + vanilla-JS `shell.js`),
-  and `render_preview_html()` inlines the state for a browser/screenshot preview
-  without the bridge. The frontend is **vanilla JS, no build step** (the framework
-  choice settled in #5): `frontend/dom.js` exposes the `h()` hyperscript helper and
+- **`web/`** — the **frontend** and the project's only UI (ADR 0001 chose a
+  PyWebView web UI over Tkinter, which has since been removed; see
+  `docs/adr/0001-ui-framework.md`). It reuses `core`/`domains`/`navigation`/i18n
+  unchanged. `tokens.json` is the framework-agnostic design-token source of truth
+  (`tokens.py` emits `frontend/tokens.css` — beside the other stylesheets, since
+  PyWebView serves `frontend/` as the web root; `docs/design-tokens.md`).
+  `bridge.py` is the **JS↔Python `js_api`** — pure Python, no PyWebView import, so
+  it's unit-tested headlessly: it builds the localized shell model (subjects/items
+  + chrome labels) entirely from `navigation.SUBJECTS`, dispatches each item to its
+  per-screen model from `screens.py`, and `set_language` relabels without
+  restructuring. `screens.py` builds every **per-screen view-model** in pure Python
+  (`formula_screen`/`solve_formula`, `cas_screen`/`cas_run`, `vector_screen`,
+  `converter_screen`, `periodic_screen`, `problems_screen`, `guide_screen`), so the
+  solve flow and the learning blocks are unit-tested headlessly. `app.py` imports
+  PyWebView (now a core dependency) to open the window over `frontend/`
+  (`index.html` + `shell.css` using the tokens + vanilla-JS `shell.js`), and
+  `render_preview_html()` inlines the state for a browser/screenshot preview without
+  the bridge. The frontend is **vanilla JS, no build step** (the framework choice
+  settled in #5): `frontend/dom.js` exposes the `h()` hyperscript helper and
   `frontend/components.js` (`window.UI`) the shared component factories — `card`,
   `textInput`, `select`, `button`, `chips`, `result` (green answer chip),
-  `errorStrip`, `steps`, `rich` (folds the Tk `_RichText` vocabulary) — all styled
-  by `components.css` strictly on the tokens (no hardcoded colors;
-  `tests/test_web_components.py` lints this). Per-screen surfaces (#6–#11) compose
-  these factories; `frontend/gallery.html` is the living component reference. See
-  `frontend/README.md`. The shell (nav rail + header) is issue #4; per-screen
-  panels are #6–#11. Run it with `python -m study_calc.web`.
+  `errorStrip`, `steps`, `rich` (folds the legacy `_RichText` vocabulary) — all
+  styled by `components.css` strictly on the tokens (no hardcoded colors;
+  `tests/test_web_components.py` lints this). `frontend/screens.js`
+  (`window.Screens`) renders each view-model into a self-contained interactive node;
+  `frontend/gallery.html` is the living component reference. See `frontend/README.md`.
+  Run it with `python -m study_calc` (or `python -m study_calc.web`).
 
 - **`domains/`** — declarative formula sets, one module per section: physics
   (mechanics, thermodynamics, electromagnetism, waves) plus `chemistry.py`
   (Solutions and Acids & bases — molarity, dilution, moles, pH), all using the same
   `Formula` model. `domains/__init__.py` exposes the ordered `SECTIONS` dict
-  (section id → formula list, its order the GUI tab order) and `CHEMISTRY_SECTIONS`
+  (section id → formula list, its order the nav order) and `CHEMISTRY_SECTIONS`
   (the chemistry section ids). `domains/references.py` is the **single registry of
   study links**, keyed by a formula's `key`, and is **subject-aware**: physics
   formulas map to a verified OpenStax *College Physics 2e* section (`ref.openstax`)
@@ -115,33 +125,31 @@ language-agnostic:
   references for a new formula, add one row to `_SOURCES` / `_CHEM_SOURCES` — slugs
   should be checked to resolve (HTTP 200) before commit.
 
-- **`gui/app.py`** — Tkinter window. It walks `navigation.SUBJECTS` and builds one
-  outer tab per subject; a subject with several items renders an inner notebook, a
-  single-item subject renders that panel directly. Items become widgets via
-  `_item_widget`: a `Section` → a formula panel, a `Tool` → the converter / `CasPanel`
-  / vectors / `PeriodicTablePanel` (CAS falls back to a notice tab if SymPy can't be
-  imported), a `Problems` → a `ProblemsPanel` (a problem list on the left, its worked
-  solution in the `ExplanationPanel` on the right). `PeriodicTablePanel` is the
-  chemistry tool: a clickable 118-element table (laid out by each element's grid
-  position, coloured by series) plus a molar-mass box and an equation balancer that
-  render `ChemError` codes through i18n. Every formula tab *and* the CAS tab is a
-  horizontal `PanedWindow`: the calculator/input form on the left, an
-  `ExplanationPanel` (the right-hand learning area) on the right. All read-only rich text (the panel and
-  the pop-up window) is built on the shared `_RichText` widget (heading / body /
-  formula / link styling; a "link" opens a URL *or* runs a callback).
-  `ExplanationPanel` has three render modes on one widget: `show(Explanation,
-  Topic)` paints a formula's *static* learning area — theory, **useful formulas**,
-  how-to-solve, **key terms** (each a short inline blurb + an "Open full
-  explanation →" link that opens a `ConceptWindow` pop-up), a **worked example**,
-  and study links; `show_topic(title_key, Topic)` paints the same rich material on
-  its own (the CAS tab shows it for the selected operation *before* a result);
-  `show_steps(title_key, segments)` paints a *dynamic* worked solution — the CAS
-  tab feeds SymPy's step-by-step through it (answers tagged green). `ConceptWindow`
-  is the term pop-up: full definition + related formulas + clickable "See also"
-  terms; `show_problem(Problem)` paints a practice problem's worked solution.
-  Clickable references/terms open in a browser or a new window. `App`
-  rebuilds *all* its widgets on language change (it destroys children and re-runs
-  `_build()`), preserving the selected tab.
+### Screen rendering (`web/screens.py` + `frontend/screens.js`)
+
+`web/screens.py` walks `navigation.SUBJECTS` and builds one view-model per item —
+all pure Python, all unit-tested headlessly. A `Section` → `formula_screen`
+(picker + per-variable fields + the learning blocks), a `Tool` → `cas_screen` /
+`vector_screen` / `converter_screen` / `periodic_screen` (CAS yields a
+SymPy-absent notice if `core.cas` can't import), a `Problems` →
+`problems_screen` (a problem list plus each problem's worked solution). The
+periodic screen is the chemistry tool: a clickable 118-element table (laid out by
+each element's grid position, coloured by series) plus a molar-mass box and an
+equation balancer, all of which render `ChemError` codes through i18n. The solve
+endpoints (`solve_formula`, `cas_run`, `vector_run`, `convert_run`,
+`molar_mass_run`, `balance_run`) return the same view-model shape, so the
+frontend re-renders only the touched node. The learning blocks are the shared
+right-hand learning vocabulary: a *static* learning area — theory, **useful
+formulas**, how-to-solve, **key terms** (each a short inline blurb + an "Open full
+explanation →" link that opens a concept pop-up), a **worked example**, and study
+links; a topic shown on its own (the CAS screen shows it for the selected
+operation *before* a result); and a *dynamic* worked solution — the CAS screen
+feeds SymPy's step-by-step through it (answer lines tagged green). `frontend/
+screens.js` (`window.Screens`) turns each model into a self-contained interactive
+node, with `renderTerm`/`openConcept` rendering the concept pop-up (full
+definition + related formulas + clickable "See also" terms). Clickable
+references/terms open in a browser or a pop-up. The shell (`frontend/shell.js`)
+re-renders the whole view on language or nav change, preserving the selected item.
 
 ### Learning materials (`study_calc/learning/`)
 
@@ -171,7 +179,7 @@ The domain layer **never stores display strings** — only message *keys*
 `Formula.name_key`). Likewise `units.py` uses language-neutral ids
 (`"length"`, `"celsius"`) resolved via `category.<id>` / `unit.<id>` keys.
 Errors carry a machine `code` + params, not prose. All resolution happens in
-`i18n.py` (the `i18n` singleton and `t()` shortcut) and the GUI.
+`i18n.py` (the `i18n` singleton and `t()` shortcut) and the web bridge.
 
 Each language is a flat `{key: text}` JSON file in `study_calc/locales/`
 (`en`, `es`, `fr`, `ru`, `uk`). `en` is the default and fallback — a missing
@@ -211,4 +219,4 @@ instead goes in `domains/chemistry.py` (so its section id lands in
 key terms, worked example), add
 `learning/en/topics/<key>.json` and a `learning/en/glossary/<term_id>.json` for any
 term it references that doesn't exist yet (`tests/test_learning.py` requires both).
-The GUI picks all of this up automatically — no GUI edits needed.
+The app picks all of this up automatically — no frontend edits needed.
