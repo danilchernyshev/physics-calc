@@ -23,9 +23,10 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-TOKENS_PATH = _HERE / "tokens.json"
-CSS_PATH = _HERE / "frontend" / "tokens.css"
+from ..resources import resource_path
+
+TOKENS_PATH = resource_path("web", "tokens.json")
+CSS_PATH = resource_path("web", "frontend", "tokens.css")
 
 # Token groups, in the order they appear in the generated CSS. Every group is a
 # flat ``{name: value}`` map; ``$meta`` is documentation only and never emitted.
@@ -100,4 +101,6 @@ def write_css(path: Path | None = None) -> Path:
 
 if __name__ == "__main__":
     out = write_css()
-    print(f"Wrote {out.relative_to(_HERE.parent.parent)}")
+    # resource_path() (no args) is the package root; its parent is the repo root,
+    # so this prints the committed CSS path relative to the checkout.
+    print(f"Wrote {out.relative_to(resource_path().parent)}")

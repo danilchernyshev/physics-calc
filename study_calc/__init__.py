@@ -14,4 +14,7 @@ User-facing text is localized via :mod:`study_calc.i18n` (English, Spanish,
 French, Russian, Ukrainian), switchable at runtime.
 """
 
-__version__ = "0.6.0"
+from study_calc.resources import app_version
+
+# Single-sourced from ``pyproject.toml`` (see :func:`study_calc.resources.app_version`).
+__version__ = app_version()

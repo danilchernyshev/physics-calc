@@ -24,9 +24,10 @@ from dataclasses import dataclass
 from fractions import Fraction
 from functools import lru_cache
 from math import gcd
-from pathlib import Path
 
-_DATA_DIR = Path(__file__).parent.parent / "data"
+from study_calc.resources import resource_path
+
+_DATA_DIR = resource_path("data")
 
 
 class ChemError(ValueError):

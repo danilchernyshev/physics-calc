@@ -16,7 +16,9 @@ import json
 from pathlib import Path
 from typing import Protocol
 
-_LOCALES_DIR = Path(__file__).parent / "locales"
+from study_calc.resources import resource_path
+
+_LOCALES_DIR = resource_path("locales")
 DEFAULT_LANGUAGE = "en"
 
 

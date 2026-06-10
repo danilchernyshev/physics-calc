@@ -14,12 +14,12 @@ the bridge.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
+from ..resources import app_version, resource_path
 from . import screens
 from .bridge import Bridge
 
-_FRONTEND = Path(__file__).resolve().parent / "frontend"
+_FRONTEND = resource_path("web", "frontend")
 INDEX_HTML = _FRONTEND / "index.html"
 # 256×256 RGBA PNG used as the window/taskbar icon (PyWebView ``icon=`` arg).
 # It ships as package data alongside the other frontend assets.
@@ -95,16 +95,19 @@ def run() -> None:
 
     bridge = Bridge()
     window_kwargs: dict = dict(
-        title=bridge.get_state()["labels"]["appTitle"],
+        # Surface the single-sourced version in the title bar / About area.
+        title=f"{bridge.get_state()['labels']['appTitle']} {app_version()}",
         url=str(INDEX_HTML),
         js_api=bridge,
         width=1200,
         height=800,
         min_size=(960, 640),
     )
-    # Pass the icon only when the asset is present; PyWebView silently ignores
-    # icon= on platforms where it is not supported (e.g. macOS app bundles).
-    if _WINDOW_ICON.exists():
-        window_kwargs["icon"] = str(_WINDOW_ICON)
     webview.create_window(**window_kwargs)
-    webview.start()
+    # The window icon belongs on start() in PyWebView 6.x (not create_window).
+    # Pass it only when the asset is present; backends that don't support a
+    # custom icon (e.g. macOS app bundles) ignore it.
+    start_kwargs: dict = {}
+    if _WINDOW_ICON.exists():
+        start_kwargs["icon"] = str(_WINDOW_ICON)
+    webview.start(**start_kwargs)

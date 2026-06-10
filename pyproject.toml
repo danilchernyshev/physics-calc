@@ -8,7 +8,7 @@ license = { text = "MIT" }
 authors = [{ name = "Mark Chernyshev" }, { name = "Danil Chernyshev", email = "danil.chernyshev@gmail.com" }]
 keywords = ["learning", "education", "physics", "math", "calculator", "units", "pywebview", "cas", "sympy"]
 # pywebview is the one and only UI now, so it is a core runtime dependency.
-dependencies = ["sympy>=1.12", "pywebview>=5.0"]
+dependencies = ["sympy>=1.12", "pywebview>=6.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
@@ -20,6 +20,9 @@ graph = ["matplotlib>=3.7", "numpy>=1.24"]
 # Deprecated no-op alias: pywebview moved into core dependencies above. Retained
 # so the documented `--extra web` invocation keeps resolving.
 web = []
+# Build tooling for the frozen desktop bundles (packaging epic #60): PyInstaller
+# drives packaging/study-calc.spec. Build-time only — never a runtime dependency.
+packaging = ["pyinstaller>=6.0"]
 
 [project.scripts]
 study-calc = "study_calc.web.app:run"
