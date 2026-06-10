@@ -7,11 +7,9 @@ physics **formula screen** (``section`` items): an input card (solve-for-any
 variable), a solution card (result / error), and the learning card.
 
 Like the bridge, this is **pure Python with no PyWebView import**, so it is unit
--tested headlessly. It deliberately re-implements the solve flow, number
-formatting and explanation layout of :class:`study_calc.gui.app.FormulaPanel` /
-``ExplanationPanel`` rather than importing them, because ``gui.app`` imports
-Tkinter (unavailable / undesirable on the headless web path). The two must stay
-in sync; the shared ground truth is :mod:`study_calc.core` + the i18n keys.
+-tested headlessly. The solve flow, number formatting and explanation layout live
+here directly (rather than in any widget class), built straight on
+:mod:`study_calc.core` and the i18n keys as the shared ground truth.
 """
 
 from __future__ import annotations

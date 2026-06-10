@@ -21,6 +21,9 @@ from .bridge import Bridge
 
 _FRONTEND = Path(__file__).resolve().parent / "frontend"
 INDEX_HTML = _FRONTEND / "index.html"
+# 256×256 RGBA PNG used as the window/taskbar icon (PyWebView ``icon=`` arg).
+# It ships as package data alongside the other frontend assets.
+_WINDOW_ICON = _FRONTEND / "icon.png"
 
 # Marker in index.html where the preview state is injected; empty in production
 # (the real window fetches state through the bridge instead).
@@ -91,7 +94,7 @@ def run() -> None:
         ) from exc
 
     bridge = Bridge()
-    webview.create_window(
+    window_kwargs: dict = dict(
         title=bridge.get_state()["labels"]["appTitle"],
         url=str(INDEX_HTML),
         js_api=bridge,
@@ -99,4 +102,9 @@ def run() -> None:
         height=800,
         min_size=(960, 640),
     )
+    # Pass the icon only when the asset is present; PyWebView silently ignores
+    # icon= on platforms where it is not supported (e.g. macOS app bundles).
+    if _WINDOW_ICON.exists():
+        window_kwargs["icon"] = str(_WINDOW_ICON)
+    webview.create_window(**window_kwargs)
     webview.start()

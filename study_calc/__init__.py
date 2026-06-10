@@ -8,7 +8,7 @@ The package has three layers:
   table, molar mass, equation balancing);
 * :mod:`study_calc.domains` — ready-made formula sets grouped by physics and
   chemistry section;
-* :mod:`study_calc.gui`     — the Tkinter desktop interface.
+* :mod:`study_calc.web`     — the PyWebView desktop interface.
 
 User-facing text is localized via :mod:`study_calc.i18n` (English, Spanish,
 French, Russian, Ukrainian), switchable at runtime.
