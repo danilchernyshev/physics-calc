@@ -1,29 +1,14 @@
 // App shell: nav rail + header, rendered from the bridge's state (issue #4).
-// Vanilla JS on purpose — the framework choice for richer components is issue #5.
+// Vanilla JS (the framework choice settled in #5); `h()` comes from dom.js.
 // Selection (which subject/item is active) lives here, so a language switch only
 // refreshes labels and the current screen is preserved.
 
 'use strict';
 
-const state = { data: null, subject: 0, item: 0, langOpen: false };
+// `h()` (hyperscript helper) and `UI` (components) come from dom.js / components.js,
+// loaded before this script.
 
-// Tiny hyperscript helper: h('tag', {class, text, onclick, ...attrs}, children).
-function h(tag, attrs = {}, children = []) {
-  const node = document.createElement(tag);
-  for (const [key, value] of Object.entries(attrs)) {
-    if (value == null || value === false) continue;
-    if (key === 'class') node.className = value;
-    else if (key === 'text') node.textContent = value;
-    else if (key.startsWith('on') && typeof value === 'function') {
-      node.addEventListener(key.slice(2), value);
-    } else node.setAttribute(key, value);
-  }
-  for (const child of [].concat(children)) {
-    if (child == null || child === false) continue;
-    node.append(child.nodeType ? child : document.createTextNode(child));
-  }
-  return node;
-}
+const state = { data: null, subject: 0, item: 0, langOpen: false };
 
 async function loadState() {
   if (window.__STUDY_CALC_STATE__) return window.__STUDY_CALC_STATE__;
