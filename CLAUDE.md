@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Run the GUI
-python -m study_calc          # or: uv run python -m study_calc
+# Run the app (opens the PyWebView web shell; needs the `web` extra)
+uv run --extra web python -m study_calc   # or: uv run study-calc-web
 
 # Tests (no graphical environment needed — they cover core + i18n, not the GUI)
 uv run --extra dev pytest       # or: pytest

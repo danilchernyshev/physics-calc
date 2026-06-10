@@ -14,11 +14,8 @@ dev = ["pytest>=8.0"]
 web = ["pywebview>=5.0"]
 
 [project.scripts]
-study-calc = "study_calc.gui:run"
+study-calc = "study_calc.web.app:run"
 study-calc-web = "study_calc.web.app:run"
-
-[project.gui-scripts]
-study-calc-gui = "study_calc.gui:run"
 
 [build-system]
 requires = ["hatchling"]
