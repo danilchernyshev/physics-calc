@@ -480,3 +480,98 @@ def test_screens_css_uses_only_tokens():
     # Hex colors are forbidden (token-only); rgba overlays are allowed.
     assert not re.findall(r"#[0-9a-fA-F]{3,8}\b", css)
     assert "var(--color-" in css and "var(--space-" in css
+
+
+# --- issue #51: closeOverlays wiring ---
+
+
+def test_screens_js_exports_close_overlays():
+    """closeOverlays() must be on the Screens object exported to the shell."""
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # The method lives on the Screens object literal (before window.Screens = Screens).
+    assert "closeOverlays()" in js
+    assert "window.Screens = Screens" in js
+
+
+def test_shell_calls_close_overlays_before_rebuild():
+    """render() in shell.js must call Screens.closeOverlays() before rebuilding #app.
+
+    DOM-level verification is not feasible without a headless browser, so this
+    test checks the source wiring: the call must appear in shell.js, and it
+    must come before app.replaceChildren (i.e. before the #app rebuild).
+    """
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    assert "Screens.closeOverlays()" in shell
+    # The closeOverlays call must precede the DOM rebuild within render().
+    close_pos = shell.index("Screens.closeOverlays()")
+    rebuild_pos = shell.index("app.replaceChildren(")
+    assert close_pos < rebuild_pos, (
+        "Screens.closeOverlays() must be called before app.replaceChildren() in render()"
+    )
+
+
+def test_screens_js_uses_shared_destroy_overlay():
+    """Both openGuide and openConcept route teardown through _destroyOverlay.
+
+    The shared helper is the single place that handles focus tracking,
+    preventing duplicated or divergent focus-restore logic (issue #51).
+    """
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # The helper is defined at module level.
+    assert "function _destroyOverlay(" in js
+    # Both overlay types call it.
+    assert js.count("_destroyOverlay(") >= 3  # closeOverlays + openGuide + openConcept
+
+
+# --- issue #52: localized close label ---
+
+
+def test_formula_screen_labels_carry_localized_close():
+    """formula_screen() labels include close == t("ui.close"), not a hardcoded string."""
+    screen = screens.formula_screen("mechanics")
+    labels = screen["labels"]
+    assert "close" in labels, "formula_screen labels must include 'close'"
+    assert labels["close"] == t("ui.close")
+    assert labels["close"] and not labels["close"].startswith("ui.")
+
+
+def test_close_label_changes_with_language_switch():
+    """The close label in both overlay models changes when the language is switched."""
+    try:
+        en_guide = Bridge().guide_screen()
+        en_formula = Bridge().formula_screen("mechanics")
+
+        bridge = Bridge()
+        bridge.set_language("ru")
+        ru_guide = bridge.guide_screen()
+        ru_formula = bridge.formula_screen("mechanics")
+
+        # Guide overlay close label.
+        assert en_guide["close"] != ru_guide["close"], (
+            "guide_screen close label must differ between English and Russian"
+        )
+        # Formula screen labels close (used by openConcept via L.close).
+        assert en_formula["labels"]["close"] != ru_formula["labels"]["close"], (
+            "formula_screen labels.close must differ between English and Russian"
+        )
+    finally:
+        i18n.set_language("en")
+
+
+def test_screens_js_has_no_hardcoded_english_close_string():
+    """No user-facing 'Close' literal must remain in screens.js (issue #52).
+
+    Both overlay buttons read their aria-label from the localized model
+    (model.close for openGuide, L.close for openConcept), so the only
+    occurrences of the word 'Close' in the source should be in comments.
+    """
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # Strip comment lines (// ...) and check no standalone 'Close' string literal remains.
+    non_comment_lines = [
+        line for line in js.splitlines()
+        if not line.lstrip().startswith("//")
+    ]
+    code_only = "\n".join(non_comment_lines)
+    # 'Close' as a quoted JS string literal would be 'Close' or "Close".
+    assert "'Close'" not in code_only, "Hardcoded 'Close' string found in screens.js code"
+    assert '"Close"' not in code_only, 'Hardcoded "Close" string found in screens.js code'
