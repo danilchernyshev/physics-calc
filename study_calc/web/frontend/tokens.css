@@ -67,15 +67,15 @@
   --elevation-card: 0 8px 24px rgba(26, 41, 77, 0.08);
   --elevation-raised: 0 12px 32px rgba(26, 41, 77, 0.12);
   /* series */
-  --series-alkali-metal: #ff8a80;
-  --series-alkaline-earth-metal: #ffd180;
-  --series-transition-metal: #ffe0b2;
-  --series-post-transition-metal: #c5e1a5;
-  --series-metalloid: #80cbc4;
-  --series-diatomic-nonmetal: #a5d6a7;
-  --series-polyatomic-nonmetal: #a5d6a7;
-  --series-noble-gas: #b39ddb;
-  --series-lanthanide: #f48fb1;
-  --series-actinide: #ce93d8;
-  --series-default: #e0e0e0;
+  --series-alkali-metal: #fecdd3;
+  --series-alkaline-earth-metal: #fed7aa;
+  --series-transition-metal: #fef08a;
+  --series-post-transition-metal: #bbf7d0;
+  --series-metalloid: #a5f3fc;
+  --series-diatomic-nonmetal: #bae6fd;
+  --series-polyatomic-nonmetal: #c7d2fe;
+  --series-noble-gas: #ddd6fe;
+  --series-lanthanide: #fbcfe8;
+  --series-actinide: #f5d0fe;
+  --series-default: #e5e7eb;
 }

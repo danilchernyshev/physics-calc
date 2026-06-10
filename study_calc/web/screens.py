@@ -559,6 +559,22 @@ _CATEGORY_SERIES: dict[str, str] = {
 }
 _DEFAULT_SERIES = "default"
 
+# Display order for the series legend (colored dots + labels below the grid).
+# Matches the Figma "Series legend" order: common series first, f-block last.
+_SERIES_LEGEND_ORDER: tuple[str, ...] = (
+    "alkali-metal",
+    "alkaline-earth-metal",
+    "transition-metal",
+    "post-transition-metal",
+    "metalloid",
+    "diatomic-nonmetal",
+    "polyatomic-nonmetal",
+    "noble-gas",
+    "lanthanide",
+    "actinide",
+    "unknown",
+)
+
 
 def periodic_screen() -> dict:
     """The periodic-table screen model: all elements pre-baked for the CSS grid.
@@ -591,11 +607,15 @@ def periodic_screen() -> dict:
     return {
         "available": True,
         "title": t("tab.periodic_table"),
+        # Curriculum badge: the periodic table belongs to SCH4U (Grade 12 Chemistry).
+        "curriculum": _curriculum_text(("SCH4U",)),
         "labels": {
             "molarMass":    t("ui.molar_mass"),
+            "mmHint":       t("ui.periodic.molar_hint"),
             "compute":      t("ui.compute"),
             "clear":        t("ui.clear"),
             "equation":     t("ui.equation"),
+            "balHint":      t("ui.periodic.balance_hint"),
             "balance":      t("ui.balance"),
             "atomicNumber": t("ui.atomic_number"),
             "atomicMass":   t("ui.atomic_mass"),
@@ -603,6 +623,12 @@ def periodic_screen() -> dict:
             "period":       t("ui.period"),
             "gramPerMol":   t("unit.gram_per_mol"),
         },
+        # Series legend: ordered list of {slug, label} pairs for the colored-dot
+        # legend rendered below the grid (Figma "Series legend" component).
+        "seriesLegend": [
+            {"slug": slug, "label": t(f"series.{slug}")}
+            for slug in _SERIES_LEGEND_ORDER
+        ],
         "elements": els,
     }
 
@@ -610,11 +636,13 @@ def periodic_screen() -> dict:
 def molar_mass_run(formula: str) -> dict:
     """Compute the molar mass of ``formula``; mirror of ``PeriodicTablePanel._molar_mass``.
 
-    Returns ``{"ok": True, "result": "<formula> = <mass> g/mol  (<breakdown>)"}``
-    or ``{"ok": False, "error": <localized>}``. The result string mirrors the Tk
-    panel exactly, including the element→count breakdown (e.g. ``H:2, O:1``).
+    Returns ``{"ok": True, "result": "<formula> = <mass> g/mol  (<breakdown>)",
+    "composition": "<El> <pct>% · <El> <pct>% …"}`` or ``{"ok": False, "error":
+    <localized>}``. The ``result`` string mirrors the Tk panel exactly; the
+    separate ``composition`` field carries the Figma-style percentage breakdown
+    (e.g. ``"Ca 54.09% · O 43.19% · H 2.72%"``).
     """
-    from ..core.periodic import ChemError
+    from ..core.periodic import ChemError, element as _element
     from ..core.periodic import composition as _composition
     from ..core.periodic import molar_mass as _molar_mass
 
@@ -625,9 +653,15 @@ def molar_mass_run(formula: str) -> dict:
     except ChemError as exc:
         return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
     breakdown = ", ".join(f"{sym}:{n}" for sym, n in comp.items())
+    # Percentage composition: each element's mass contribution / total × 100.
+    comp_parts = [
+        f"{sym} {(_element(sym).mass * n / mass) * 100:.2f}%"
+        for sym, n in comp.items()
+    ]
     return {
         "ok": True,
         "result": f"{formula} = {mass:.3f} {t('unit.gram_per_mol')}  ({breakdown})",
+        "composition": "  ·  ".join(comp_parts),
     }
 
 

@@ -439,5 +439,18 @@
   "ui.backed_by_topic": "По теме:",
   "ui.correct": "Правильно!",
   "ui.incorrect": "Не совсем — попробуйте ещё",
-  "ui.general": "Общие"
+  "ui.general": "Общие",
+  "ui.periodic.molar_hint": "Введите формулу — поддерживаются скобки и нижние индексы",
+  "ui.periodic.balance_hint": "Введите реагенты → продукты; коэффициенты вычислятся точно",
+  "series.alkali-metal": "Щелочной металл",
+  "series.alkaline-earth-metal": "Щёлочноземельный металл",
+  "series.transition-metal": "Переходный металл",
+  "series.post-transition-metal": "Постпереходный металл",
+  "series.metalloid": "Металлоид",
+  "series.diatomic-nonmetal": "Двухатомный неметалл",
+  "series.polyatomic-nonmetal": "Полиатомный неметалл",
+  "series.noble-gas": "Благородный газ",
+  "series.lanthanide": "Лантаноид",
+  "series.actinide": "Актиноид",
+  "series.unknown": "Неизвестный"
 }

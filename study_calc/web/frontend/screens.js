@@ -702,10 +702,17 @@ const Screens = {
   // Periodic-table screen (issue #10). `model` is the bridge's periodic_screen();
   // `ctx.molarMass(formula)` -> Promise of molar_mass_run() (or null in preview),
   // `ctx.balance(equation)` -> Promise of balance_run() (or null in preview).
-  // The 118-element grid is placed by xpos/ypos via inline style; cells are
-  // coloured through `.periodic__cell--<series>` classes that map to the
-  // --series-* CSS tokens. The element detail line is built client-side from the
-  // pre-baked element list — no round-trip needed (mirrors converter's approach).
+  //
+  // Layout (Figma "Chemistry — Periodic table" frame):
+  //   Left column: grid card — 118-element CSS grid, series legend, element detail
+  //   Right column: two stacked cards — molar-mass card and equation-balancer card
+  //
+  // Grid rendering: main table (ypos 1–7) and f-block (lanthanides/actinides,
+  // ypos 9–10) are placed in ONE shared CSS grid; an explicit 8th row with extra
+  // height creates the visual gap that makes the f-block look detached.
+  //
+  // Element detail: rich inline header — coloured symbol tile + name + mass +
+  // Group · Period — mirroring the Figma "Element detail" component.
   periodic(model, ctx) {
     const L = model.labels;
     const els = model.elements;
@@ -714,7 +721,7 @@ const Screens = {
     // molar-mass request cannot clobber a concurrent balance result and vice versa.
     const st = { mmRun: 0, balRun: 0 };
 
-    // --- Detail line (updated on cell click; no backend round-trip) ---
+    // --- Element detail (rich header; updated on cell click, no round-trip) ---
     const detailWrap = h('div', { class: 'periodic__detail' }, []);
 
     function fmtMass(m) {
@@ -723,17 +730,32 @@ const Screens = {
     }
 
     function renderDetail(el) {
-      const group = el.group != null ? String(el.group) : '—'; // em dash for no group
-      const text = (
-        el.name + '  ·  ' + L.atomicNumber + ' ' + el.number
-        + '  ·  ' + L.atomicMass + ' ' + fmtMass(el.mass) + ' ' + L.gramPerMol
-        + '  ·  ' + L.group + ' ' + group + ', ' + L.period + ' ' + el.period
-        + '  ·  ' + el.category
+      const group = el.group != null ? String(el.group) : '—';
+      // Symbol tile: coloured square that mirrors the grid cell (Figma design).
+      const tile = h('div', {
+        class: 'periodic__detail-tile periodic__cell--' + el.series,
+      }, [
+        h('span', { class: 'periodic__num', text: String(el.number) }),
+        h('span', { class: 'periodic__sym', text: el.symbol }),
+        h('span', { class: 'periodic__detail-mass-small', text: fmtMass(el.mass) }),
+      ]);
+      const info = h('div', { class: 'periodic__detail-info' }, [
+        h('p', { class: 'periodic__detail-name', text: el.name }),
+        h('p', { class: 'periodic__detail-meta' }, [
+          fmtMass(el.mass) + ' ' + L.gramPerMol
+          + '  ·  ' + L.group + ' ' + group
+          + '  ·  ' + L.period + ' ' + el.period,
+        ]),
+      ]);
+      detailWrap.replaceChildren(
+        h('div', { class: 'periodic__detail-header' }, [tile, info])
       );
-      detailWrap.replaceChildren(h('p', { class: 'periodic__detail-text', text }));
     }
 
     // --- Periodic grid: one button per element, placed via xpos/ypos. ---
+    // The grid uses grid-template-rows with an explicit empty 8th row so the
+    // lanthanide/actinide f-block (ypos 9–10) appears detached from the main
+    // table (ypos 1–7), matching the standard periodic-table layout.
     const gridCells = els.map((el) =>
       h('button', {
         class: 'periodic__cell periodic__cell--' + el.series,
@@ -748,23 +770,41 @@ const Screens = {
     );
     const grid = h('div', { class: 'periodic__grid' }, gridCells);
 
+    // --- Series legend: colored dots + labels (Figma "Series legend" row) ---
+    const legendItems = (model.seriesLegend || []).map((entry) =>
+      h('span', { class: 'periodic__legend-item' }, [
+        h('span', {
+          class: 'periodic__legend-dot periodic__cell--' + entry.slug,
+        }, []),
+        h('span', { class: 'periodic__legend-label', text: entry.label }),
+      ])
+    );
+    const legend = h('div', { class: 'periodic__legend' }, legendItems);
+
     // --- Molar-mass tool ---
     const mmInput = h('input', { class: 'field__control', type: 'text', placeholder: 'H2O' });
     const mmResultWrap = h('div', { class: 'periodic__tool-result' }, []);
+    const mmCompWrap = h('p', { class: 'periodic__composition' }, []);
 
     async function computeMM() {
       const run = ++st.mmRun;
       const res = await ctx.molarMass(mmInput.value);
       if (run !== st.mmRun) return; // superseded by a newer request or Clear
       if (!res) return;             // no backend (static preview)
-      mmResultWrap.replaceChildren(
-        res.ok ? UI.result({ label: '', value: res.result }) : UI.errorStrip(res.error)
-      );
+      if (res.ok) {
+        mmResultWrap.replaceChildren(UI.result({ label: '', value: res.result }));
+        // Show percentage composition below the result (Figma requirement).
+        mmCompWrap.textContent = res.composition || '';
+      } else {
+        mmResultWrap.replaceChildren(UI.errorStrip(res.error));
+        mmCompWrap.textContent = '';
+      }
     }
     function clearMM() {
       st.mmRun++;
       mmInput.value = '';
       mmResultWrap.replaceChildren();
+      mmCompWrap.textContent = '';
     }
     // Enter computes (parity with the Tk <Return> binding).
     mmInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); computeMM(); } });
@@ -792,38 +832,61 @@ const Screens = {
     }
     balInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); computeBal(); } });
 
-    const toolsCard = UI.card({
-      title: model.title,
+    // Curriculum badge (e.g. "SCH4U (Grade 12)") in the grid card header area.
+    const curriculumBadge = model.curriculum ? UI.badge(model.curriculum) : null;
+
+    // Grid card: curriculum badge + the element grid + legend + detail header.
+    const gridCardBody = [
+      ...(curriculumBadge ? [curriculumBadge] : []),
+      grid,
+      legend,
+      detailWrap,
+    ];
+    const gridCard = UI.card({ body: gridCardBody });
+
+    // Molar-mass card: subtitle hint + input row + result + composition line.
+    const mmCard = UI.card({
+      title: L.molarMass,
       body: [
-        h('div', { class: 'periodic__tools' }, [
-          h('div', { class: 'periodic__tool-row' }, [
-            UI.field(L.molarMass, mmInput),
-            h('div', { class: 'periodic__tool-actions chips' }, [
-              UI.button({ label: L.compute, variant: 'primary', onclick: computeMM }),
-              UI.button({ label: L.clear, variant: 'ghost', onclick: clearMM }),
-            ]),
-            mmResultWrap,
-          ]),
-          h('div', { class: 'periodic__tool-row' }, [
-            UI.field(L.equation, balInput),
-            h('div', { class: 'periodic__tool-actions chips' }, [
-              UI.button({ label: L.balance, variant: 'primary', onclick: computeBal }),
-              UI.button({ label: L.clear, variant: 'ghost', onclick: clearBal }),
-            ]),
-            balResultWrap,
+        UI.hint(L.mmHint),
+        h('div', { class: 'periodic__tool-row' }, [
+          UI.field(L.molarMass, mmInput),
+          h('div', { class: 'periodic__tool-actions chips' }, [
+            UI.button({ label: L.compute, variant: 'primary', onclick: computeMM }),
+            UI.button({ label: L.clear, variant: 'ghost', onclick: clearMM }),
           ]),
         ]),
+        mmResultWrap,
+        mmCompWrap,
       ],
     });
 
-    const gridCard = UI.card({ body: [grid, detailWrap] });
+    // Equation-balancer card: subtitle hint + input row + result.
+    const balCard = UI.card({
+      title: L.equation,
+      body: [
+        UI.hint(L.balHint),
+        h('div', { class: 'periodic__tool-row' }, [
+          UI.field(L.equation, balInput),
+          h('div', { class: 'periodic__tool-actions chips' }, [
+            UI.button({ label: L.balance, variant: 'primary', onclick: computeBal }),
+            UI.button({ label: L.clear, variant: 'ghost', onclick: clearBal }),
+          ]),
+        ]),
+        balResultWrap,
+      ],
+    });
 
-    // Seed the detail line with hydrogen (element 1), mirroring the Tk panel
+    // Seed the detail header with hydrogen (element 1), mirroring the Tk panel
     // which calls `self._select(periodic.element("H"))` in __init__.
     const hydrogen = els.find((e) => e.symbol === 'H') || els[0];
     renderDetail(hydrogen);
 
-    return h('div', { class: 'screen screen--periodic' }, [toolsCard, gridCard]);
+    // Two-column layout: grid card on the left, two tool cards stacked on the right.
+    return h('div', { class: 'screen screen--periodic' }, [
+      h('div', { class: 'screen__col screen__col--main' }, [gridCard]),
+      h('div', { class: 'screen__col screen__col--aside' }, [mmCard, balCard]),
+    ]);
   },
 
   // Guide overlay (issue #40). `model` is the bridge's guide_screen() result:
