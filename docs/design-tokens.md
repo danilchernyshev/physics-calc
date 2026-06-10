@@ -111,6 +111,29 @@ A ~4px scale with a 6px half-step: `3xs` 2, `2xs` 4, `xs` 6, `sm` 8, `md` 12,
 shadow). `sm` and `raised` are *derived* steps for inputs and hover states that
 the component work (issue #5) will need.
 
+### Series (element families — periodic-table screen, issue #10)
+
+| Token | Value | Element family |
+| --- | --- | --- |
+| `alkali-metal` | `#ff8a80` | Alkali metals (Li, Na, K …) |
+| `alkaline-earth-metal` | `#ffd180` | Alkaline-earth metals (Be, Mg, Ca …) |
+| `transition-metal` | `#ffe0b2` | Transition metals (Fe, Cu, Zn …) |
+| `post-transition-metal` | `#c5e1a5` | Post-transition metals (Al, Ga, In …) |
+| `metalloid` | `#80cbc4` | Metalloids (B, Si, Ge …) |
+| `diatomic-nonmetal` | `#a5d6a7` | Diatomic nonmetals (H, C, N, O, F …) |
+| `polyatomic-nonmetal` | `#a5d6a7` | Polyatomic nonmetals (S, Se, Te …) |
+| `noble-gas` | `#b39ddb` | Noble gases (He, Ne, Ar …) |
+| `lanthanide` | `#f48fb1` | Lanthanides (La–Lu) |
+| `actinide` | `#ce93d8` | Actinides (Ac–Lr) |
+| `default` | `#e0e0e0` | Unknown / synthetic (Z ≥ 113 where category is unconfirmed) |
+
+These values mirror the Tk `PeriodicTablePanel._COLORS` palette exactly so the
+web UI matches the desktop app. CSS variables are `--series-<slug>` (group name
+is `series`, not nested under `color`); referenced as `var(--series-alkali-metal)`
+etc. in `screens.css`. The slug for each element is pre-computed in
+`screens.periodic_screen()` via `_CATEGORY_SERIES` and shipped in the model, so
+the renderer never needs to repeat the mapping.
+
 ## Using them
 
 In CSS, link `tokens.css` and reference the variables:
