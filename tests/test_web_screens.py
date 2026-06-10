@@ -470,6 +470,97 @@ def test_periodic_screen_has_dedicated_frontend_renderer():
     assert "balance_run" in shell
 
 
+# --- Problems (practice) screen ---
+
+
+def test_problems_screen_lists_subject_problems_with_statements():
+    screen = screens.problems_screen("physics")
+    assert screen["subjectId"] == "physics"
+    problems = screen["problems"]
+    assert problems, "physics should have practice problems"
+    p = problems[0]
+    # Each problem carries its statement, hidden solution and metadata fields.
+    required = {"id", "title", "badge", "given", "find", "steps", "answer",
+                "videoUrl", "topic"}
+    assert required <= set(p.keys())
+    # Title is localized prose, never a raw i18n key.
+    assert p["title"] and not p["title"].startswith("ui.")
+    # Labels are localized prose too.
+    L = screen["labels"]
+    assert not L["choose"].startswith("ui.")
+    assert not L["revealSteps"].startswith("ui.")
+    assert not L["revealAnswer"].startswith("ui.")
+
+
+def test_problems_screen_accepts_bare_and_navigation_item_ids():
+    bare = screens.problems_screen("math")
+    nav = screens.problems_screen("problems:math")
+    assert bare == nav
+    assert bare["subjectId"] == "math"
+
+
+def test_problems_screen_empty_subject_yields_no_problems():
+    # The Tools subject has no Problems item, so its problem set is empty — the
+    # frontend renders the quiet `empty` hint rather than a list.
+    screen = screens.problems_screen("tools")
+    assert screen["problems"] == []
+    assert not screen["labels"]["empty"].startswith("problems.")
+
+
+def test_problem_carries_curriculum_badge_when_it_has_courses():
+    # Chemistry problems carry Ontario course codes, rendered as a curriculum badge.
+    problems = screens.problems_screen("chemistry")["problems"]
+    badged = [p for p in problems if p["badge"]]
+    assert badged, "expected at least one chemistry problem with a curriculum badge"
+    assert badged[0]["badge"].startswith(t("ui.curriculum"))
+
+
+def test_problem_video_link_and_baked_topic_blocks():
+    problems = screens.problems_screen("physics")["problems"]
+    # At least one physics problem links a video solution (a real URL).
+    assert any(p["videoUrl"].startswith("http") for p in problems)
+    # A problem with a backing topic bakes its learning blocks (heading + body),
+    # so "Learn the theory" expands inline with no round-trip.
+    with_topic = next(p for p in problems if p["topic"])
+    kinds = {block["type"] for block in with_topic["topic"]}
+    assert "heading" in kinds
+
+
+def test_all_problem_screens_covers_every_problems_subject():
+    from study_calc.navigation import SUBJECTS, Problems
+
+    expected = {
+        item.subject_id
+        for _subject, items in SUBJECTS
+        for item in items
+        if isinstance(item, Problems)
+    }
+    assert set(screens.all_problem_screens().keys()) == expected
+
+
+def test_problems_screen_is_localized_on_language_switch():
+    try:
+        en = Bridge().problems_screen("physics")
+        bridge = Bridge()
+        bridge.set_language("ru")
+        ru = bridge.problems_screen("physics")
+        # Chrome labels must differ between English and Russian.
+        assert en["labels"]["choose"] != ru["labels"]["choose"]
+        assert en["labels"]["revealSteps"] != ru["labels"]["revealSteps"]
+    finally:
+        i18n.set_language("en")
+
+
+def test_problems_screen_has_dedicated_frontend_renderer():
+    # The problems surface is list+solution shaped, not section/operation/converter
+    # shaped, so it gets its own Screens.problems renderer wired in shell.js.
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    assert "problems(model)" in js
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    assert "Screens.problems" in shell
+    assert "problems_screen" in shell
+
+
 # --- language switching ---
 
 

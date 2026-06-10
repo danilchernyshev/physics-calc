@@ -25,9 +25,11 @@ from ..core.formula import Formula, SolveError
 from ..core.learning import (
     CURRICULUM_GRADES,
     Concept,
+    Problem,
     WorkedExample,
     load_concept,
     load_topic,
+    problems_for_subject,
 )
 from ..domains import SECTIONS
 from ..domains.references import explanation_for
@@ -644,6 +646,96 @@ def balance_run(equation: str) -> dict:
     except ChemError as exc:
         return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
     return {"ok": True, "result": balanced}
+
+
+# --- Problems (practice) screen ---
+#
+# The practice-problems surface shared by every subject (issue #11). Mirrors the
+# Tk ``ProblemsPanel`` + ``ExplanationPanel.show_problem``: a list of the subject's
+# problems on the left (the "problem tree") and the selected problem's worked
+# solution on the right (the "solution card"), with a reveal-the-solution flow.
+# Like the formula screen it is pure data — the statement, hidden steps/answer,
+# video link and the related topic's learning blocks are all baked in, so the
+# frontend reveals and swaps without a round-trip.
+
+
+def _problem_model(problem: Problem) -> dict:
+    """One practice problem as a JSON-able model (mirror of ``show_problem``).
+
+    The statement (``given`` + ``find``) renders immediately; ``steps`` and
+    ``answer`` are baked in but the frontend reveals them on demand. ``badge`` is
+    the curriculum line (empty when the problem carries no courses). ``topic`` is
+    the related topic's learning blocks (``None`` when the problem has no backing
+    topic), so "Learn the theory" expands inline — mirroring the Tk panel swap.
+    """
+    ex = problem.example
+    topic = load_topic(problem.topic_id, i18n.language) if problem.topic_id else None
+    return {
+        "id": problem.problem_id,
+        "title": ex.title or t("ui.problem_statement"),
+        "badge": _curriculum_text(problem.courses),
+        "given": list(ex.given),
+        "find": ex.find,
+        "steps": list(ex.steps),
+        "answer": ex.answer,
+        "videoUrl": problem.video_url,
+        "topic": _topic_blocks(t("ui.related_topic"), topic) if topic is not None else None,
+    }
+
+
+def problems_screen(subject_id: str) -> dict:
+    """The practice-problems screen for one subject: labels + every problem.
+
+    ``subject_id`` may be the bare id (``"physics"``) or the navigation item id
+    (``"problems:physics"``). Each problem carries its statement, hidden solution,
+    optional video link and (baked) related-topic learning blocks, so the whole
+    surface renders — and reveals — from one call. A subject with no problems
+    yields an empty ``problems`` list (the frontend shows the quiet ``empty``
+    hint), exactly like the Tk panel.
+    """
+    subject_id = subject_id.split(":", 1)[-1]
+    problems = problems_for_subject(subject_id, i18n.language)
+    return {
+        "subjectId": subject_id,
+        "labels": {
+            "choose": t("ui.choose_problem"),
+            "given": t("ui.given"),
+            "find": t("ui.find"),
+            "solution": t("ui.solution"),
+            "answer": t("ui.answer"),
+            "revealSteps": t("ui.reveal_steps"),
+            "revealAnswer": t("ui.reveal_answer"),
+            "videoSolution": t("ui.video_solution"),
+            "relatedTopic": t("ui.related_topic"),
+            "empty": t("problems.empty"),
+            # Term pop-up labels — a backing topic may carry key terms whose
+            # "Open full" pop-up reuses the shared concept overlay.
+            "openFull": t("ui.open_full"),
+            "relatedFormulas": t("ui.related_formulas"),
+            "seeAlso": t("ui.see_also"),
+            "close": t("ui.close"),
+        },
+        "problems": [_problem_model(p) for p in problems],
+    }
+
+
+def all_problem_screens() -> dict[str, dict]:
+    """Every subject's problems screen, keyed by bare subject id.
+
+    Used by the static browser/screenshot preview to bake all problems surfaces
+    in, so the same frontend renders them without a live bridge. Mirrors
+    ``all_formula_screens``; the subject ids come from the navigation tree's
+    ``Problems`` items (physics / math / chemistry).
+    """
+    from ..navigation import SUBJECTS, Problems
+
+    subject_ids = [
+        item.subject_id
+        for _subject, items in SUBJECTS
+        for item in items
+        if isinstance(item, Problems)
+    ]
+    return {sid: problems_screen(sid) for sid in subject_ids}
 
 
 # --- Guide overlay screen ---

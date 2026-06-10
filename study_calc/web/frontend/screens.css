@@ -6,7 +6,8 @@
 
 /* Two columns: the calculator + solution on the left, the learning panel on the
    right (mirrors the Tk PanedWindow split). Collapses to one column when narrow. */
-.screen--formula {
+.screen--formula,
+.screen--problems {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: var(--space-2xl);
@@ -16,7 +17,8 @@
 .screen__col { display: flex; flex-direction: column; gap: var(--space-2xl); min-width: 0; }
 
 @media (max-width: 900px) {
-  .screen--formula { grid-template-columns: 1fr; }
+  .screen--formula,
+  .screen--problems { grid-template-columns: 1fr; }
 }
 
 /* ---- Formula input card --------------------------------------------- */
@@ -224,6 +226,49 @@
 .periodic__cell--lanthanide            { background: var(--series-lanthanide); }
 .periodic__cell--actinide              { background: var(--series-actinide); }
 .periodic__cell--default               { background: var(--series-default); }
+
+/* ---- Problems screen (issue #11) ------------------------------------ */
+
+/* The "problem tree": a vertical list of the subject's problems. Each item is a
+   full-width button so the whole row is clickable; the active row is tinted. */
+.problems__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-2xs); }
+
+.problems__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-body);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.problems__item:hover { border-color: var(--color-border-strong); }
+
+.problems__item--active {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-soft);
+  color: var(--color-text-strong);
+  font-weight: var(--font-weight-medium);
+}
+
+.problems__item-title { min-width: 0; }
+
+/* The related-topic theory, expanded inline beneath the solution on demand. */
+.problems__theory {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
 
 /* ---- Guide overlay (issue #40) -------------------------------------- */
 

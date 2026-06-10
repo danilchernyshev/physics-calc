@@ -354,6 +354,138 @@ const Screens = {
     return h('div', { class: 'screen screen--converter' }, [converterCard]);
   },
 
+  // Practice-problems screen (issue #11). `model` is the bridge's
+  // problems_screen(); everything is baked in, so there is no ctx/run round-trip.
+  // The left card is the "problem tree" (the subject's problems); the right card
+  // is the worked "solution card" with a reveal-the-solution flow — mirroring the
+  // Tk ProblemsPanel + ExplanationPanel.show_problem. An empty subject shows the
+  // quiet `empty` hint, exactly like the Tk panel.
+  problems(model) {
+    const L = model.labels;
+    const problems = model.problems;
+
+    if (!problems.length) {
+      return h('div', { class: 'screen screen--problems' }, [
+        UI.card({ body: [UI.hint(L.empty)] }),
+      ]);
+    }
+
+    // Per-selection reveal state: a fresh problem starts hidden; the student
+    // reveals the steps, then the answer (and optionally the theory) on demand.
+    const st = { index: 0, steps: false, answer: false, theory: false };
+    const current = () => problems[st.index];
+
+    const listWrap = h('ul', { class: 'problems__list' }, []);
+    const solutionContent = h('div', { class: 'solution' }, []);
+
+    function renderList() {
+      listWrap.replaceChildren(...problems.map((p, i) =>
+        h('li', {}, [
+          h('button', {
+            class: 'problems__item' + (i === st.index ? ' problems__item--active' : ''),
+            type: 'button',
+            'aria-current': i === st.index ? 'true' : null,
+            onclick: () => select(i),
+          }, [
+            h('span', { class: 'problems__item-title', text: p.title }),
+            p.badge ? UI.badge(p.badge) : null,
+          ]),
+        ])));
+    }
+
+    function renderSolution() {
+      const p = current();
+      const parts = [h('h2', { class: 'card__title', text: p.title })];
+      if (p.badge) parts.push(UI.badge(p.badge));
+
+      // The statement (given + find) always shows.
+      if (p.given.length) {
+        parts.push(h('p', { class: 'rich__label', text: L.given + ':' }));
+        parts.push(h('ul', { class: 'learn__given' },
+          p.given.map((g) => h('li', { text: g }))));
+      }
+      if (p.find) {
+        parts.push(h('p', { class: 'rich__label' }, [
+          L.find + ': ', h('span', { class: 'rich__body-inline', text: p.find }),
+        ]));
+      }
+      // Solution steps and the final answer appear only once revealed.
+      if (st.steps && p.steps.length) {
+        parts.push(h('p', { class: 'rich__label', text: L.solution + ':' }));
+        parts.push(h('ol', { class: 'learn__steps' },
+          p.steps.map((s) => h('li', { text: s }))));
+      }
+      if (st.answer && p.answer) {
+        parts.push(h('p', { class: 'rich__label' }, [
+          L.answer + ': ', h('span', { class: 'rich__answer', text: p.answer }),
+        ]));
+      }
+
+      // Reveal controls: each button disables once it has revealed its part (or
+      // is omitted when the problem has no steps / answer / backing topic).
+      const controls = [];
+      if (p.steps.length) {
+        controls.push(UI.button({
+          label: L.revealSteps, variant: 'ghost', disabled: st.steps,
+          onclick: () => { st.steps = true; renderSolution(); },
+        }));
+      }
+      if (p.answer) {
+        controls.push(UI.button({
+          label: L.revealAnswer, variant: 'ghost', disabled: st.answer,
+          onclick: () => { st.answer = true; renderSolution(); },
+        }));
+      }
+      if (p.topic) {
+        controls.push(UI.button({
+          label: L.relatedTopic, variant: 'ghost',
+          onclick: () => { st.theory = !st.theory; renderSolution(); },
+        }));
+      }
+      if (controls.length) parts.push(h('div', { class: 'chips' }, controls));
+
+      // A video-solution link opens in the browser (parity with the Tk link).
+      if (p.videoUrl) {
+        parts.push(h('div', { class: 'learn__links' }, [
+          h('a', {
+            class: 'rich__link', text: L.videoSolution,
+            href: p.videoUrl, target: '_blank', rel: 'noopener',
+          }),
+        ]));
+      }
+
+      // Inline theory: the related topic's learning blocks, revealed on demand.
+      // The web's roomier layout expands them in place rather than swapping the
+      // whole panel as the Tk version does — same learningBlocks vocabulary.
+      if (st.theory && p.topic) {
+        parts.push(h('div', { class: 'problems__theory' }, learningBlocks(p.topic, L)));
+      }
+
+      solutionContent.replaceChildren(...parts);
+    }
+
+    function select(i) {
+      // A fresh problem starts fully hidden — the reveal flow restarts each time.
+      st.index = i;
+      st.steps = false;
+      st.answer = false;
+      st.theory = false;
+      renderList();
+      renderSolution();
+    }
+
+    renderList();
+    renderSolution();
+
+    const listCard = UI.card({ title: L.choose, body: [listWrap] });
+    const solutionCard = UI.card({ body: [solutionContent] });
+
+    return h('div', { class: 'screen screen--problems' }, [
+      h('div', { class: 'screen__col screen__col--main' }, [listCard]),
+      h('div', { class: 'screen__col screen__col--aside' }, [solutionCard]),
+    ]);
+  },
+
   // Remove every body-level .modal overlay that a shell re-render would
   // otherwise orphan over the page (issue #51). Called from render() in
   // shell.js before rebuilding #app, so a language / subject / item switch
