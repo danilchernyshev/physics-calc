@@ -113,3 +113,16 @@ _ERROR_KEYS = [
 def test_every_catalog_has_all_error_keys(code, tr):
     missing = set(_ERROR_KEYS) - set(tr._catalogs[code])
     assert not missing, f"{code}.json is missing error keys: {sorted(missing)}"
+
+
+# The CAS extra-field labels (rate's a/b, limit's at, combine's g) are resolved
+# by the web layer for every locale but live outside the domain-key set that
+# _all_required_keys() walks — so, like the error keys, they need their own
+# completeness check or a dropped translation would slip through CI (issue #25).
+_CAS_FIELD_KEYS = ["cas.field.a", "cas.field.b", "cas.field.at", "cas.field.g"]
+
+
+@pytest.mark.parametrize("code", ["en", "es", "fr", "ru", "uk"])
+def test_every_catalog_has_all_cas_field_keys(code, tr):
+    missing = set(_CAS_FIELD_KEYS) - set(tr._catalogs[code])
+    assert not missing, f"{code}.json is missing CAS field keys: {sorted(missing)}"
