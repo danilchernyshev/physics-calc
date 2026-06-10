@@ -153,6 +153,14 @@ def test_screens_js_exposes_surface_and_shell_dispatches():
     assert "mountScreen" in shell and "formula_screen" in shell and "callApi" in shell
 
 
+def test_screens_js_handles_enter_and_guards_stale_solves():
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # Enter in a field solves (parity with the Tk <Return> binding).
+    assert "'Enter'" in js and "compute()" in js
+    # The async solve drops its result if the formula changed while in flight.
+    assert "current().key !== key" in js
+
+
 def test_screens_css_uses_only_tokens():
     import re
 

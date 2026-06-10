@@ -17,6 +17,7 @@ in sync; the shared ground truth is :mod:`study_calc.core` + the i18n keys.
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from typing import Mapping
 
 from ..core.explain import Explanation
@@ -33,8 +34,14 @@ from ..domains.references import explanation_for
 from ..i18n import i18n, t
 
 
+@lru_cache(maxsize=1)
 def _formula_index() -> dict[str, Formula]:
-    """Map every formula ``key`` to its :class:`Formula`, across all sections."""
+    """Map every formula ``key`` to its :class:`Formula`, across all sections.
+
+    Cached: ``SECTIONS`` is built once at import, and this is hit once per formula
+    while assembling a screen, so we scan the whole catalog only on first use.
+    Callers must treat the returned dict as read-only.
+    """
     return {f.key: f for formulas in SECTIONS.values() for f in formulas}
 
 

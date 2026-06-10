@@ -19,7 +19,11 @@ const Screens = {
     // --- mutable islands updated in place ---
     const titleNode = h('h2', { class: 'card__title' }, []);
     const exprNode = h('p', { class: 'formula__expr' }, []);
-    const fieldsWrap = h('div', { class: 'formula__fields' }, []);
+    // Enter in any field solves, mirroring the Tk panel's <Return> binding.
+    const fieldsWrap = h('div', {
+      class: 'formula__fields',
+      onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); compute(); } },
+    }, []);
     const solutionContent = h('div', { class: 'solution' }, []);
     const learningContent = h('div', { class: 'learning' }, []);
 
@@ -57,7 +61,12 @@ const Screens = {
     }
 
     async function compute() {
-      const res = await ctx.solve(current().key, st.values);
+      // Capture the formula being solved; drop the result if the user switched
+      // formula while the (async) solve was in flight, so a stale answer never
+      // lands under a different formula's solution card.
+      const key = current().key;
+      const res = await ctx.solve(key, st.values);
+      if (current().key !== key) return;
       st.solution = res || null;
       renderSolution();
     }
