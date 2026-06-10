@@ -81,6 +81,15 @@ def test_gravitational_potential_energy():
     assert f.solve("E", {"m": 2, "g": 9.80, "h": 10}) == pytest.approx(196)
 
 
+def test_kinematics_final_velocity():
+    # OpenStax College Physics 2e §2.4 (Motion Equations, v = v₀ + a·t). From
+    # rest at a = 2.0 m/s² for 5.0 s: v = 0 + 2.0·5.0 = 10 m/s.
+    f = _find("mechanics", "velocity")
+    assert f.solve("v", {"v0": 0, "a": 2.0, "t": 5.0}) == pytest.approx(10.0)
+    # Invert for the time it takes to reach that speed.
+    assert f.solve("t", {"v": 10.0, "v0": 0, "a": 2.0}) == pytest.approx(5.0)
+
+
 # ===========================================================================
 # Thermodynamics  — OpenStax, College Physics 2e
 # ===========================================================================
@@ -266,6 +275,21 @@ def test_angle_conversions():
     assert units.convert(100, "gradian", "degree", "angle") == pytest.approx(90)
 
 
+def test_time_conversions_si_exact():
+    # SI defined multiples of the second (NIST SP 811): 1 min = 60 s,
+    # 1 h = 3600 s, 1 day = 86400 s (all exact).
+    assert units.convert(1, "hour", "second", "time") == pytest.approx(3600)
+    assert units.convert(1, "day", "second", "time") == pytest.approx(86400)
+
+
+def test_force_conversions_exact():
+    # 1 kgf = 9.80665 N (3rd CGPM 1901: standard gravity g₀ = 9.80665 m/s²,
+    # exact). 1 dyne = 10⁻⁵ N (CGS, exact). 1 kN = 1000 N.
+    assert units.convert(1, "kgf", "newton", "force") == pytest.approx(9.80665)
+    assert units.convert(1, "dyne", "newton", "force") == pytest.approx(1e-5)
+    assert units.convert(1, "kilonewton", "newton", "force") == pytest.approx(1000)
+
+
 # ===========================================================================
 # Vectors  — OpenStax, Calculus Vol. 3 (Vectors in Space)
 # ===========================================================================
@@ -352,3 +376,30 @@ def test_limit_defining_eulers_number():
     # OpenStax Calculus Vol. 2 §6.1. lim(x→∞) (1 + 1/x)^x = e ≈ 2.71828.
     out = cas.run("limit", "(1+1/x)^x", "x", at="oo").output_text
     assert out.startswith("E") and float(out.split("≈")[1]) == pytest.approx(math.e, rel=1e-5)
+
+
+def test_expand_binomials():
+    # OpenStax Algebra & Trig §1.4 (binomial expansion). (x+1)³ and (a+b)².
+    assert cas.run("expand", "(x+1)^3").output_text == "x**3 + 3*x**2 + 3*x + 1"
+    assert cas.run("expand", "(a+b)^2").output_text == "a**2 + 2*a*b + b**2"
+
+
+def test_simplify_rational_expression():
+    # (x²−1)/(x−1) = (x−1)(x+1)/(x−1) = x+1.
+    assert cas.run("simplify", "(x^2-1)/(x-1)").output_text == "x + 1"
+
+
+def test_maclaurin_series():
+    # OpenStax Calculus Vol. 2 §6.3 (Table 6.1). Maclaurin series (about 0),
+    # truncated by the engine: eˣ = 1 + x + x²/2 + x³/6 + x⁴/24 + …;
+    # sin x = x − x³/6 + x⁵/120 − …
+    assert cas.run("series", "exp(x)", "x", at="0").output_text == (
+        "x**5/120 + x**4/24 + x**3/6 + x**2/2 + x + 1"
+    )
+    assert cas.run("series", "sin(x)", "x", at="0").output_text == "x**5/120 - x**3/6 + x"
+
+
+def test_evaluate_numeric_expressions():
+    # Standard constants to the engine's 15 significant figures.
+    assert cas.run("evaluate", "2^10").output_text == "1024.00000000000"
+    assert cas.run("evaluate", "sqrt(2)").output_text == "1.41421356237310"
