@@ -214,6 +214,7 @@ def formula_screen(section_id: str) -> dict:
             "openFull": t("ui.open_full"),
             "relatedFormulas": t("ui.related_formulas"),
             "seeAlso": t("ui.see_also"),
+            "close": t("ui.close"),
         },
         "formulas": [_formula_model(f) for f in formulas],
     }
@@ -453,6 +454,7 @@ def _operation_labels(operation_key: str, hint_key: str, steps_title_key: str) -
         "openFull": t("ui.open_full"),
         "relatedFormulas": t("ui.related_formulas"),
         "seeAlso": t("ui.see_also"),
+        "close": t("ui.close"),
     }
 
 
@@ -533,6 +535,31 @@ def convert_run(category: str, value: str, from_unit: str, to_unit: str) -> dict
             f"  =  "
             f"{_format_number(result)} {to_label}"
         ),
+    }
+
+
+# --- Guide overlay screen ---
+
+
+_GUIDE_SECTIONS = ("physics", "math", "tools", "problems", "learning", "language")
+
+
+def guide_screen() -> dict:
+    """The guide overlay model: title, intro, and six ordered sections.
+
+    Every value is resolved from the ``guide.*`` i18n keys already present in
+    all five locales — no English literals anywhere in the model.  The section
+    order is fixed as per issue #40: physics, math, tools, problems, learning,
+    language.
+    """
+    return {
+        "title": t("guide.title"),
+        "intro": t("guide.intro"),
+        "close": t("ui.close"),
+        "sections": [
+            {"head": t(f"guide.{s}.head"), "body": t(f"guide.{s}.body")}
+            for s in _GUIDE_SECTIONS
+        ],
     }
 
 

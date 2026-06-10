@@ -18,6 +18,44 @@ from study_calc.web.bridge import Bridge
 FRONTEND = Path(__file__).resolve().parent.parent / "study_calc" / "web" / "frontend"
 
 
+# --- guide overlay model (issue #40) ---
+
+_GUIDE_SECTION_IDS = ("physics", "math", "tools", "problems", "learning", "language")
+
+
+def test_guide_screen_model():
+    """guide_screen() returns a fully i18n-sourced model, never literals."""
+    model = screens.guide_screen()
+
+    # Top-level keys are present.
+    assert "title" in model and "intro" in model and "sections" in model
+
+    # Title and intro come from the guide.* i18n keys (not raw keys, not empty).
+    assert model["title"] == t("guide.title")
+    assert model["intro"] == t("guide.intro")
+    assert model["title"] and not model["title"].startswith("guide.")
+    assert model["intro"] and not model["intro"].startswith("guide.")
+
+    # The close-button label is i18n-sourced too (no hardcoded "Close" in the
+    # frontend); the overlay reads model.close for the × button's aria-label.
+    assert model["close"] == t("ui.close")
+    assert model["close"] and not model["close"].startswith("ui.")
+
+    # Exactly six sections in the canonical order.
+    assert len(model["sections"]) == 6, (
+        f"expected 6 sections, got {len(model['sections'])}"
+    )
+    for i, sid in enumerate(_GUIDE_SECTION_IDS):
+        sec = model["sections"][i]
+        assert {"head", "body"} <= sec.keys(), f"section {sid} missing head/body"
+        # Values are sourced from i18n, not hardcoded English.
+        assert sec["head"] == t(f"guide.{sid}.head"), f"wrong head for {sid}"
+        assert sec["body"] == t(f"guide.{sid}.body"), f"wrong body for {sid}"
+        # Non-empty (all five locales carry these keys).
+        assert sec["head"], f"empty head for {sid}"
+        assert sec["body"], f"empty body for {sid}"
+
+
 # --- formula screen model ---
 
 

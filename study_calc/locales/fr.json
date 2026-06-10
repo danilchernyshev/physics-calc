@@ -391,5 +391,6 @@
   "ui.atomic_number": "Numéro atomique",
   "ui.atomic_mass": "Masse atomique",
   "ui.group": "Groupe",
-  "ui.period": "Période"
+  "ui.period": "Période",
+  "ui.close": "Fermer"
 }

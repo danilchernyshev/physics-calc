@@ -423,5 +423,6 @@
   "theory.molarity": "Molar concentration (molarity) measures how much solute is dissolved: c = n / V, where n is the amount of solute in moles and V the solution volume in litres. The unit is mol/L (M). Rearrange to find any quantity from the other two.",
   "theory.dilution": "When a solution is diluted the amount of solute is unchanged, so c₁V₁ = c₂V₂. Knowing any three of the initial and final concentrations and volumes gives the fourth — the basis of preparing a dilute solution from a concentrated stock.",
   "theory.moles": "The amount of substance n links mass m and molar mass M by n = m / M. The molar mass (g/mol) is the sum of the standard atomic weights in the formula — compute it with the Molar mass box on the Periodic table tab.",
-  "theory.ph": "The pH measures acidity: pH = −log₁₀[H⁺], where [H⁺] is the hydrogen-ion concentration in mol/L. A lower pH is more acidic; at 25 °C pure water has pH 7. Invert with [H⁺] = 10^(−pH)."
+  "theory.ph": "The pH measures acidity: pH = −log₁₀[H⁺], where [H⁺] is the hydrogen-ion concentration in mol/L. A lower pH is more acidic; at 25 °C pure water has pH 7. Invert with [H⁺] = 10^(−pH).",
+  "ui.close": "Close"
 }
