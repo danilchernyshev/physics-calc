@@ -8,7 +8,10 @@ license = { text = "MIT" }
 authors = [{ name = "Mark Chernyshev" }, { name = "Danil Chernyshev", email = "danil.chernyshev@gmail.com" }]
 keywords = ["learning", "education", "physics", "math", "calculator", "units", "pywebview", "cas", "sympy"]
 # pywebview is the one and only UI now, so it is a core runtime dependency.
-dependencies = ["sympy>=1.12", "pywebview>=5.0"]
+# numpy backs core/cas.py::sample() (CAS plotting/sampling); it used to arrive
+# transitively via matplotlib, so it must be declared now that matplotlib is an
+# optional extra.
+dependencies = ["sympy>=1.12", "pywebview>=5.0", "numpy>=1.24"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
