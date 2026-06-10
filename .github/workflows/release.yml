@@ -21,17 +21,16 @@ on:
     tags:
       - "v*"
 
-# Least privilege by default: only the `release` job that publishes assets is
-# granted `contents: write` (scoped on the job below); every other job keeps the
-# read-only default.
-permissions:
-  contents: read
-
+# Least privilege: permissions are scoped per job (no workflow-level grant).
+# Only the `release` job that publishes assets gets `contents: write`; every
+# other job is read-only.
 jobs:
   # The gate: a pytest failure here blocks every build job below (they `needs: test`),
   # so no artifact is ever produced from a red tree.
   test:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -41,6 +40,8 @@ jobs:
 
   resolve-version:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.v.outputs.version }}
     steps:
@@ -62,6 +63,8 @@ jobs:
   linux-appimage:
     needs: [test, resolve-version]
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
     steps:
