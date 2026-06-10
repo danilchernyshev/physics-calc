@@ -5,7 +5,13 @@
 -- for the same (id, language) pair.  Callers fall back to 'en' when the
 -- requested language row is absent.
 
-PRAGMA journal_mode = WAL;
+-- The shipped knowledgebase.db is a read-only content artifact committed to the
+-- repo and installed into a possibly read-only location (Program Files, a
+-- PyInstaller bundle).  WAL mode is deliberately NOT set: it persists in the file
+-- header and forces the engine to create -wal/-shm sidecars next to the DB on
+-- open, which fails when the directory is read-only.  The default rollback
+-- journal opens cleanly read-only.  A future writer (e.g. FTS indexing) can opt
+-- into WAL per-connection at runtime instead.
 PRAGMA foreign_keys = ON;
 
 -- ---------------------------------------------------------------------------

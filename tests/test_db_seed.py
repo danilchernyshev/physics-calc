@@ -205,6 +205,36 @@ class TestSchema:
         # — the point is the column exists and doesn't crash
         assert row is not None
 
+    def test_seeded_db_not_in_wal_mode(
+        self, seeded_db: sqlite3.Connection
+    ) -> None:
+        """The schema must not leave the DB in WAL mode.
+
+        WAL persists in the file header and forces the engine to create
+        -wal/-shm sidecars next to the DB on open, which fails when the
+        committed/installed DB sits in a read-only location (Program Files,
+        a PyInstaller bundle).  The shipped artifact must use the default
+        rollback journal so it opens cleanly read-only.
+        """
+        (mode,) = seeded_db.execute("PRAGMA journal_mode").fetchone()
+        assert mode.lower() != "wal", (
+            f"schema.sql left the DB in WAL mode ({mode!r}); a read-only "
+            "install location cannot create the -wal/-shm sidecars"
+        )
+
+    def test_committed_db_not_in_wal_mode(self) -> None:
+        """The committed knowledgebase.db artifact must not be in WAL mode."""
+        committed = DATA_DIR / "knowledgebase.db"
+        if not committed.exists():
+            pytest.skip("committed knowledgebase.db not present")
+        # Bytes 18/19 of the header encode the write/read journal version:
+        # 2 means WAL, 1 means the rollback journal.
+        header = committed.read_bytes()[:20]
+        assert header[18] != 2 and header[19] != 2, (
+            "committed knowledgebase.db is in WAL mode; re-seed it after "
+            "removing the WAL pragma so the header records a rollback journal"
+        )
+
 
 # ---------------------------------------------------------------------------
 # Idempotency
