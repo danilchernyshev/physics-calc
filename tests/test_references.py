@@ -5,7 +5,7 @@ import re
 import pytest
 
 from study_calc.core.explain import DEFAULT_SOLVE_STEPS, Explanation
-from study_calc.domains import SECTIONS
+from study_calc.domains import CHEMISTRY_SECTIONS, SECTIONS
 from study_calc.domains.references import explanation_for, references_for
 from study_calc.i18n import I18n
 
@@ -20,12 +20,23 @@ def _all_formulas():
         yield from formulas
 
 
-def test_every_formula_has_two_verified_references():
+def _chem_keys() -> set[str]:
+    """Formula keys that belong to a Chemistry section."""
+    return {f.key for sid in CHEMISTRY_SECTIONS for f in SECTIONS[sid]}
+
+
+def test_every_formula_has_verified_references():
+    chem = _chem_keys()
     for formula in _all_formulas():
         refs = references_for(formula.key)
-        assert len(refs) == 2, f"{formula.key} should map to OpenStax + CollegePhysicsAnswers"
         labels = {r.label_key for r in refs}
-        assert labels == {"ref.openstax", "ref.cpanswers"}
+        if formula.key in chem:
+            # Chemistry: a single OpenStax Chemistry reference (no physics videos).
+            assert len(refs) == 1, f"{formula.key} should map to one OpenStax reference"
+            assert labels == {"ref.openstax"}
+        else:
+            assert len(refs) == 2, f"{formula.key} should map to OpenStax + CollegePhysicsAnswers"
+            assert labels == {"ref.openstax", "ref.cpanswers"}
         for ref in refs:
             assert ref.url.startswith("https://"), ref.url
 
@@ -57,10 +68,12 @@ def test_unknown_formula_key_has_no_references():
 
 
 def test_openstax_references_point_at_the_current_2e_edition():
-    """The textbook links track College Physics 2e, the edition the videos follow."""
+    """Physics links track College Physics 2e; chemistry links track Chemistry 2e."""
+    chem = _chem_keys()
     for formula in _all_formulas():
         openstax = references_for(formula.key)[0]
-        assert "/books/college-physics-2e/" in openstax.url, openstax.url
+        book = "chemistry-2e" if formula.key in chem else "college-physics-2e"
+        assert f"/books/{book}/" in openstax.url, openstax.url
 
 
 def test_openstax_slugs_have_no_obvious_typos():

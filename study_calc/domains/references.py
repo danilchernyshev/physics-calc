@@ -22,6 +22,17 @@ from study_calc.core.explain import Explanation, Reference
 
 _OPENSTAX = "https://openstax.org/books/college-physics-2e/pages/{}"
 _CPANSWERS = "https://collegephysicsanswers.com/{}"
+_OPENSTAX_CHEM = "https://openstax.org/books/chemistry-2e/pages/{}"
+
+# Chemistry formula key -> OpenStax Chemistry 2e section slug. Chemistry is not
+# covered by College Physics / CollegePhysicsAnswers, so these carry a single
+# OpenStax reference rather than the physics OpenStax+videos pair.
+_CHEM_SOURCES: dict[str, str] = {
+    "molarity": "3-3-molarity",
+    "dilution": "3-3-molarity",
+    "moles": "3-1-formula-mass-and-the-mole-concept",
+    "ph": "14-2-ph-and-poh",
+}
 
 # formula key -> (OpenStax section slug, CollegePhysicsAnswers chapter slug)
 _SOURCES: dict[str, tuple[str, str]] = {
@@ -79,6 +90,9 @@ _SOURCES: dict[str, tuple[str, str]] = {
 
 def references_for(formula_key: str) -> tuple[Reference, ...]:
     """External study links for ``formula_key`` (empty if none are mapped)."""
+    chem_slug = _CHEM_SOURCES.get(formula_key)
+    if chem_slug is not None:
+        return (Reference("ref.openstax", _OPENSTAX_CHEM.format(chem_slug)),)
     source = _SOURCES.get(formula_key)
     if source is None:
         return ()

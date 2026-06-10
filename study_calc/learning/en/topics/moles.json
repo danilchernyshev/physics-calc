@@ -1,0 +1,18 @@
+{
+  "courses": ["SCH4U"],
+  "summary": "The amount of substance links mass and molar mass by n = m / M. The molar mass M (g/mol) is the sum of the atomic weights in the formula — compute it on the Periodic table tab.",
+  "terms": ["mole"],
+  "formulas": ["n = m / M", "m = n · M", "M = m / n"],
+  "method": [
+    "Find the molar mass M of the substance from its formula.",
+    "Make sure the mass m is in grams.",
+    "Substitute into n = m / M to get the amount in moles."
+  ],
+  "example": {
+    "title": "Moles of water",
+    "given": ["m = 18.0 g of water", "M = 18.0 g/mol"],
+    "find": "the amount of substance n",
+    "steps": ["n = m / M = 18.0 g / 18.0 g/mol."],
+    "answer": "n = 1.0 mol"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "courses": ["SCH4U"],
+  "summary": "Diluting a solution keeps the amount of solute constant, so c₁V₁ = c₂V₂. Given any three of the initial and final concentrations and volumes, solve for the fourth.",
+  "terms": ["mole"],
+  "formulas": ["c₁ · V₁ = c₂ · V₂", "V₂ = c₁ · V₁ / c₂"],
+  "method": [
+    "Label the concentrated stock (c₁, V₁) and the diluted solution (c₂, V₂).",
+    "Keep concentrations and volumes in consistent units.",
+    "Substitute into c₁V₁ = c₂V₂ and solve for the unknown."
+  ],
+  "example": {
+    "title": "Diluting hydrochloric acid",
+    "given": ["c₁ = 6.0 mol/L", "V₁ = 0.100 L", "c₂ = 0.50 mol/L"],
+    "find": "the final volume V₂",
+    "steps": ["V₂ = c₁V₁ / c₂ = (6.0 · 0.100) / 0.50."],
+    "answer": "V₂ = 1.2 L"
+  }
+}

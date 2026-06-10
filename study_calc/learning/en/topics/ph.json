@@ -1,0 +1,18 @@
+{
+  "courses": ["SCH4U"],
+  "summary": "The pH measures acidity: pH = −log₁₀[H⁺], where [H⁺] is the hydrogen-ion concentration in mol/L. Invert it with [H⁺] = 10^(−pH).",
+  "terms": ["ph", "acid_dissociation"],
+  "formulas": ["pH = −log₁₀[H⁺]", "[H⁺] = 10^(−pH)", "pH + pOH = 14 (25 °C)"],
+  "method": [
+    "Find the hydrogen-ion concentration [H⁺] in mol/L (for a strong acid it equals the acid concentration).",
+    "Take pH = −log₁₀[H⁺].",
+    "To go back, use [H⁺] = 10^(−pH)."
+  ],
+  "example": {
+    "title": "pH of a strong acid",
+    "given": ["0.010 mol/L HCl (strong acid)"],
+    "find": "the pH",
+    "steps": ["[H⁺] = 0.010 mol/L.", "pH = −log₁₀(0.010)."],
+    "answer": "pH = 2.00"
+  }
+}

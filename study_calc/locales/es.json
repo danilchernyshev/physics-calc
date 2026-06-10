@@ -23,7 +23,6 @@
   "about.version": "Versión",
   "about.created_by": "Creado por",
   "about.role": "Estudiante",
-
   "ui.formula": "Fórmula:",
   "ui.hint": "Rellene todos los campos menos uno: el campo vacío se calculará.",
   "ui.compute": "Calcular",
@@ -88,7 +87,6 @@
   "vector.step.do.unit": "Vector unitario en la dirección de u = {u}.",
   "vector.step.unit_formula": "Divide cada componente entre |u| = {mag}.",
   "vector.step.result": "Resultado:  {result}",
-
   "ui.theory": "Explicación",
   "ui.how_to_solve": "Cómo resolver",
   "ui.learn_more": "Más información",
@@ -108,7 +106,6 @@
   "steps.solve.isolate": "Despeja la incógnita en la fórmula (la calculadora ya lo hace para cada variable).",
   "steps.solve.substitute": "Sustituye los valores conocidos, manteniendo todas las magnitudes en unidades del SI coherentes.",
   "steps.solve.compute": "Calcula el resultado y comprueba que su tamaño y sus unidades tengan sentido físico.",
-
   "cas.operation": "Operación:",
   "cas.expression": "Expresión:",
   "cas.variable": "Variable:",
@@ -127,7 +124,6 @@
   "cas.op.integral": "Integral",
   "cas.op.solve": "Resolver ecuación",
   "cas.op.evaluate": "Evaluar (numérico)",
-
   "cas.step.input": "Entrada, según se interpreta:  {expr}",
   "cas.step.result": "Resultado:  {result}",
   "cas.step.do.simplify": "Simplificar — cancelar factores comunes y agrupar términos semejantes.",
@@ -194,12 +190,10 @@
   "cas.step.card.oblique_asymptote": "Asíntota oblicua:  {value}",
   "cas.step.card.end_behaviour": "Comportamiento en los extremos:  {value}",
   "cas.step.card.turning_points": "Punto(s) de inflexión/extremo ({var}):  {value}",
-
   "section.mechanics": "Mecánica",
   "section.thermodynamics": "Termodinámica",
   "section.electromagnetism": "Electromagnetismo",
   "section.waves": "Ondas y óptica",
-
   "formula.newton_2": "Segunda ley de Newton",
   "formula.velocity": "Velocidad (aceleración uniforme)",
   "formula.momentum": "Cantidad de movimiento",
@@ -222,7 +216,6 @@
   "formula.photon_energy": "Energía del fotón",
   "formula.wavelength_light": "Longitud de onda de la luz",
   "formula.snell": "Ley de Snell (índice de refracción)",
-
   "var.force": "Fuerza",
   "var.mass": "Masa",
   "var.acceleration": "Aceleración",
@@ -273,7 +266,6 @@
   "var.angle_incidence": "Ángulo de incidencia",
   "var.refractive_index_2": "Índice de refracción del medio 2",
   "var.angle_refraction": "Ángulo de refracción",
-
   "category.length": "Longitud",
   "category.mass": "Masa",
   "category.time": "Tiempo",
@@ -283,7 +275,6 @@
   "category.force": "Fuerza",
   "category.temperature": "Temperatura",
   "category.angle": "Ángulo",
-
   "unit.meter": "m",
   "unit.kilometer": "km",
   "unit.centimeter": "cm",
@@ -343,7 +334,6 @@
   "unit.degree": "°",
   "unit.radian": "rad",
   "unit.gradian": "grad",
-
   "error.no_solver": "Esta fórmula no puede calcular «{var}».",
   "error.missing_value": "No se ha indicado el valor de «{var}».",
   "error.zero_division": "División por cero durante el cálculo.",
@@ -373,5 +363,32 @@
   "error.vec_cross_dim": "El producto vectorial necesita vectores 2-D o 3-D.",
   "error.vec_zero": "No está definido para un vector nulo.",
   "error.vec_bad_scalar": "«{value}» no es un número válido para el escalar k.",
-  "error.vec_unknown_operation": "Operación vectorial desconocida: {operation}."
+  "error.vec_unknown_operation": "Operación vectorial desconocida: {operation}.",
+  "section.chem_solutions": "Disoluciones",
+  "section.chem_acid_base": "Ácidos y bases",
+  "formula.molarity": "Concentración molar",
+  "formula.dilution": "Dilución",
+  "formula.moles": "Cantidad de sustancia",
+  "formula.ph": "pH de una disolución",
+  "var.concentration": "Concentración",
+  "var.molar_mass": "Masa molar",
+  "var.ph": "pH",
+  "var.hydrogen_ion": "Concentración de iones hidrógeno",
+  "unit.mol_per_litre": "mol/L",
+  "unit.litre": "L",
+  "unit.gram_per_mol": "g/mol",
+  "error.chem_empty": "Introduce una fórmula química.",
+  "error.chem_parse": "No se pudo interpretar «{text}» como fórmula química.",
+  "error.chem_unknown_element": "Elemento desconocido: {element}.",
+  "error.chem_no_arrow": "Separa reactivos y productos con una flecha (->).",
+  "error.chem_unbalanceable": "Esta ecuación no se puede balancear.",
+  "tab.periodic_table": "Tabla periódica",
+  "ui.molar_mass": "Masa molar",
+  "ui.balance": "Balancear",
+  "ui.equation": "Ecuación:",
+  "ui.balanced": "Balanceada:",
+  "ui.atomic_number": "Número atómico",
+  "ui.atomic_mass": "Masa atómica",
+  "ui.group": "Grupo",
+  "ui.period": "Periodo"
 }

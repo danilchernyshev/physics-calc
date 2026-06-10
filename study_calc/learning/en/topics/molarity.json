@@ -1,0 +1,18 @@
+{
+  "courses": ["SCH4U"],
+  "summary": "Molar concentration (molarity) is the amount of solute per litre of solution: c = n / V. Rearrange it to find the concentration, the amount of substance, or the volume.",
+  "terms": ["mole"],
+  "formulas": ["c = n / V", "n = c · V", "V = n / c"],
+  "method": [
+    "Identify which two of c, n, V you are given.",
+    "Make sure the amount n is in moles and the volume V is in litres.",
+    "Substitute into c = n / V (or its rearrangement) and solve."
+  ],
+  "example": {
+    "title": "Concentration of a salt solution",
+    "given": ["n = 0.50 mol NaCl", "V = 2.0 L of solution"],
+    "find": "the molar concentration c",
+    "steps": ["c = n / V = 0.50 mol / 2.0 L."],
+    "answer": "c = 0.25 mol/L"
+  }
+}

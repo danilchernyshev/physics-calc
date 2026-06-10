@@ -16,6 +16,7 @@ import math
 import pytest
 
 from study_calc.core import cas
+from study_calc.core import periodic
 from study_calc.core import units
 from study_calc.core import vectors as V
 from study_calc.core.formula import SolveError
@@ -403,3 +404,36 @@ def test_evaluate_numeric_expressions():
     # Standard constants to the engine's 15 significant figures.
     assert cas.run("evaluate", "2^10").output_text == "1024.00000000000"
     assert cas.run("evaluate", "sqrt(2)").output_text == "1.41421356237310"
+
+
+# ===========================================================================
+# Chemistry  — OpenStax, Chemistry 2e / IUPAC standard atomic weights
+# ===========================================================================
+
+def test_molar_masses_match_iupac_sums():
+    # OpenStax Chemistry 2e §3.1 (Formula Mass). Water 18.015 g/mol; glucose
+    # C6H12O6 ≈ 180.16 g/mol; sodium chloride 58.44 g/mol — sums of the IUPAC
+    # standard atomic weights.
+    assert periodic.molar_mass("H2O") == pytest.approx(18.015, abs=1e-2)
+    assert periodic.molar_mass("C6H12O6") == pytest.approx(180.16, abs=1e-2)
+    assert periodic.molar_mass("NaCl") == pytest.approx(58.44, abs=1e-2)
+
+
+def test_balance_methane_combustion():
+    # OpenStax Chemistry 2e §4.1 (Writing and Balancing Equations).
+    assert periodic.balance("CH4 + O2 -> CO2 + H2O") == "CH4 + 2O2 -> CO2 + 2H2O"
+
+
+def test_molar_concentration():
+    # OpenStax Chemistry 2e §3.3 (Molarity). c = n/V; 0.50 mol in 2.0 L = 0.25 M.
+    f = _find("chem_solutions", "molarity")
+    assert f.solve("c", {"n": 0.50, "V": 2.0}) == pytest.approx(0.25)
+    assert f.solve("V", {"n": 0.50, "c": 0.25}) == pytest.approx(2.0)
+
+
+def test_ph_of_a_strong_acid():
+    # OpenStax Chemistry 2e §14.2 (pH and pOH). 0.010 M HCl → [H⁺] = 0.010,
+    # pH = −log(0.010) = 2.00; and back: [H⁺] = 10^(−2) = 0.010.
+    f = _find("chem_acid_base", "ph")
+    assert f.solve("pH", {"H": 0.010}) == pytest.approx(2.0)
+    assert f.solve("H", {"pH": 2.0}) == pytest.approx(0.010)

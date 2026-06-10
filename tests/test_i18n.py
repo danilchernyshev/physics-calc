@@ -104,6 +104,8 @@ _ERROR_KEYS = [
     "error.vec_empty", "error.vec_parse", "error.vec_dim_mismatch",
     "error.vec_cross_dim", "error.vec_zero", "error.vec_bad_scalar",
     "error.vec_unknown_operation",
+    "error.chem_empty", "error.chem_parse", "error.chem_unknown_element",
+    "error.chem_no_arrow", "error.chem_unbalanceable",
 ]
 
 

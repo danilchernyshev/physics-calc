@@ -23,7 +23,6 @@
   "about.version": "Version",
   "about.created_by": "Created by",
   "about.role": "Student",
-
   "ui.formula": "Formula:",
   "ui.hint": "Fill all fields but one — the empty one will be computed.",
   "ui.compute": "Compute",
@@ -88,7 +87,6 @@
   "vector.step.do.unit": "Unit vector in the direction of u = {u}.",
   "vector.step.unit_formula": "Divide each component by |u| = {mag}.",
   "vector.step.result": "Result:  {result}",
-
   "ui.theory": "Explanation",
   "ui.how_to_solve": "How to solve",
   "ui.learn_more": "Learn more",
@@ -108,7 +106,6 @@
   "steps.solve.isolate": "Rearrange the formula to put the unknown on its own (the calculator already does this for every variable).",
   "steps.solve.substitute": "Substitute your known values, keeping every quantity in consistent SI units.",
   "steps.solve.compute": "Compute the result and check that its size and units make physical sense.",
-
   "cas.operation": "Operation:",
   "cas.expression": "Expression:",
   "cas.variable": "Variable:",
@@ -127,7 +124,6 @@
   "cas.op.integral": "Integral",
   "cas.op.solve": "Solve equation",
   "cas.op.evaluate": "Evaluate (numeric)",
-
   "cas.step.input": "Input, as interpreted:  {expr}",
   "cas.step.result": "Result:  {result}",
   "cas.step.do.simplify": "Simplify — cancel common factors and combine like terms.",
@@ -194,12 +190,10 @@
   "cas.step.card.oblique_asymptote": "Oblique asymptote:  {value}",
   "cas.step.card.end_behaviour": "End behaviour:  {value}",
   "cas.step.card.turning_points": "Turning point(s) ({var}):  {value}",
-
   "section.mechanics": "Mechanics",
   "section.thermodynamics": "Thermodynamics",
   "section.electromagnetism": "Electromagnetism",
   "section.waves": "Waves & optics",
-
   "formula.newton_2": "Newton's second law",
   "formula.velocity": "Velocity (uniform acceleration)",
   "formula.momentum": "Momentum",
@@ -222,7 +216,6 @@
   "formula.photon_energy": "Photon energy",
   "formula.wavelength_light": "Wavelength of light",
   "formula.snell": "Snell's law (refractive index)",
-
   "theory.newton_2": "Newton's second law: the net force F on a body equals its mass m times its acceleration a (F = m·a). It tells you how strongly a given force accelerates a given mass — double the force and the acceleration doubles; for the same force, double the mass and the acceleration halves.",
   "theory.velocity": "For motion with constant acceleration, the final velocity v is the initial velocity v₀ plus the acceleration a multiplied by the elapsed time t (v = v₀ + a·t). Use it whenever the acceleration does not change during the interval.",
   "theory.momentum": "Linear momentum p is mass m times velocity v (p = m·v). It measures the 'quantity of motion'; a heavy slow object and a light fast one can carry the same momentum, and total momentum is conserved in collisions.",
@@ -245,7 +238,6 @@
   "theory.photon_energy": "A photon's energy is proportional to its frequency: E = h·f, where h is Planck's constant. Higher-frequency light (toward the blue and ultraviolet) carries more energy per photon.",
   "theory.wavelength_light": "For light in vacuum, wavelength and frequency are tied together by the speed of light: λ = c/f. A higher frequency means a shorter wavelength, since c is constant.",
   "theory.snell": "Snell's law describes refraction at a boundary: n₁·sin θ₁ = n₂·sin θ₂. Light bends toward the normal when entering a denser medium (higher refractive index n) and away from it when leaving.",
-
   "var.force": "Force",
   "var.mass": "Mass",
   "var.acceleration": "Acceleration",
@@ -296,7 +288,6 @@
   "var.angle_incidence": "Angle of incidence",
   "var.refractive_index_2": "Refractive index of medium 2",
   "var.angle_refraction": "Angle of refraction",
-
   "category.length": "Length",
   "category.mass": "Mass",
   "category.time": "Time",
@@ -306,7 +297,6 @@
   "category.force": "Force",
   "category.temperature": "Temperature",
   "category.angle": "Angle",
-
   "unit.meter": "m",
   "unit.kilometer": "km",
   "unit.centimeter": "cm",
@@ -366,7 +356,6 @@
   "unit.degree": "°",
   "unit.radian": "rad",
   "unit.gradian": "grad",
-
   "error.no_solver": "This formula cannot solve for \"{var}\".",
   "error.missing_value": "Value for \"{var}\" is not set.",
   "error.zero_division": "Division by zero during calculation.",
@@ -396,5 +385,36 @@
   "error.vec_cross_dim": "The cross product needs 2-D or 3-D vectors.",
   "error.vec_zero": "This is undefined for a zero vector.",
   "error.vec_bad_scalar": "\"{value}\" is not a valid number for the scalar k.",
-  "error.vec_unknown_operation": "Unknown vector operation: {operation}."
+  "error.vec_unknown_operation": "Unknown vector operation: {operation}.",
+  "section.chem_solutions": "Solutions",
+  "section.chem_acid_base": "Acids & bases",
+  "formula.molarity": "Molar concentration",
+  "formula.dilution": "Dilution",
+  "formula.moles": "Amount of substance",
+  "formula.ph": "pH of a solution",
+  "var.concentration": "Concentration",
+  "var.molar_mass": "Molar mass",
+  "var.ph": "pH",
+  "var.hydrogen_ion": "Hydrogen-ion concentration",
+  "unit.mol_per_litre": "mol/L",
+  "unit.litre": "L",
+  "unit.gram_per_mol": "g/mol",
+  "error.chem_empty": "Enter a chemical formula.",
+  "error.chem_parse": "Could not read \"{text}\" as a chemical formula.",
+  "error.chem_unknown_element": "Unknown element: {element}.",
+  "error.chem_no_arrow": "Separate reactants and products with an arrow (->).",
+  "error.chem_unbalanceable": "This equation cannot be balanced.",
+  "tab.periodic_table": "Periodic table",
+  "ui.molar_mass": "Molar mass",
+  "ui.balance": "Balance",
+  "ui.equation": "Equation:",
+  "ui.balanced": "Balanced:",
+  "ui.atomic_number": "Atomic number",
+  "ui.atomic_mass": "Atomic mass",
+  "ui.group": "Group",
+  "ui.period": "Period",
+  "theory.molarity": "Molar concentration (molarity) measures how much solute is dissolved: c = n / V, where n is the amount of solute in moles and V the solution volume in litres. The unit is mol/L (M). Rearrange to find any quantity from the other two.",
+  "theory.dilution": "When a solution is diluted the amount of solute is unchanged, so c₁V₁ = c₂V₂. Knowing any three of the initial and final concentrations and volumes gives the fourth — the basis of preparing a dilute solution from a concentrated stock.",
+  "theory.moles": "The amount of substance n links mass m and molar mass M by n = m / M. The molar mass (g/mol) is the sum of the standard atomic weights in the formula — compute it with the Molar mass box on the Periodic table tab.",
+  "theory.ph": "The pH measures acidity: pH = −log₁₀[H⁺], where [H⁺] is the hydrogen-ion concentration in mol/L. A lower pH is more acidic; at 25 °C pure water has pH 7. Invert with [H⁺] = 10^(−pH)."
 }

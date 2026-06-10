@@ -23,7 +23,6 @@
   "about.version": "Версія",
   "about.created_by": "Автор",
   "about.role": "Учень",
-
   "ui.formula": "Формула:",
   "ui.hint": "Заповніть усі поля, крім одного — порожнє буде обчислено.",
   "ui.compute": "Обчислити",
@@ -88,7 +87,6 @@
   "vector.step.do.unit": "Одиничний вектор у напрямку u = {u}.",
   "vector.step.unit_formula": "Поділіть кожну координату на |u| = {mag}.",
   "vector.step.result": "Результат:  {result}",
-
   "ui.theory": "Пояснення",
   "ui.how_to_solve": "Як розв'язувати",
   "ui.learn_more": "Матеріали для вивчення",
@@ -108,7 +106,6 @@
   "steps.solve.isolate": "Виразіть невідому величину з формули (калькулятор уже вміє робити це для будь-якої змінної).",
   "steps.solve.substitute": "Підставте відомі значення, перевівши всі величини в узгоджені одиниці СІ.",
   "steps.solve.compute": "Обчисліть результат і перевірте, що його величина та одиниці фізично осмислені.",
-
   "cas.operation": "Операція:",
   "cas.expression": "Вираз:",
   "cas.variable": "Змінна:",
@@ -127,7 +124,6 @@
   "cas.op.integral": "Інтеграл",
   "cas.op.solve": "Розв'язати рівняння",
   "cas.op.evaluate": "Обчислити (числово)",
-
   "cas.step.input": "Введення, як його зрозуміло:  {expr}",
   "cas.step.result": "Результат:  {result}",
   "cas.step.do.simplify": "Спрощуємо — скорочуємо спільні множники й зводимо подібні.",
@@ -194,12 +190,10 @@
   "cas.step.card.oblique_asymptote": "Похила асимптота:  {value}",
   "cas.step.card.end_behaviour": "Поведінка на нескінченності:  {value}",
   "cas.step.card.turning_points": "Точки екстремуму ({var}):  {value}",
-
   "section.mechanics": "Механіка",
   "section.thermodynamics": "Термодинаміка",
   "section.electromagnetism": "Електромагнетизм",
   "section.waves": "Хвилі та оптика",
-
   "formula.newton_2": "Другий закон Ньютона",
   "formula.velocity": "Швидкість при рівноприскореному русі",
   "formula.momentum": "Імпульс тіла",
@@ -222,7 +216,6 @@
   "formula.photon_energy": "Енергія фотона",
   "formula.wavelength_light": "Довжина хвилі світла",
   "formula.snell": "Закон Снеліуса (показник заломлення)",
-
   "var.force": "Сила",
   "var.mass": "Маса",
   "var.acceleration": "Прискорення",
@@ -273,7 +266,6 @@
   "var.angle_incidence": "Кут падіння",
   "var.refractive_index_2": "Показник заломлення середовища 2",
   "var.angle_refraction": "Кут заломлення",
-
   "category.length": "Довжина",
   "category.mass": "Маса",
   "category.time": "Час",
@@ -283,7 +275,6 @@
   "category.force": "Сила",
   "category.temperature": "Температура",
   "category.angle": "Кут",
-
   "unit.meter": "м",
   "unit.kilometer": "км",
   "unit.centimeter": "см",
@@ -343,7 +334,6 @@
   "unit.degree": "°",
   "unit.radian": "рад",
   "unit.gradian": "град",
-
   "error.no_solver": "Ця формула не вміє обчислювати «{var}».",
   "error.missing_value": "Не задано значення «{var}».",
   "error.zero_division": "Ділення на нуль під час обчислення.",
@@ -373,5 +363,32 @@
   "error.vec_cross_dim": "Векторний добуток потребує 2D або 3D векторів.",
   "error.vec_zero": "Не визначено для нульового вектора.",
   "error.vec_bad_scalar": "«{value}» — недопустиме число для скаляра k.",
-  "error.vec_unknown_operation": "Невідома операція з векторами: {operation}."
+  "error.vec_unknown_operation": "Невідома операція з векторами: {operation}.",
+  "section.chem_solutions": "Розчини",
+  "section.chem_acid_base": "Кислоти й основи",
+  "formula.molarity": "Молярна концентрація",
+  "formula.dilution": "Розведення",
+  "formula.moles": "Кількість речовини",
+  "formula.ph": "pH розчину",
+  "var.concentration": "Концентрація",
+  "var.molar_mass": "Молярна маса",
+  "var.ph": "pH",
+  "var.hydrogen_ion": "Концентрація йонів водню",
+  "unit.mol_per_litre": "моль/л",
+  "unit.litre": "л",
+  "unit.gram_per_mol": "г/моль",
+  "error.chem_empty": "Введіть хімічну формулу.",
+  "error.chem_parse": "Не вдалося розібрати «{text}» як хімічну формулу.",
+  "error.chem_unknown_element": "Невідомий елемент: {element}.",
+  "error.chem_no_arrow": "Розділіть реагенти та продукти стрілкою (->).",
+  "error.chem_unbalanceable": "Це рівняння не можна збалансувати.",
+  "tab.periodic_table": "Періодична таблиця",
+  "ui.molar_mass": "Молярна маса",
+  "ui.balance": "Збалансувати",
+  "ui.equation": "Рівняння:",
+  "ui.balanced": "Збалансовано:",
+  "ui.atomic_number": "Атомний номер",
+  "ui.atomic_mass": "Атомна маса",
+  "ui.group": "Група",
+  "ui.period": "Період"
 }
