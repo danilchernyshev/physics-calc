@@ -17,8 +17,11 @@ The symbolic-math and vector tabs are aligned with the Ontario Grade 12
 **Advanced Functions (MHF4U)** and **Calculus and Vectors (MCV4U)** courses:
 logarithms, trigonometric identities, polynomial and rational functions and
 inequalities, rates of change, limits, and 2-D/3-D vectors. Each topic's learning
-panel shows a **curriculum badge** with the Ontario course and grade it belongs to
-(MCR3U — Grade 11, MHF4U — Grade 12, or MCV4U — Grade 12).
+panel shows a **curriculum badge** with the Ontario course and grade it belongs to.
+The recognized courses are **MCR3U** (Functions, Grade 11) and the Grade 12 courses
+**MHF4U** (Advanced Functions), **MCV4U** (Calculus and Vectors), **MDM4U**
+(Mathematics of Data Management), **SPH4U** (Physics) and **SCH4U** (Chemistry) —
+so the badge also appears on the Physics (SPH4U) and Chemistry (SCH4U) screens.
 
 The interface is **localized** (English, Spanish, French, Russian, Ukrainian)
 and the language can be switched at runtime.
@@ -136,6 +139,90 @@ for you.)
 If you get stuck on any step, it is completely normal — feel free to ask for
 help. The shorter, technical instructions for each operating system are below.
 
+## Getting started on macOS (step by step)
+
+New to Python on the Mac? This section walks you through the same three things:
+install Python, get the project files, and run one command. No prior experience
+needed.
+
+### Step 1 — Install Python
+
+1. Open [python.org/downloads/macos](https://www.python.org/downloads/macos/)
+   and download the latest **macOS installer** (the universal2 `.pkg`).
+2. Open the downloaded `.pkg` and click through the installer (the defaults are
+   fine). Nothing else needs to be ticked — PyWebView draws the window with the
+   **WebKit** that is already part of macOS.
+
+To check that it worked, open **Terminal** (press ⌘ + Space, type `Terminal`,
+press Enter) and run:
+
+```bash
+python3 --version
+```
+
+If you see something like `Python 3.12.x`, you are ready for the next step.
+
+### Step 2 — Get the project files
+
+Copy the `study-calc` folder onto your Mac — for example, onto your Desktop.
+Keep all the files together in one folder.
+
+### Step 3 — Run the calculator
+
+In Terminal, go into the folder (type `cd `, then drag the `study-calc` folder
+onto the Terminal window and press Enter) and run these two lines:
+
+```bash
+pip3 install .
+python3 -m study_calc
+```
+
+The first line installs the app (a one-time step); the second opens the window.
+After installing, a `study-calc` command also works from any terminal.
+
+## Getting started on Linux (step by step)
+
+The same three things — with one extra: on Linux the window's web view comes
+from system packages, so you install those first.
+
+### Step 1 — Install Python and the web-view packages
+
+Most Linux distributions already ship Python 3. Check with:
+
+```bash
+python3 --version
+```
+
+If it is missing or older than 3.10, install it with your distribution's package
+manager (e.g. `sudo apt-get install -y python3 python3-pip` on Debian/Ubuntu).
+Then install **WebKit2GTK** and **PyGObject**, which PyWebView needs to draw the
+window — pick the line for your distribution:
+
+```bash
+sudo apt-get install -y python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1   # Debian / Ubuntu / Mint
+sudo dnf install -y python3-gobject gtk3 webkit2gtk4.1                  # Fedora / RHEL
+sudo pacman -S python-gobject gtk3 webkit2gtk                          # Arch / Manjaro
+sudo zypper install python3-gobject webkit2gtk3                        # openSUSE
+```
+
+### Step 2 — Get the project files
+
+Copy the `study-calc` folder onto your computer and keep all the files together
+in one folder.
+
+### Step 3 — Run the calculator
+
+Open a terminal in that folder and run:
+
+```bash
+pip install .
+python3 -m study_calc
+```
+
+The first line installs the app (a one-time step); the second opens the window.
+Because PyGObject is a system package, run the app with a Python that can see it
+— the system interpreter, or a virtualenv created with `--system-site-packages`.
+
 ## Requirements
 
 - Python ≥ 3.10
@@ -226,14 +313,27 @@ uv run --extra dev pytest        # or: pytest
 
 ```
 study_calc/
-├── core/            # formula model + solving engine, unit converter
-│   ├── formula.py
-│   └── units.py
-├── domains/         # formula sets grouped by physics section
+├── core/            # domain engine (UI- and language-agnostic)
+│   ├── formula.py   #   Formula/Variable model + "solve for any variable"
+│   ├── units.py     #   unit converter
+│   ├── cas.py       #   symbolic math (SymPy wrapper, sandboxed parse)
+│   ├── vectors.py   #   2-D/3-D vector algebra
+│   ├── periodic.py  #   chemistry engine: molar mass, composition, balancer
+│   ├── explain.py   #   learning-content model (i18n keys + references)
+│   ├── learning.py  #   rich learning-material + practice-problem loader
+│   └── db.py        #   SQLite knowledgebase repository
+├── domains/         # declarative formula sets, one module per section
 │   ├── mechanics.py
 │   ├── thermodynamics.py
 │   ├── electromagnetism.py
-│   └── waves.py
+│   ├── waves.py
+│   ├── chemistry.py #   solutions, acids & bases
+│   └── references.py#   registry of study links (OpenStax + videos)
+├── data/            # data files for the engines
+│   ├── elements.json    #   118-element periodic table
+│   ├── knowledgebase.db #   SQLite learning-content store
+│   ├── schema.sql       #   its schema
+│   └── README.md
 ├── web/             # PyWebView desktop interface (ADR 0001)
 │   ├── app.py       #   opens the window over frontend/
 │   ├── bridge.py    #   JS<->Python js_api (builds the localized shell model)
@@ -245,6 +345,7 @@ study_calc/
 ├── learning/        # learning content: topics, glossary, practice problems
 ├── i18n.py          # runtime localization engine
 ├── locales/         # translation catalogs (en, es, fr, ru, uk)
+├── resources.py     # bundled-resource path resolver (data/, frontend/)
 └── __main__.py      # entry point for `python -m study_calc`
 tests/               # pytest tests for the core (no graphical environment)
 ```
