@@ -991,6 +991,104 @@ class VectorPanel(ttk.Frame):
         self._explain.show_steps("vector.steps_title", segments)
 
 
+class PeriodicTablePanel(ttk.Frame):
+    """Chemistry tools: the periodic table plus a molar-mass and equation balancer.
+
+    Backed by :mod:`study_calc.core.periodic` (standard library only). Clicking an
+    element shows its data; the two entry boxes compute the molar mass of a formula
+    and balance a chemical equation, rendering :class:`ChemError` codes through i18n.
+    """
+
+    # Element series → cell colour (CPK-ish families; unknown/synthetic are grey).
+    _COLORS = {
+        "alkali metal": "#ff8a80", "alkaline earth metal": "#ffd180",
+        "transition metal": "#ffe0b2", "post-transition metal": "#c5e1a5",
+        "metalloid": "#80cbc4", "diatomic nonmetal": "#a5d6a7",
+        "polyatomic nonmetal": "#a5d6a7", "noble gas": "#b39ddb",
+        "lanthanide": "#f48fb1", "actinide": "#ce93d8",
+    }
+    _DEFAULT_COLOR = "#e0e0e0"
+
+    def __init__(self, master: tk.Misc) -> None:
+        super().__init__(master, padding=12)
+        from study_calc.core import periodic
+
+        self._periodic = periodic
+
+        # --- Calculators (top) ---------------------------------------------
+        tools = ttk.Frame(self)
+        tools.pack(fill="x", pady=(0, 10))
+
+        ttk.Label(tools, text=t("ui.molar_mass") + ":", width=14, anchor="w").grid(
+            row=0, column=0, sticky="w", pady=3)
+        self._mm_entry = ttk.Entry(tools, width=24)
+        self._mm_entry.grid(row=0, column=1, sticky="w", pady=3)
+        self._mm_entry.bind("<Return>", lambda _e: self._molar_mass())
+        ttk.Button(tools, text=t("ui.compute"), command=self._molar_mass).grid(
+            row=0, column=2, padx=6)
+        self._mm_result = ttk.Label(tools, text="", foreground=_HINT_COLOR)
+        self._mm_result.grid(row=0, column=3, sticky="w", padx=(8, 0))
+
+        ttk.Label(tools, text=t("ui.equation"), width=14, anchor="w").grid(
+            row=1, column=0, sticky="w", pady=3)
+        self._eq_entry = ttk.Entry(tools, width=24)
+        self._eq_entry.grid(row=1, column=1, sticky="w", pady=3)
+        self._eq_entry.bind("<Return>", lambda _e: self._balance())
+        ttk.Button(tools, text=t("ui.balance"), command=self._balance).grid(
+            row=1, column=2, padx=6)
+        self._eq_result = ttk.Label(tools, text="", foreground=_HINT_COLOR)
+        self._eq_result.grid(row=1, column=3, sticky="w", padx=(8, 0))
+
+        # --- Periodic table grid -------------------------------------------
+        grid = ttk.Frame(self)
+        grid.pack()
+        for el in periodic.elements():
+            color = self._COLORS.get(el.category, self._DEFAULT_COLOR)
+            cell = tk.Button(
+                grid, text=f"{el.number}\n{el.symbol}", width=4, height=2,
+                font=("TkDefaultFont", 7), bg=color, relief="ridge", bd=1,
+                padx=0, pady=0, command=lambda e=el: self._select(e),
+            )
+            cell.grid(row=el.ypos, column=el.xpos, padx=1, pady=1)
+
+        # --- Selected-element detail ---------------------------------------
+        self._detail = ttk.Label(self, text="", anchor="w", justify="left")
+        self._detail.pack(fill="x", pady=(10, 0))
+        self._select(periodic.element("H"))
+
+    def _select(self, el) -> None:
+        self._detail.config(
+            text=(f"{el.name}  ·  {t('ui.atomic_number')} {el.number}  ·  "
+                  f"{t('ui.atomic_mass')} {el.mass:g} g/mol  ·  "
+                  f"{t('ui.group')} {el.group if el.group else '—'}, "
+                  f"{t('ui.period')} {el.period}  ·  {el.category}"),
+        )
+
+    def _molar_mass(self) -> None:
+        formula = self._mm_entry.get().strip()
+        try:
+            mass = self._periodic.molar_mass(formula)
+        except self._periodic.ChemError as exc:
+            self._mm_result.config(
+                foreground=_ERROR_COLOR, text=t(f"error.{exc.code}", **exc.params))
+            return
+        comp = self._periodic.composition(formula)
+        breakdown = ", ".join(f"{sym}:{n}" for sym, n in comp.items())
+        self._mm_result.config(
+            foreground="",
+            text=f"{formula} = {mass:.3f} {t('unit.gram_per_mol')}  ({breakdown})")
+
+    def _balance(self) -> None:
+        equation = self._eq_entry.get().strip()
+        try:
+            balanced = self._periodic.balance(equation)
+        except self._periodic.ChemError as exc:
+            self._eq_result.config(
+                foreground=_ERROR_COLOR, text=t(f"error.{exc.code}", **exc.params))
+            return
+        self._eq_result.config(foreground="", text=balanced)
+
+
 class ProblemsPanel(ttk.Frame):
     """The practice-problems surface for one subject (the "problems helper").
 
@@ -1132,6 +1230,8 @@ class App:
                 return ConverterPanel(master), t("tab.converter")
             if item.name == "vectors":
                 return VectorPanel(master), t("tab.vectors")
+            if item.name == "periodic_table":
+                return PeriodicTablePanel(master), t("tab.periodic_table")
             if item.name == "cas":
                 try:
                     return CasPanel(master), t("tab.cas")

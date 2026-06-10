@@ -55,7 +55,7 @@ class Placeholder:
 
 # Tool names the GUI knows how to build. Kept here (not in the GUI) so the spec is
 # self-validating in tests without importing Tk.
-TOOL_NAMES: frozenset[str] = frozenset({"converter", "cas", "vectors"})
+TOOL_NAMES: frozenset[str] = frozenset({"converter", "cas", "vectors", "periodic_table"})
 
 # Subject id -> ordered items. The id is also the ``subject.<id>`` i18n key, and the
 # order is the tab order in the window.
@@ -76,6 +76,9 @@ SUBJECTS: tuple[tuple[str, tuple[object, ...]], ...] = (
         Tool("converter"),
     )),
     ("chemistry", (
+        Section("chem_solutions"),
+        Section("chem_acid_base"),
+        Tool("periodic_table"),
         Problems("chemistry"),
     )),
 )
