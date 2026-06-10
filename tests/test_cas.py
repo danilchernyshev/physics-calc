@@ -276,6 +276,9 @@ def test_function_detects_vertical_and_horizontal_asymptotes():
 
 
 def test_sample_returns_arrays_and_finds_asymptote():
+    # ``cas.sample`` is the graphing helper; numpy ships only with the optional
+    # ``graph`` extra (it was pruned from the core deps with the Tk graphing path).
+    pytest.importorskip("numpy")
     xs, ys, asymptotes = cas.sample("1/(x-2)", "x")
     assert len(xs) == len(ys) > 0
     assert any(abs(a - 2.0) < 1e-9 for a in asymptotes)
