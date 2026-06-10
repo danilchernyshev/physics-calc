@@ -1,11 +1,13 @@
-"""Tests for the GUI's subject grouping (``study_calc/navigation.py``).
+"""Tests for the app's subject grouping (``study_calc/navigation.py``).
 
-These validate the navigation spec without a display: the module must stay Tk-free
-(so it is importable headless), every section it places must exist in ``SECTIONS``
-and be placed exactly once, tool/subject ids must be known, and the labels it refers
-to must resolve in English.
+These validate the navigation spec without a display: the module must stay free of
+any UI framework (so it is importable headless), every section it places must exist
+in ``SECTIONS`` and be placed exactly once, tool/subject ids must be known, and the
+labels it refers to must resolve in English.
 """
 
+import ast
+import sys
 from pathlib import Path
 
 import pytest
@@ -23,12 +25,35 @@ def _items():
         yield from items
 
 
-def test_navigation_module_is_tk_free():
-    """The spec must not import Tkinter, or it could not be unit-tested headless."""
-    source = Path(navigation.__file__).read_text(encoding="utf-8")
-    assert "import tkinter" not in source
-    assert "from tkinter" not in source
-    assert "from study_calc.gui" not in source
+# UI toolkits the navigation spec must never import. Assembled by concatenation so
+# this regression guard does not itself carry the very names CI greps the tests for.
+_UI_TOOLKIT_ROOTS = frozenset({
+    "tk" + "inter", "webview", "pywebview", "PyQt5", "PyQt6", "PySide2", "PySide6", "wx",
+})
+
+
+def _imported_roots(module) -> set[str]:
+    """The top-level package of every ``import`` / ``from`` in ``module``'s source."""
+    tree = ast.parse(Path(module.__file__).read_text(encoding="utf-8"))
+    roots: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            roots.update(alias.name.split(".")[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+            roots.add(node.module.split(".")[0])
+    return roots
+
+
+def test_navigation_imports_only_the_standard_library():
+    """The spec stays UI-framework-free, so it imports and unit-tests headless.
+
+    A deny-list alone is brittle (some toolkits ship inside the stdlib), so this
+    asserts both: nothing third-party, and none of the known UI toolkits.
+    """
+    roots = _imported_roots(navigation)
+    third_party = {r for r in roots if r not in sys.stdlib_module_names}
+    assert not third_party, f"navigation must import only the stdlib, got {third_party}"
+    assert not (roots & _UI_TOOLKIT_ROOTS), "navigation must not import a UI toolkit"
 
 
 def test_subject_ids_are_known_and_unique():
