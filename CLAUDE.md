@@ -15,9 +15,10 @@ uv run --extra dev pytest tests/test_formulas.py::test_name   # a single test
 
 Requires Python ≥ 3.10 and Tkinter (a separate system package on some Linux
 distros: `sudo apt-get install -y python3-tk`). The only runtime dependency is
-`sympy` (powers the symbolic-math / CAS tab); the physics-formula and converter
-tabs use nothing but the standard library, and the GUI degrades to a notice tab
-if `sympy` is somehow absent. `pytest` is the sole dev dependency.
+`sympy` (powers the symbolic-math / CAS tab); the physics/chemistry-formula,
+converter, vectors and periodic-table tabs use nothing but the standard library,
+and the GUI degrades to a notice tab if `sympy` is somehow absent. `pytest` is
+the sole dev dependency.
 
 ## Architecture
 
@@ -56,33 +57,49 @@ language-agnostic:
   maps Ontario course codes (`SPH4U`, `SCH4U`, `MDM4U`, `MHF4U`, `MCV4U`, …) to a
   grade level, rendered as a curriculum badge wherever a topic or problem carries
   `courses`. `load_topic` / `load_concept` / `load_problem` are `lru_cache`d.
+  `periodic.py` is the **chemistry engine** (the counterpart to `cas`/`vectors`,
+  standard library only): it loads the 118-element periodic table from the
+  separate `study_calc/data/elements.json` and offers `molar_mass()` (parses a
+  formula like `Ca(OH)2`, nested parentheses included, summing IUPAC atomic
+  weights), `composition()`, and `balance()` (exact integer coefficients via the
+  `Fraction` null space of the element-count matrix). Failures raise `ChemError`
+  with a stable `code`, mirroring `SolveError`/`CasError`/`VectorError`.
 
 - **`navigation.py`** — the **navigation layer**, kept free of Tkinter so it is
   unit-testable headlessly. `SUBJECTS` is the single source of truth for the tab
   tree: an ordered list of subjects (Physics, Math, Tools, Chemistry), each holding
   items of four kinds — `Section` (a `domains.SECTIONS` id), `Tool` (`converter`/
-  `cas`/`vectors`), `Problems` (a subject's practice surface), or `Placeholder` (a
-  "coming soon" notice). `gui/app.py` maps each item to a concrete widget; adding or
+  `cas`/`vectors`/`periodic_table`), `Problems` (a subject's practice surface), or
+  `Placeholder` (a "coming soon" notice). The Chemistry subject bundles two formula
+  `Section`s, the periodic-table `Tool`, and its `Problems`. `gui/app.py` maps each
+  item to a concrete widget; adding or
   reordering a subject is a one-line edit here with no widget code to touch.
 
-- **`domains/`** — declarative formula sets, one module per physics section
-  (mechanics, thermodynamics, electromagnetism, waves). `domains/__init__.py`
-  exposes the ordered `SECTIONS` dict (section id → formula list); its order is
-  the GUI tab order. `domains/references.py` is the **single registry of study
-  links**, keyed by a formula's `key`: it maps each formula to a verified OpenStax
-  *College Physics* section (`ref.openstax`) and a CollegePhysicsAnswers chapter
-  of video solutions (`ref.cpanswers`), and `explanation_for(key)` assembles the
-  full `Explanation` (theory at the conventional `theory.<key>` i18n key + default
-  steps + those references). To add references for a new formula, add one row to
-  `_SOURCES` there — slugs should be checked to resolve (HTTP 200) before commit.
+- **`domains/`** — declarative formula sets, one module per section: physics
+  (mechanics, thermodynamics, electromagnetism, waves) plus `chemistry.py`
+  (Solutions and Acids & bases — molarity, dilution, moles, pH), all using the same
+  `Formula` model. `domains/__init__.py` exposes the ordered `SECTIONS` dict
+  (section id → formula list, its order the GUI tab order) and `CHEMISTRY_SECTIONS`
+  (the chemistry section ids). `domains/references.py` is the **single registry of
+  study links**, keyed by a formula's `key`, and is **subject-aware**: physics
+  formulas map to a verified OpenStax *College Physics 2e* section (`ref.openstax`)
+  plus a CollegePhysicsAnswers video chapter (`ref.cpanswers`); chemistry formulas
+  (in `_CHEM_SOURCES`) carry a single OpenStax *Chemistry 2e* link (no physics
+  videos). `explanation_for(key)` assembles the full `Explanation` (theory at the
+  conventional `theory.<key>` i18n key + default steps + those references). To add
+  references for a new formula, add one row to `_SOURCES` / `_CHEM_SOURCES` — slugs
+  should be checked to resolve (HTTP 200) before commit.
 
 - **`gui/app.py`** — Tkinter window. It walks `navigation.SUBJECTS` and builds one
   outer tab per subject; a subject with several items renders an inner notebook, a
   single-item subject renders that panel directly. Items become widgets via
   `_item_widget`: a `Section` → a formula panel, a `Tool` → the converter / `CasPanel`
-  / vectors panel (CAS falls back to a notice tab if SymPy can't be imported), a
-  `Problems` → a `ProblemsPanel` (a problem list on the left, its worked solution in
-  the `ExplanationPanel` on the right). Every formula tab *and* the CAS tab is a
+  / vectors / `PeriodicTablePanel` (CAS falls back to a notice tab if SymPy can't be
+  imported), a `Problems` → a `ProblemsPanel` (a problem list on the left, its worked
+  solution in the `ExplanationPanel` on the right). `PeriodicTablePanel` is the
+  chemistry tool: a clickable 118-element table (laid out by each element's grid
+  position, coloured by series) plus a molar-mass box and an equation balancer that
+  render `ChemError` codes through i18n. Every formula tab *and* the CAS tab is a
   horizontal `PanedWindow`: the calculator/input form on the left, an
   `ExplanationPanel` (the right-hand learning area) on the right. All read-only rich text (the panel and
   the pop-up window) is built on the shared `_RichText` widget (heading / body /
@@ -147,8 +164,13 @@ deliberate exception: they are *not* in the test-enforced required set. `en` and
 `ru` carry the full theory paragraphs; `es`/`fr`/`uk` have the short labels but
 let the longer `theory.*` text fall back to English. `tests/test_references.py`
 only requires `theory.*` to exist in `en` (the fallback), plus that every formula
-maps to its two study links. Translating the remaining `theory.*` into es/fr/uk
-later is purely additive.
+maps to its study links (two for physics, one OpenStax *Chemistry 2e* link for
+chemistry). Translating the remaining `theory.*` into es/fr/uk later is purely
+additive.
+
+New machine error codes (e.g. the `chem_*` ones from `core/periodic.py`) must be
+added to **all five** locales *and* to the `_ERROR_KEYS` list in
+`tests/test_i18n.py`, which asserts every catalog carries every error key.
 
 ### Adding a formula
 
@@ -157,8 +179,11 @@ variable you want to be computable, then add its `formula.*`, `var.*`, and
 `unit.*` keys to all five locale files. To give it the right-hand learning panel,
 add a `theory.<key>` paragraph (at least to `en`, ideally `ru`) and one row to
 `_SOURCES` in `domains/references.py` mapping it to an OpenStax section slug and a
-CollegePhysicsAnswers chapter slug (verify both resolve). For the **rich learning
-material** (useful formulas, method, key terms, worked example), add
+CollegePhysicsAnswers chapter slug (verify both resolve). A **chemistry** formula
+instead goes in `domains/chemistry.py` (so its section id lands in
+`CHEMISTRY_SECTIONS`) with a `_CHEM_SOURCES` row pointing at a single OpenStax
+*Chemistry 2e* slug. For the **rich learning material** (useful formulas, method,
+key terms, worked example), add
 `learning/en/topics/<key>.json` and a `learning/en/glossary/<term_id>.json` for any
 term it references that doesn't exist yet (`tests/test_learning.py` requires both).
 The GUI picks all of this up automatically — no GUI edits needed.
