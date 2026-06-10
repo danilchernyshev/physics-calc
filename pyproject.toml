@@ -1,13 +1,13 @@
 [project]
 name = "physics-calc"
-version = "0.3.0"
-description = "Physics calculator: mechanics, thermodynamics, electromagnetism, waves and a unit converter with a Tkinter GUI (English/Spanish/French/Russian/Ukrainian)"
+version = "0.4.0"
+description = "Physics calculator: mechanics, thermodynamics, electromagnetism, waves, a unit converter and a SymPy-backed symbolic math (CAS) tab, with a Tkinter GUI (English/Spanish/French/Russian/Ukrainian)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Danil Chernyshev", email = "danil.chernyshev@gmail.com" }]
-keywords = ["physics", "calculator", "units", "tkinter", "gui"]
-dependencies = []
+keywords = ["physics", "calculator", "units", "tkinter", "gui", "cas", "sympy"]
+dependencies = ["sympy>=1.12"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

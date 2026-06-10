@@ -96,6 +96,10 @@ _ERROR_KEYS = [
     "error.total_internal_reflection", "error.not_a_number",
     "error.no_empty_field", "error.too_many_empty",
     "error.unknown_category", "error.unknown_unit",
+    "error.cas_empty", "error.cas_parse", "error.cas_needs_variable",
+    "error.cas_bad_variable", "error.cas_no_solution",
+    "error.cas_unknown_operation", "error.cas_failed",
+    "error.cas_ambiguous_variable",
 ]
 
 

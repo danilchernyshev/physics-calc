@@ -14,8 +14,10 @@ uv run --extra dev pytest tests/test_formulas.py::test_name   # a single test
 ```
 
 Requires Python ≥ 3.10 and Tkinter (a separate system package on some Linux
-distros: `sudo apt-get install -y python3-tk`). Runtime dependencies are zero —
-only the standard library; `pytest` is the sole dev dependency.
+distros: `sudo apt-get install -y python3-tk`). The only runtime dependency is
+`sympy` (powers the symbolic-math / CAS tab); the physics-formula and converter
+tabs use nothing but the standard library, and the GUI degrades to a notice tab
+if `sympy` is somehow absent. `pytest` is the sole dev dependency.
 
 ## Architecture
 
@@ -28,14 +30,25 @@ language-agnostic:
   translates every failure (missing value, division by zero, complex/`NaN`
   result) into a `SolveError` with a stable `code`. `units.py` is the converter:
   linear categories convert through an SI base unit via a factor table;
-  temperature is special-cased with to/from-kelvin function pairs.
+  temperature is special-cased with to/from-kelvin function pairs. `cas.py` is
+  the symbolic engine: a thin SymPy wrapper (`analyze`/`simplify`/`expand`/
+  `factor`/`derivative`/`integral`/`series`/`solve`/`evaluate`) that parses input
+  through a **sandboxed** `parse_expr` (blanked `__builtins__`, SymPy-only
+  namespace — so input never executes as Python) and raises `CasError` with a
+  stable `code`, mirroring `SolveError`. It auto-detects the working variable
+  from the expression's lone free symbol (à la Wolfram Alpha), and `analyze` is a
+  SymPy-Gamma-style overview that returns many views at once. Every result also
+  carries an ordered, localizable explanation as `CasStep(key, params)` items
+  (same i18n-key discipline as errors) — the `cas.step.*` keys.
 
 - **`domains/`** — declarative formula sets, one module per physics section
   (mechanics, thermodynamics, electromagnetism, waves). `domains/__init__.py`
   exposes the ordered `SECTIONS` dict (section id → formula list); its order is
   the GUI tab order.
 
-- **`gui/app.py`** — Tkinter window. One tab per section plus a converter tab.
+- **`gui/app.py`** — Tkinter window. One tab per section, a converter tab, and a
+  CAS tab (`CasPanel`, added by `_build_cas_tab` which falls back to a notice tab
+  if SymPy can't be imported).
   `App` rebuilds *all* its widgets on language change (it destroys children and
   re-runs `_build()`), preserving the selected tab.
 

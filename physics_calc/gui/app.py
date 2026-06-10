@@ -26,6 +26,49 @@ _ERROR_COLOR = "#c33"
 _HINT_COLOR = "#666"
 
 
+class ResultArea(ttk.Frame):
+    """A read-only, scrollable, selectable text area for showing results.
+
+    Shared by every tab so answers look and behave the same everywhere: the
+    answer in green, errors in red, explanatory lines in quiet grey — and all of
+    it selectable for copy/paste (the widget is kept ``disabled`` for editing but
+    still allows selection).
+    """
+
+    def __init__(self, master: tk.Misc, height: int = 12) -> None:
+        super().__init__(master)
+        self._text = tk.Text(
+            self, height=height, wrap="word", relief="solid", borderwidth=1,
+            font=("TkDefaultFont", 11), padx=8, pady=6,
+            background="#fcfcfc", state="disabled", cursor="arrow",
+        )
+        scroll = ttk.Scrollbar(self, orient="vertical", command=self._text.yview)
+        self._text.configure(yscrollcommand=scroll.set)
+        scroll.pack(side="right", fill="y")
+        self._text.pack(side="left", fill="both", expand=True)
+        self._text.tag_configure("answer", foreground=_OK_COLOR, font=("TkDefaultFont", 11, "bold"))
+        self._text.tag_configure("step", foreground="#222")
+        self._text.tag_configure("error", foreground=_ERROR_COLOR)
+
+    def show(self, segments: list[tuple[str, str]]) -> None:
+        """Replace the contents with ``(text, tag)`` segments."""
+        self._text.config(state="normal")
+        self._text.delete("1.0", "end")
+        for text, tag in segments:
+            self._text.insert("end", text, tag)
+        self._text.config(state="disabled")
+        self._text.see("1.0")
+
+    def show_answer(self, text: str) -> None:
+        self.show([(text, "answer")])
+
+    def show_error(self, message: str) -> None:
+        self.show([("⚠ " + message, "error")])
+
+    def clear(self) -> None:
+        self.show([])
+
+
 def _format_number(value: float) -> str:
     """Format a result: whole numbers without a tail, otherwise 6 significant digits.
 
@@ -90,8 +133,8 @@ class FormulaPanel(ttk.Frame):
         ttk.Button(buttons, text=t("ui.compute"), command=self._compute).pack(side="left")
         ttk.Button(buttons, text=t("ui.clear"), command=self._clear).pack(side="left", padx=6)
 
-        self._result = ttk.Label(self, font=("TkDefaultFont", 12, "bold"), foreground=_OK_COLOR)
-        self._result.pack(anchor="w", pady=(12, 0))
+        self._result = ResultArea(self)
+        self._result.pack(fill="both", expand=True, pady=(12, 0))
 
         self._combo.current(0)
         self._build_fields()
@@ -105,7 +148,7 @@ class FormulaPanel(ttk.Frame):
         formula = self._formulas[self._combo.current()]
         self._current = formula
         self._expr.config(text=formula.expression)
-        self._result.config(text="")
+        self._result.clear()
 
         for row, var in enumerate(formula.variables):
             ttk.Label(
@@ -119,7 +162,7 @@ class FormulaPanel(ttk.Frame):
     def _clear(self) -> None:
         for entry in self._entries.values():
             entry.delete(0, "end")
-        self._result.config(text="")
+        self._result.clear()
 
     def _compute(self) -> None:
         assert self._current is not None
@@ -158,12 +201,10 @@ class FormulaPanel(ttk.Frame):
 
         var = formula.variable(target)
         unit = f" {t(var.unit_key)}" if var.unit_key else ""
-        self._result.config(
-            text=f"{var.symbol} = {_format_number(value)}{unit}", foreground=_OK_COLOR
-        )
+        self._result.show_answer(f"{var.symbol} = {_format_number(value)}{unit}")
 
     def _show_error(self, message: str) -> None:
-        self._result.config(text="⚠ " + message, foreground=_ERROR_COLOR)
+        self._result.show_error(message)
 
 
 class ConverterPanel(ttk.Frame):
@@ -199,8 +240,11 @@ class ConverterPanel(ttk.Frame):
             row=4, column=0, columnspan=2, sticky="w", pady=(12, 0)
         )
 
-        self._result = ttk.Label(self, font=("TkDefaultFont", 12, "bold"), foreground=_OK_COLOR)
-        self._result.grid(row=5, column=0, columnspan=2, sticky="w", pady=(12, 0))
+        self._result = ResultArea(self, height=8)
+        self._result.grid(row=5, column=0, columnspan=2, sticky="nsew", pady=(12, 0))
+        self.grid_rowconfigure(5, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
 
         self._category.current(0)
         self._refresh_units()
@@ -213,10 +257,10 @@ class ConverterPanel(ttk.Frame):
         self._to.config(values=labels)
         self._from.current(0)
         self._to.current(min(1, len(labels) - 1))
-        self._result.config(text="")
+        self._result.clear()
 
     def _show_error(self, message: str) -> None:
-        self._result.config(text="⚠ " + message, foreground=_ERROR_COLOR)
+        self._result.show_error(message)
 
     def _convert(self) -> None:
         text = self._value.get().strip().replace(",", ".")
@@ -238,11 +282,122 @@ class ConverterPanel(ttk.Frame):
             self._show_error(t("error.not_finite"))
             return
 
-        self._result.config(
-            text=f"{_format_number(value)} {t(f'unit.{from_id}')}  =  "
-            f"{_format_number(result)} {t(f'unit.{to_id}')}",
-            foreground=_OK_COLOR,
+        self._result.show_answer(
+            f"{_format_number(value)} {t(f'unit.{from_id}')}  =  "
+            f"{_format_number(result)} {t(f'unit.{to_id}')}"
         )
+
+
+class CasPanel(ttk.Frame):
+    """Symbolic math (CAS) tab: type an expression and pick a transformation.
+
+    Backed by :mod:`physics_calc.core.cas` (SymPy). SymPy is imported lazily so
+    a missing install degrades to a friendly notice instead of crashing the app;
+    :func:`_build_cas_tab` only adds this panel when the import succeeds.
+    """
+
+    def __init__(self, master: tk.Misc) -> None:
+        super().__init__(master, padding=12)
+        from physics_calc.core import cas  # local import: only reached when sympy is present
+
+        self._cas = cas
+        self._op_ids = cas.OPERATIONS
+
+        # --- Operation picker. ---
+        top = ttk.Frame(self)
+        top.pack(fill="x")
+        ttk.Label(top, text=t("cas.operation")).pack(side="left")
+        self._combo = ttk.Combobox(
+            top, state="readonly", width=24,
+            values=[t(f"cas.op.{oid}") for oid in self._op_ids],
+        )
+        self._combo.pack(side="left", padx=(6, 0))
+        self._combo.bind("<<ComboboxSelected>>", lambda _e: self._on_op_change())
+
+        ttk.Label(self, text=t("cas.hint"), foreground=_HINT_COLOR).pack(
+            anchor="w", pady=(10, 8)
+        )
+
+        # --- Expression + variable inputs. ---
+        fields = ttk.Frame(self)
+        fields.pack(fill="x")
+        ttk.Label(fields, text=t("cas.expression"), width=14, anchor="w").grid(
+            row=0, column=0, sticky="w", pady=3
+        )
+        self._expr = ttk.Entry(fields, width=44)
+        self._expr.grid(row=0, column=1, sticky="w", pady=3)
+        self._expr.bind("<Return>", lambda _e: self._compute())
+
+        self._var_label = ttk.Label(fields, text=t("cas.variable"), width=14, anchor="w")
+        self._var_label.grid(row=1, column=0, sticky="w", pady=3)
+        self._var = ttk.Entry(fields, width=12)
+        self._var.grid(row=1, column=1, sticky="w", pady=3)
+        self._var.bind("<Return>", lambda _e: self._compute())
+
+        # --- Buttons and result. ---
+        buttons = ttk.Frame(self)
+        buttons.pack(fill="x", pady=(12, 0))
+        ttk.Button(buttons, text=t("ui.compute"), command=self._compute).pack(side="left")
+        ttk.Button(buttons, text=t("ui.clear"), command=self._clear).pack(side="left", padx=6)
+
+        # --- Working area: the shared read-only, selectable text area. ---
+        self._result = ResultArea(self)
+        self._result.pack(fill="both", expand=True, pady=(12, 0))
+
+        self._combo.current(0)
+        self._on_op_change()
+
+    # Step keys whose line is the actual answer (highlighted), vs. reasoning.
+    # Every "analyze" card line counts as an answer (see ``_is_answer``).
+    _ANSWER_KEYS = {"cas.step.result", "cas.step.solve_root"}
+
+    @classmethod
+    def _is_answer(cls, key: str) -> bool:
+        return key in cls._ANSWER_KEYS or key.startswith("cas.step.card.")
+
+    def _on_op_change(self) -> None:
+        """Enable the variable field only for operations that need one."""
+        op = self._op_ids[self._combo.current()]
+        needs_var = op in self._cas.USES_VARIABLE
+        state = "normal" if needs_var else "disabled"
+        self._var.config(state=state)
+        self._var_label.config(foreground="" if needs_var else _HINT_COLOR)
+        self._result.clear()
+
+    def _clear(self) -> None:
+        self._expr.delete(0, "end")
+        self._var.delete(0, "end")
+        self._result.clear()
+
+    def _compute(self) -> None:
+        op = self._op_ids[self._combo.current()]
+        expression = self._expr.get().strip()
+        variable = self._var.get().strip()
+        try:
+            result = self._cas.run(op, expression, variable)
+        except self._cas.CasError as exc:
+            self._result.show_error(t(f"error.{exc.code}", **exc.params))
+            return
+        # Show powers as the user typed them (``x^2``), not SymPy's ``x**2``.
+        segments = [
+            (t(step.key, **step.params).replace("**", "^") + "\n",
+             "answer" if self._is_answer(step.key) else "step")
+            for step in result.steps
+        ]
+        if not segments:  # defensive: an op without steps still shows an answer
+            segments = [(f"{result.input_text}  →  {result.output_text}", "answer")]
+        self._result.show(segments)
+
+
+def _build_cas_tab(notebook: ttk.Notebook) -> None:
+    """Add the CAS tab, or a notice tab if SymPy is not installed."""
+    try:
+        notebook.add(CasPanel(notebook), text=t("tab.cas"))
+    except ImportError:
+        notice = ttk.Frame(notebook, padding=18)
+        ttk.Label(notice, text=t("cas.unavailable"), foreground=_HINT_COLOR,
+                  wraplength=560, justify="left").pack(anchor="w")
+        notebook.add(notice, text=t("tab.cas"))
 
 
 class App:
@@ -277,6 +432,7 @@ class App:
         for section_id, formulas in SECTIONS.items():
             self._notebook.add(FormulaPanel(self._notebook, formulas), text=t(f"section.{section_id}"))
         self._notebook.add(ConverterPanel(self._notebook), text=t("tab.converter"))
+        _build_cas_tab(self._notebook)
 
     def _on_language_change(self) -> None:
         """Switch language and rebuild the UI, keeping the selected tab."""

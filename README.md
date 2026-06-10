@@ -22,9 +22,18 @@ and the language can be switched at runtime.
     wavelength, Snell's law.
 - **Unit converter**: length, mass, time, speed, energy, pressure, force and
   temperature.
+- **Symbolic math (CAS)** powered by [SymPy](https://www.sympy.org/): an
+  *Analyze* overview (simplified, factored, derivative, integral, real roots and
+  Taylor series at once, à la Wolfram Alpha), plus standalone simplify, expand,
+  factor, differentiate, integrate, Taylor series, solve equations, and evaluate
+  numerically. The variable is auto-detected when there is only one unknown, and
+  every answer comes with a step-by-step explanation. Type math naturally — `^`
+  means a power and `2x` means `2·x`. Input is parsed in a sandbox, never
+  executed as Python.
 - **Runtime language switching** across English, Spanish, French, Russian and
   Ukrainian.
-- **Zero external dependencies** — only the Python standard library.
+- **One lightweight dependency** — SymPy (for the CAS tab); everything else uses
+  only the Python standard library.
 
 ## Getting started on Windows (step by step)
 
