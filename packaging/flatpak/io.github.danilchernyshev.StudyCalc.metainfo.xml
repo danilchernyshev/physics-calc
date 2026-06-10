@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.danilchernyshev.StudyCalc</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Study Calculator</name>
+  <summary>Physics, chemistry, symbolic math, vectors and a unit converter, with learning materials</summary>
+  <description>
+    <p>
+      Study Calculator is a desktop study aid for high-school and early
+      undergraduate science. Pick a formula, fill in every field but one, and it
+      computes the missing quantity — solving for any variable.
+    </p>
+    <p>It covers:</p>
+    <ul>
+      <li>Physics — mechanics, thermodynamics, electromagnetism, and waves &amp; optics</li>
+      <li>Chemistry — a periodic table, molar mass, equation balancing, and solution/acid-base formulas</li>
+      <li>Symbolic math (CAS) — simplify, expand, factor, differentiate, integrate, series, and solve, with step-by-step explanations</li>
+      <li>Vectors — 2-D and 3-D magnitude, dot and cross products, angles and projections</li>
+      <li>A unit converter across length, mass, time, energy, pressure, force, temperature and angle</li>
+    </ul>
+    <p>
+      Every problem shows built-in learning material — key terms, useful formulas,
+      a step-by-step method and a worked example. The interface is localized in
+      English, Spanish, French, Russian and Ukrainian, switchable at runtime.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.danilchernyshev.StudyCalc.desktop</launchable>
+  <categories>
+    <category>Education</category>
+    <category>Science</category>
+  </categories>
+  <keywords>
+    <keyword>physics</keyword>
+    <keyword>chemistry</keyword>
+    <keyword>math</keyword>
+    <keyword>calculator</keyword>
+    <keyword>vectors</keyword>
+  </keywords>
+  <url type="homepage">https://github.com/danilchernyshev/study-calc</url>
+  <url type="bugtracker">https://github.com/danilchernyshev/study-calc/issues</url>
+  <developer id="io.github.danilchernyshev">
+    <name>Danil Chernyshev</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.7.0" date="2026-06-10"/>
+  </releases>
+</component>
