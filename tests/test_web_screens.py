@@ -20,7 +20,7 @@ FRONTEND = Path(__file__).resolve().parent.parent / "study_calc" / "web" / "fron
 
 # --- guide overlay model (issue #40) ---
 
-_GUIDE_SECTION_IDS = ("physics", "math", "tools", "problems", "learning", "language")
+_GUIDE_SECTION_IDS = ("physics", "math", "tools", "problems", "learning", "language", "credits")
 
 
 def test_guide_screen_model():
@@ -41,9 +41,9 @@ def test_guide_screen_model():
     assert model["close"] == t("ui.close")
     assert model["close"] and not model["close"].startswith("ui.")
 
-    # Exactly six sections in the canonical order.
-    assert len(model["sections"]) == 6, (
-        f"expected 6 sections, got {len(model['sections'])}"
+    # Exactly seven sections in the canonical order (issue #41 appends "credits").
+    assert len(model["sections"]) == 7, (
+        f"expected 7 sections, got {len(model['sections'])}"
     )
     for i, sid in enumerate(_GUIDE_SECTION_IDS):
         sec = model["sections"][i]
@@ -54,6 +54,12 @@ def test_guide_screen_model():
         # Non-empty (all five locales carry these keys).
         assert sec["head"], f"empty head for {sid}"
         assert sec["body"], f"empty body for {sid}"
+
+    # Copyright footer is present, i18n-sourced, and non-empty (issue #41).
+    assert "copyright" in model, "model missing 'copyright' field"
+    assert model["copyright"] == t("guide.credits.copyright")
+    assert model["copyright"], "copyright must not be empty"
+    assert not model["copyright"].startswith("guide."), "copyright must be resolved, not a raw key"
 
 
 # --- formula screen model ---

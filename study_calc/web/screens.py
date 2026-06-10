@@ -541,16 +541,17 @@ def convert_run(category: str, value: str, from_unit: str, to_unit: str) -> dict
 # --- Guide overlay screen ---
 
 
-_GUIDE_SECTIONS = ("physics", "math", "tools", "problems", "learning", "language")
+_GUIDE_SECTIONS = ("physics", "math", "tools", "problems", "learning", "language", "credits")
 
 
 def guide_screen() -> dict:
-    """The guide overlay model: title, intro, and six ordered sections.
+    """The guide overlay model: title, intro, seven ordered sections, and a copyright footer.
 
-    Every value is resolved from the ``guide.*`` i18n keys already present in
-    all five locales — no English literals anywhere in the model.  The section
-    order is fixed as per issue #40: physics, math, tools, problems, learning,
-    language.
+    Every value is resolved from the ``guide.*`` i18n keys present in all five
+    locales — no English literals anywhere in the model.  The section order is
+    fixed: physics, math, tools, problems, learning, language, credits (issue
+    #41 appends credits as the seventh entry).  The ``copyright`` field surfaces
+    the MIT licence line for the frontend footer beneath the sections list.
     """
     return {
         "title": t("guide.title"),
@@ -560,6 +561,7 @@ def guide_screen() -> dict:
             {"head": t(f"guide.{s}.head"), "body": t(f"guide.{s}.body")}
             for s in _GUIDE_SECTIONS
         ],
+        "copyright": t("guide.credits.copyright"),
     }
 
 

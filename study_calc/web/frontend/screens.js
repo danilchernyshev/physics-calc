@@ -394,13 +394,15 @@ const Screens = {
       onclick: close,
     }, ['×']); // ×
 
-    // Build the scrollable body: lead paragraph + six section head/body pairs.
+    // Build the scrollable body: lead paragraph + section head/body pairs +
+    // a muted copyright footer line beneath all sections (issue #41).
     const bodyNodes = [
       h('p', { class: 'rich__body', text: model.intro }),
       ...model.sections.flatMap((sec) => [
         h('h3', { class: 'learn__heading', text: sec.head }),
         h('p', { class: 'rich__body', text: sec.body }),
       ]),
+      h('p', { class: 'guide__copyright', text: model.copyright }),
     ];
 
     // Use the shared UI.card factory — do not re-implement card markup.
