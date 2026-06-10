@@ -1,0 +1,8 @@
+#!/bin/sh
+# AppImage entry point. Launch the PyInstaller one-folder executable that lives
+# under usr/bin/ inside the AppDir, forwarding all arguments (e.g. --smoke-test).
+#
+# WebKit2GTK is NOT bundled (it cannot be made relocatable inside an AppImage),
+# so the host must provide libwebkit2gtk-4.1-0; see packaging/linux/README.md.
+HERE="$(dirname "$(readlink -f "${0}")")"
+exec "${HERE}/usr/bin/study-calc" "$@"

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Study Calculator
+GenericName=Study Calculator
+Comment=Physics, chemistry, symbolic math, vectors and a unit converter, with learning materials
+Exec=study-calc
+Icon=study-calc
+Categories=Education;
+Keywords=physics;chemistry;math;calculator;units;vectors;cas;
+Terminal=false
+StartupNotify=true
