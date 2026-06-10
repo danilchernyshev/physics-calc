@@ -1,7 +1,19 @@
 {
+  "courses": [
+    "MCR3U"
+  ],
   "summary": "Factoring rewrites a polynomial as a product of simpler factors. It is the key to solving equations and to spotting roots at a glance.",
-  "terms": ["factor", "polynomial", "root", "term"],
-  "formulas": ["a² − b² = (a − b)(a + b)", "x² + (p+q)x + pq = (x + p)(x + q)", "ax + ay = a(x + y)"],
+  "terms": [
+    "factor",
+    "polynomial",
+    "root",
+    "term"
+  ],
+  "formulas": [
+    "a² − b² = (a − b)(a + b)",
+    "x² + (p+q)x + pq = (x + p)(x + q)",
+    "ax + ay = a(x + y)"
+  ],
   "method": [
     "First pull out any common factor shared by every term.",
     "Recognise special patterns — a difference of squares, or a perfect-square trinomial.",
@@ -10,7 +22,9 @@
   ],
   "example": {
     "title": "Factor a quadratic",
-    "given": ["the polynomial x² + 5x + 6"],
+    "given": [
+      "the polynomial x² + 5x + 6"
+    ],
     "find": "the factored form",
     "steps": [
       "Look for two numbers multiplying to 6 and adding to 5.",

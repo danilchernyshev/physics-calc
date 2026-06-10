@@ -1,6 +1,13 @@
 {
+  "courses": [
+    "MHF4U"
+  ],
   "summary": "Two functions can be combined into a new one. You can add, subtract, multiply or divide them point by point, or compose them — feeding the output of one into the other. Composition f(g(x)) is usually not the same as g(f(x)), so order matters.",
-  "terms": ["composition", "function", "domain"],
+  "terms": [
+    "composition",
+    "function",
+    "domain"
+  ],
   "formulas": [
     "(f + g)(x) = f(x) + g(x)",
     "(f · g)(x) = f(x)·g(x)",
@@ -15,7 +22,10 @@
   ],
   "example": {
     "title": "Compose two functions",
-    "given": ["f(x) = x²", "g(x) = x + 1"],
+    "given": [
+      "f(x) = x²",
+      "g(x) = x + 1"
+    ],
     "find": "f ∘ g and g ∘ f",
     "steps": [
       "f(g(x)) = (x + 1)²  — substitute g into f.",

@@ -1,7 +1,19 @@
 {
+  "courses": [
+    "MCR3U"
+  ],
   "summary": "Solving an equation finds every value of the variable that makes it true. The usual route is to move everything to one side and factor.",
-  "terms": ["equation", "root", "factor", "polynomial"],
-  "formulas": ["expression = 0", "x = (−b ± √(b² − 4ac)) / (2a)", "(x − r₁)(x − r₂) = 0 ⟹ x = r₁ or r₂"],
+  "terms": [
+    "equation",
+    "root",
+    "factor",
+    "polynomial"
+  ],
+  "formulas": [
+    "expression = 0",
+    "x = (−b ± √(b² − 4ac)) / (2a)",
+    "(x − r₁)(x − r₂) = 0 ⟹ x = r₁ or r₂"
+  ],
   "method": [
     "Move every term to one side so the equation reads 'expression = 0' (you may type left = right directly).",
     "Factor the expression, or apply the quadratic formula for a degree-2 equation.",
@@ -10,7 +22,9 @@
   ],
   "example": {
     "title": "Solve a quadratic equation",
-    "given": ["the equation x² − 5x + 6 = 0"],
+    "given": [
+      "the equation x² − 5x + 6 = 0"
+    ],
     "find": "all values of x",
     "steps": [
       "Factor the left side: x² − 5x + 6 = (x − 2)(x − 3).",

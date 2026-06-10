@@ -1,6 +1,13 @@
 {
+  "courses": [
+    "MHF4U"
+  ],
   "summary": "Trigonometric simplification rewrites an expression built from sin, cos, tan and their reciprocals into the shortest equivalent form, using the standard identities. It is the everyday tool behind proving identities and solving trig equations.",
-  "terms": ["identity", "radian", "function"],
+  "terms": [
+    "identity",
+    "radian",
+    "function"
+  ],
   "formulas": [
     "sin²θ + cos²θ = 1",
     "tan θ = sin θ / cos θ",
@@ -15,7 +22,9 @@
   ],
   "example": {
     "title": "Simplify a trig expression",
-    "given": ["the expression sin²(x) + cos²(x)"],
+    "given": [
+      "the expression sin²(x) + cos²(x)"
+    ],
     "find": "the simplest form",
     "steps": [
       "This is exactly the Pythagorean identity.",

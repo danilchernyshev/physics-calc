@@ -13,6 +13,8 @@
   "ui.compute": "Вычислить",
   "ui.clear": "Очистить",
   "ui.plot": "График",
+  "ui.curriculum": "Программа:",
+  "ui.grade": "Класс {n}",
   "ui.category": "Категория:",
   "ui.value": "Значение:",
   "ui.from": "Из:",

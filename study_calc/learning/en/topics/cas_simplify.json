@@ -1,7 +1,18 @@
 {
+  "courses": [
+    "MCR3U"
+  ],
   "summary": "Simplifying rewrites an expression in its cleanest equivalent form — combining like terms and cancelling common factors — without changing its value.",
-  "terms": ["expression", "term", "factor"],
-  "formulas": ["2x + 3x = 5x", "x²/x = x  (x ≠ 0)", "(x² − 1)/(x − 1) = x + 1"],
+  "terms": [
+    "expression",
+    "term",
+    "factor"
+  ],
+  "formulas": [
+    "2x + 3x = 5x",
+    "x²/x = x  (x ≠ 0)",
+    "(x² − 1)/(x − 1) = x + 1"
+  ],
   "method": [
     "Combine like terms — those with the same variable power add together.",
     "Cancel any factor that appears in both a numerator and a denominator.",
@@ -10,7 +21,9 @@
   ],
   "example": {
     "title": "Simplify a rational expression",
-    "given": ["the expression (x² − 1)/(x − 1)"],
+    "given": [
+      "the expression (x² − 1)/(x − 1)"
+    ],
     "find": "the simplest equivalent form",
     "steps": [
       "Factor the numerator: x² − 1 = (x − 1)(x + 1).",

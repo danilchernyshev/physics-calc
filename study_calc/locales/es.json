@@ -13,6 +13,8 @@
   "ui.compute": "Calcular",
   "ui.clear": "Limpiar",
   "ui.plot": "Graficar",
+  "ui.curriculum": "Plan de estudios:",
+  "ui.grade": "Grado {n}",
   "ui.category": "Categoría:",
   "ui.value": "Valor:",
   "ui.from": "De:",

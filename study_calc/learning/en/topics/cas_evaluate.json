@@ -1,7 +1,18 @@
 {
+  "courses": [
+    "MCR3U"
+  ],
   "summary": "Evaluating computes the numerical value of an expression, turning an exact form like √2 or π into a decimal you can read off.",
-  "terms": ["expression", "variable", "function"],
-  "formulas": ["√2 ≈ 1.41421", "π ≈ 3.14159", "sin(π/6) = 0.5"],
+  "terms": [
+    "expression",
+    "variable",
+    "function"
+  ],
+  "formulas": [
+    "√2 ≈ 1.41421",
+    "π ≈ 3.14159",
+    "sin(π/6) = 0.5"
+  ],
   "method": [
     "Make sure the expression has no remaining unknowns (substitute any variable values first).",
     "Replace exact constants and functions with their numerical values.",
@@ -10,7 +21,9 @@
   ],
   "example": {
     "title": "Evaluate a numeric expression",
-    "given": ["the expression 2·√9 + 1"],
+    "given": [
+      "the expression 2·√9 + 1"
+    ],
     "find": "its decimal value",
     "steps": [
       "Compute the root: √9 = 3.",

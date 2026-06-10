@@ -1,6 +1,13 @@
 {
+  "courses": [
+    "MHF4U"
+  ],
   "summary": "A logarithm answers the question 'what exponent?': log_b(x) is the power you raise b to in order to get x. The laws of logarithms turn products, quotients and powers inside a log into sums, differences and multiples — the key to simplifying and to solving exponential equations.",
-  "terms": ["logarithm", "exponent", "function"],
+  "terms": [
+    "logarithm",
+    "exponent",
+    "function"
+  ],
   "formulas": [
     "log_b(M·N) = log_b M + log_b N",
     "log_b(M/N) = log_b M − log_b N",
@@ -16,7 +23,9 @@
   ],
   "example": {
     "title": "Expand a logarithm",
-    "given": ["the expression log(x²·y)"],
+    "given": [
+      "the expression log(x²·y)"
+    ],
     "find": "the expanded form",
     "steps": [
       "Product law: log(x²·y) = log(x²) + log(y).",

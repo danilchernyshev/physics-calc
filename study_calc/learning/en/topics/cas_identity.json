@@ -1,6 +1,12 @@
 {
+  "courses": [
+    "MHF4U"
+  ],
   "summary": "An identity is an equation that is true for every allowed value of the variable, not just for a few solutions. To prove one, you show the two sides are the same expression — here, by simplifying left − right and checking it reduces to 0.",
-  "terms": ["identity", "function"],
+  "terms": [
+    "identity",
+    "function"
+  ],
   "formulas": [
     "sin²θ + cos²θ = 1",
     "sin 2θ = 2 sin θ cos θ",
@@ -14,7 +20,9 @@
   ],
   "example": {
     "title": "Prove a Pythagorean identity",
-    "given": ["the claim sin²(x) + cos²(x) = 1"],
+    "given": [
+      "the claim sin²(x) + cos²(x) = 1"
+    ],
     "find": "whether it is an identity",
     "steps": [
       "Form the difference: (sin²x + cos²x) − 1.",

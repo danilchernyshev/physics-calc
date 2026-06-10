@@ -1,6 +1,14 @@
 {
+  "courses": [
+    "MHF4U"
+  ],
   "summary": "Analyzing a function gathers the key features you need to sketch its graph: the domain, the x- and y-intercepts, any asymptotes or holes (for rational functions), the end behaviour, and the turning points. Together they tell the whole shape of the curve.",
-  "terms": ["function", "asymptote", "domain", "root"],
+  "terms": [
+    "function",
+    "asymptote",
+    "domain",
+    "root"
+  ],
   "formulas": [
     "x-intercepts: solve f(x) = 0",
     "y-intercept: f(0)",
@@ -18,7 +26,9 @@
   ],
   "example": {
     "title": "Analyze a rational function",
-    "given": ["the function (x² − 1)/(x − 1)"],
+    "given": [
+      "the function (x² − 1)/(x − 1)"
+    ],
     "find": "its key features",
     "steps": [
       "Factor the top: x² − 1 = (x − 1)(x + 1).",

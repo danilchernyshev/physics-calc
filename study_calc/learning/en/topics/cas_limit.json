@@ -1,6 +1,13 @@
 {
+  "courses": [
+    "MCV4U"
+  ],
   "summary": "A limit describes the value a function approaches as its input approaches some point — even if the function is undefined exactly there. Limits are the foundation of calculus: they define both the derivative and the behaviour of a graph near asymptotes and at infinity.",
-  "terms": ["limit", "function", "asymptote"],
+  "terms": [
+    "limit",
+    "function",
+    "asymptote"
+  ],
   "formulas": [
     "lim_(x→a) f(x) = L",
     "lim_(x→0) sin(x)/x = 1",
@@ -15,7 +22,9 @@
   ],
   "example": {
     "title": "A limit that needs cancelling",
-    "given": ["the function (x² − 1)/(x − 1) as x → 1"],
+    "given": [
+      "the function (x² − 1)/(x − 1) as x → 1"
+    ],
     "find": "the limit",
     "steps": [
       "Direct substitution gives 0/0 — indeterminate.",

@@ -20,7 +20,13 @@ from tkinter import ttk
 from study_calc import __version__
 from study_calc.core.explain import Explanation
 from study_calc.core.formula import Formula, SolveError
-from study_calc.core.learning import Concept, Topic, load_concept, load_topic
+from study_calc.core.learning import (
+    CURRICULUM_GRADES,
+    Concept,
+    Topic,
+    load_concept,
+    load_topic,
+)
 from study_calc.core.units import categories, convert, units_of, ConversionError
 from study_calc.domains import SECTIONS
 from study_calc.domains.references import explanation_for
@@ -109,6 +115,8 @@ class _RichText(tk.Text):
         self.tag_configure("answer", foreground=_OK_COLOR, font=("TkDefaultFont", 11, "bold"))
         self.tag_configure("error", foreground=_ERROR_COLOR)
         self.tag_configure("hint", foreground=_HINT_COLOR, spacing3=4)
+        self.tag_configure("badge", foreground="#0a6", background="#eef7f0",
+                           font=("TkDefaultFont", 10, "bold"), spacing1=2, spacing3=6)
         self._link_count = 0
 
     def begin(self) -> None:
@@ -270,6 +278,8 @@ class ExplanationPanel(ttk.Frame):
         """Render the static ``explanation`` and, when present, the rich ``topic``."""
         text = self._text
         text.begin()
+        if topic is not None:
+            self._curriculum(topic.courses)
         text.heading(t("ui.theory"))
         text.write(t(explanation.theory_key) + "\n")
 
@@ -314,6 +324,7 @@ class ExplanationPanel(ttk.Frame):
         text = self._text
         text.begin()
         text.heading(t(title_key))
+        self._curriculum(topic.courses)
         if topic.summary:
             text.write(topic.summary + "\n")
         if topic.formulas:
@@ -347,6 +358,16 @@ class ExplanationPanel(ttk.Frame):
         self._text.end()
 
     # --- section builders ---
+
+    def _curriculum(self, courses: tuple[str, ...]) -> None:
+        """Render a curriculum badge, e.g. 'Curriculum: MHF4U (Grade 12)'."""
+        if not courses:
+            return
+        parts = []
+        for code in courses:
+            grade = CURRICULUM_GRADES.get(code)
+            parts.append(f"{code} ({t('ui.grade', n=grade)})" if grade else code)
+        self._text.write(f" {t('ui.curriculum')} " + ", ".join(parts) + " \n", "badge")
 
     def _how_to_solve(self, explanation: Explanation, topic: Topic | None) -> None:
         # Prefer the topic's specific method; fall back to the generic solve steps.

@@ -11,7 +11,9 @@ field but one — the program computes the missing quantity.
 The symbolic-math, graphing and vector tabs are aligned with the Ontario Grade 12
 **Advanced Functions (MHF4U)** and **Calculus and Vectors (MCV4U)** courses:
 logarithms, trigonometric identities, polynomial and rational functions and
-inequalities, rates of change, limits, and 2-D/3-D vectors.
+inequalities, rates of change, limits, and 2-D/3-D vectors. Each topic's learning
+panel shows a **curriculum badge** with the Ontario course and grade it belongs to
+(MCR3U — Grade 11, MHF4U — Grade 12, or MCV4U — Grade 12).
 
 The interface is **localized** (English, Spanish, French, Russian, Ukrainian)
 and the language can be switched at runtime.

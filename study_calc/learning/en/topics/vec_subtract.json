@@ -1,16 +1,28 @@
 {
+  "courses": [
+    "MCV4U"
+  ],
   "summary": "Subtracting vectors, u − v, gives the vector that points from the tip of v to the tip of u. It is the same as adding the opposite of v. Componentwise, subtract matching components.",
-  "terms": ["vector"],
-  "formulas": ["u − v = (u₁ − v₁, u₂ − v₂, u₃ − v₃)"],
+  "terms": [
+    "vector"
+  ],
+  "formulas": [
+    "u − v = (u₁ − v₁, u₂ − v₂, u₃ − v₃)"
+  ],
   "method": [
     "Check both vectors have the same dimension.",
     "Subtract v's components from u's, one position at a time."
   ],
   "example": {
     "title": "Subtract two 3-D vectors",
-    "given": ["u = (1, 2, 3)", "v = (4, 5, 6)"],
+    "given": [
+      "u = (1, 2, 3)",
+      "v = (4, 5, 6)"
+    ],
     "find": "u − v",
-    "steps": ["Subtract componentwise: (1−4, 2−5, 3−6)."],
+    "steps": [
+      "Subtract componentwise: (1−4, 2−5, 3−6)."
+    ],
     "answer": "(-3, -3, -3)"
   }
 }

@@ -1,7 +1,16 @@
 {
+  "courses": [
+    "MCV4U"
+  ],
   "summary": "A unit vector has length 1 and records only direction. You get one by dividing a vector by its own magnitude — a process called normalizing.",
-  "terms": ["unit_vector", "vector"],
-  "formulas": ["û = u / |u|", "|û| = 1"],
+  "terms": [
+    "unit_vector",
+    "vector"
+  ],
+  "formulas": [
+    "û = u / |u|",
+    "|û| = 1"
+  ],
   "method": [
     "Compute the magnitude |u|.",
     "Divide each component of u by |u|.",
@@ -9,9 +18,14 @@
   ],
   "example": {
     "title": "Normalize a vector",
-    "given": ["u = (3, 4)"],
+    "given": [
+      "u = (3, 4)"
+    ],
     "find": "the unit vector in the direction of u",
-    "steps": ["|u| = 5.", "Divide each component by 5: (3/5, 4/5)."],
+    "steps": [
+      "|u| = 5.",
+      "Divide each component by 5: (3/5, 4/5)."
+    ],
     "answer": "(0.6, 0.8)"
   }
 }

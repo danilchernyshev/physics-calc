@@ -1,7 +1,20 @@
 {
+  "courses": [
+    "MCV4U"
+  ],
   "summary": "The derivative gives the instantaneous rate of change of a function — the slope of its graph. Differentiation applies a small set of rules term by term.",
-  "terms": ["derivative", "function", "variable", "term"],
-  "formulas": ["d/dx (xⁿ) = n·xⁿ⁻¹", "d/dx (sin x) = cos x", "(f·g)′ = f′·g + f·g′", "chain: (f(g))′ = f′(g)·g′"],
+  "terms": [
+    "derivative",
+    "function",
+    "variable",
+    "term"
+  ],
+  "formulas": [
+    "d/dx (xⁿ) = n·xⁿ⁻¹",
+    "d/dx (sin x) = cos x",
+    "(f·g)′ = f′·g + f·g′",
+    "chain: (f(g))′ = f′(g)·g′"
+  ],
   "method": [
     "Choose the variable to differentiate with respect to (e.g. x).",
     "Differentiate each term separately; constants differentiate to zero.",
@@ -11,7 +24,9 @@
   ],
   "example": {
     "title": "Differentiate a polynomial",
-    "given": ["the function f(x) = x³ + 2x"],
+    "given": [
+      "the function f(x) = x³ + 2x"
+    ],
     "find": "the derivative f′(x)",
     "steps": [
       "Differentiate x³ with the power rule: 3x².",

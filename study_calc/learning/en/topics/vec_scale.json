@@ -1,16 +1,29 @@
 {
+  "courses": [
+    "MCV4U"
+  ],
   "summary": "Multiplying a vector by a scalar k stretches it by the factor |k| and keeps its direction (or reverses it when k is negative). Each component is multiplied by k.",
-  "terms": ["vector"],
-  "formulas": ["k·u = (k·u₁, k·u₂, k·u₃)", "|k·u| = |k|·|u|"],
+  "terms": [
+    "vector"
+  ],
+  "formulas": [
+    "k·u = (k·u₁, k·u₂, k·u₃)",
+    "|k·u| = |k|·|u|"
+  ],
   "method": [
     "Multiply every component of the vector by the scalar k.",
     "A negative k flips the vector to the opposite direction."
   ],
   "example": {
     "title": "Scale a vector",
-    "given": ["u = (1, 2, 3)", "k = 2"],
+    "given": [
+      "u = (1, 2, 3)",
+      "k = 2"
+    ],
     "find": "k·u",
-    "steps": ["Multiply each component by 2: (2·1, 2·2, 2·3)."],
+    "steps": [
+      "Multiply each component by 2: (2·1, 2·2, 2·3)."
+    ],
     "answer": "(2, 4, 6)"
   }
 }

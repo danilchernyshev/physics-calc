@@ -1,7 +1,20 @@
 {
+  "courses": [
+    "MHF4U"
+  ],
   "summary": "Analyze is a one-shot overview (à la Wolfram Alpha): it shows several views of an expression at once — simplified, expanded, factored, its derivative, integral, and real roots.",
-  "terms": ["expression", "factor", "root", "derivative", "integral"],
-  "formulas": ["simplify · expand · factor", "d/dx,  ∫…dx", "roots of expression = 0"],
+  "terms": [
+    "expression",
+    "factor",
+    "root",
+    "derivative",
+    "integral"
+  ],
+  "formulas": [
+    "simplify · expand · factor",
+    "d/dx,  ∫…dx",
+    "roots of expression = 0"
+  ],
   "method": [
     "Type any expression (a single unknown is detected automatically).",
     "The tool computes a panel of standard views rather than one transformation.",
@@ -10,7 +23,9 @@
   ],
   "example": {
     "title": "Analyze a quadratic",
-    "given": ["the expression x² − 4"],
+    "given": [
+      "the expression x² − 4"
+    ],
     "find": "an overview of its key forms",
     "steps": [
       "Factored: x² − 4 = (x − 2)(x + 2).",

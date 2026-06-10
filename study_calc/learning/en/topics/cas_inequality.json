@@ -1,7 +1,19 @@
 {
+  "courses": [
+    "MHF4U"
+  ],
   "summary": "A polynomial or rational inequality asks for the set of x-values that make one side larger (or smaller) than the other. The answer is a range — or a union of ranges — written with intervals.",
-  "terms": ["inequality", "root", "polynomial", "asymptote"],
-  "formulas": ["x² − 4 > 0", "(x − 1)/(x + 2) ≤ 0", "interval notation: (a, b), [a, b]"],
+  "terms": [
+    "inequality",
+    "root",
+    "polynomial",
+    "asymptote"
+  ],
+  "formulas": [
+    "x² − 4 > 0",
+    "(x − 1)/(x + 2) ≤ 0",
+    "interval notation: (a, b), [a, b]"
+  ],
   "method": [
     "Move everything to one side so the other side is 0.",
     "Find the boundary values: the zeros of the numerator and the zeros of the denominator.",
@@ -11,7 +23,9 @@
   ],
   "example": {
     "title": "Solve a quadratic inequality",
-    "given": ["the inequality x² − 4 > 0"],
+    "given": [
+      "the inequality x² − 4 > 0"
+    ],
     "find": "all x that satisfy it",
     "steps": [
       "The boundaries are the roots of x² − 4 = 0, namely x = −2 and x = 2.",

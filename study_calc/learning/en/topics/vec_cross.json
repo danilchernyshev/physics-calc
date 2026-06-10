@@ -1,6 +1,12 @@
 {
+  "courses": [
+    "MCV4U"
+  ],
   "summary": "The cross product of two 3-D vectors is a new vector perpendicular to both, with length equal to the area of the parallelogram they span. (In 2-D it collapses to the single scalar u₁v₂ − u₂v₁.)",
-  "terms": ["cross_product", "vector"],
+  "terms": [
+    "cross_product",
+    "vector"
+  ],
   "formulas": [
     "u×v = (u₂v₃ − u₃v₂,  u₃v₁ − u₁v₃,  u₁v₂ − u₂v₁)",
     "|u×v| = |u||v|sin θ",
@@ -14,9 +20,14 @@
   ],
   "example": {
     "title": "Cross product of axis vectors",
-    "given": ["u = (1, 0, 0)", "v = (0, 1, 0)"],
+    "given": [
+      "u = (1, 0, 0)",
+      "v = (0, 1, 0)"
+    ],
     "find": "u×v",
-    "steps": ["Apply the formula; only the z-component survives: (0, 0, 1·1 − 0·0)."],
+    "steps": [
+      "Apply the formula; only the z-component survives: (0, 0, 1·1 − 0·0)."
+    ],
     "answer": "(0, 0, 1)"
   }
 }

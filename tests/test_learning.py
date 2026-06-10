@@ -113,6 +113,24 @@ def test_every_cas_operation_has_a_topic():
         )
 
 
+def test_curriculum_codes_are_known():
+    """Every course code tagged on a topic is a known Ontario course code."""
+    for topic_id in learning.available_topic_ids("en"):
+        topic = load_topic(topic_id, "en")
+        for code in topic.courses:
+            assert code in learning.CURRICULUM_GRADES, (
+                f"topic '{topic_id}' has unknown course code '{code}'"
+            )
+
+
+def test_expected_topics_carry_their_course_code():
+    """Spot-check the curriculum badges on representative topics."""
+    assert load_topic("cas_factor", "en").courses == ("MCR3U",)
+    assert load_topic("cas_logarithm", "en").courses == ("MHF4U",)
+    assert load_topic("cas_rate", "en").courses == ("MHF4U", "MCV4U")
+    assert load_topic("vec_dot", "en").courses == ("MCV4U",)
+
+
 @pytest.mark.parametrize("key", _UI_LABELS)
 def test_new_panel_labels_present_in_english(tr, key):
     assert key in tr._catalogs["en"], f"en.json is missing {key}"

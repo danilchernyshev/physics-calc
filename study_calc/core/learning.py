@@ -34,6 +34,15 @@ from pathlib import Path
 _LEARNING_DIR = Path(__file__).parent.parent / "learning"
 DEFAULT_LANGUAGE = "en"
 
+# Ontario course code -> grade level, for the curriculum badge shown on a topic.
+# MCR3U: Functions (Gr. 11); MHF4U: Advanced Functions (Gr. 12); MCV4U: Calculus
+# and Vectors (Gr. 12). Codes not listed render without a grade.
+CURRICULUM_GRADES: dict[str, int] = {
+    "MCR3U": 11,
+    "MHF4U": 12,
+    "MCV4U": 12,
+}
+
 
 @dataclass(frozen=True)
 class Concept:
@@ -84,6 +93,8 @@ class Topic:
     :param formulas: useful related formula strings for this problem type.
     :param method: an ordered, topic-specific "how to approach it" recipe.
     :param example: one worked example, or ``None``.
+    :param courses: Ontario course codes this topic supports (e.g. ``("MHF4U",)``),
+        rendered as a curriculum badge. See :data:`CURRICULUM_GRADES`.
     """
 
     topic_id: str
@@ -92,6 +103,7 @@ class Topic:
     formulas: tuple[str, ...] = ()
     method: tuple[str, ...] = ()
     example: WorkedExample | None = None
+    courses: tuple[str, ...] = ()
 
 
 def _read_json(language: str, kind: str, item_id: str) -> dict | None:
@@ -147,6 +159,7 @@ def load_topic(topic_id: str, language: str = DEFAULT_LANGUAGE) -> Topic | None:
         formulas=tuple(data.get("formulas", ())),
         method=tuple(data.get("method", ())),
         example=_as_example(data.get("example")),
+        courses=tuple(data.get("courses", ())),
     )
 
 
