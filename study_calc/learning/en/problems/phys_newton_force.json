@@ -1,5 +1,8 @@
 {
   "subject": "physics",
+  "courses": [
+    "SPH4U"
+  ],
   "title": "Net force on an accelerating car",
   "given": [
     "mass m = 1200 kg",

@@ -115,7 +115,7 @@ function renderContent(data, subject) {
       h('h1', { class: 'header__title', text: subject.label }),
       h('span', { class: 'header__badge-slot', id: 'header-badge' }, []),
     ]),
-    h('p', { class: 'header__subtitle', text: subject.tagline }),
+    h('p', { class: 'header__subtitle', id: 'header-subtitle', text: subject.tagline }),
     tabs,
     screenMount,
   ]);
@@ -201,6 +201,14 @@ async function mountScreen() {
     if (document.getElementById('screen-mount') !== mount) return;
     if (model) {
       mount.replaceChildren(Screens.problems(model));
+      // Curriculum chip beside the subject title + the Problems-specific subtitle
+      // (Figma node 29:2) — the same shell-header pattern the periodic screen uses.
+      const badge = document.getElementById('header-badge');
+      if (badge && model.curriculumCode) badge.replaceChildren(UI.badge(model.curriculumCode));
+      const subtitle = document.getElementById('header-subtitle');
+      if (subtitle && model.labels && model.labels.practiceSubtitle) {
+        subtitle.textContent = model.labels.practiceSubtitle;
+      }
       return;
     }
   }
