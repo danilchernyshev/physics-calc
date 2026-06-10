@@ -164,8 +164,8 @@ study-calc
 The redesign (a flat, card-based UI — see
 [ADR 0001](docs/adr/0001-ui-framework.md)) is being built as a PyWebView
 frontend alongside the Tkinter app. The app shell (nav rail + header), the
-physics **formula screen** and the symbolic-math **CAS screen** can be run with
-the optional `web` extra:
+physics **formula screen**, the symbolic-math **CAS screen** and the
+**vectors screen** can be run with the optional `web` extra:
 
 ```bash
 uv run --extra web python -m study_calc.web   # or: study-calc-web

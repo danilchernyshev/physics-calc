@@ -31,14 +31,14 @@
 
 .formula__fields { display: flex; flex-direction: column; gap: var(--space-md); }
 
-/* ---- CAS (symbolic math) screen ------------------------------------- */
+/* ---- Operations screen (CAS, vectors) ------------------------------- */
 
-.cas__ops { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
-.cas__inputs { display: flex; flex-direction: column; gap: var(--space-md); }
-.cas__panel { display: flex; flex-direction: column; gap: var(--space-sm); }
+.ops__chips { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.ops__inputs { display: flex; flex-direction: column; gap: var(--space-md); }
+.ops__panel { display: flex; flex-direction: column; gap: var(--space-sm); }
 
 /* A reasoning line of the step-by-step (answers reuse the green .result chip). */
-.cas-step { margin: 0; font-family: var(--font-family-mono); color: var(--color-text-body); }
+.ops-step { margin: 0; font-family: var(--font-family-mono); color: var(--color-text-body); }
 
 /* ---- Learning panel ------------------------------------------------- */
 
