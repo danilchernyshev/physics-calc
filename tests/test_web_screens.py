@@ -237,6 +237,26 @@ def test_cas_run_empty_expression_is_an_error():
     assert res["ok"] is False
 
 
+def test_cas_run_with_rate_uses_interval_fields():
+    # `rate` declares extra fields a/b (OP_FIELDS); cas_run must pull them out of
+    # the unified values dict and forward them to the engine (web/screens.py path
+    # otherwise only exercised by `derivative`, which has no extra fields).
+    res = screens.cas_run("rate", {"expression": "x^2", "variable": "x", "a": "1", "b": "3"})
+    assert res["ok"] is True
+    assert any(s["answer"] for s in res["steps"])
+    # Drop the interval and the same op fails — proof the a/b extraction is wired,
+    # not silently ignored.
+    missing = screens.cas_run("rate", {"expression": "x^2", "variable": "x"})
+    assert missing["ok"] is False
+
+
+def test_cas_run_with_limit_uses_point_field():
+    # `limit` declares the extra field `at`; exercise that extraction path too.
+    res = screens.cas_run("limit", {"expression": "sin(x)/x", "variable": "x", "at": "0"})
+    assert res["ok"] is True
+    assert any(s["answer"] for s in res["steps"])
+
+
 def test_cas_screen_degrades_when_sympy_is_absent(monkeypatch):
     # Simulate `from ..core import cas` failing (SymPy not installed): drop the
     # cached submodule + the package attribute, and poison sys.modules so the
@@ -297,6 +317,19 @@ def test_vector_run_maps_vector_errors_to_localized_messages():
     res = screens.vector_run("add", {"u": "1, 2", "v": "3, 4, 5"})
     assert res["ok"] is False
     assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_vector_screen_is_localized_on_language_switch():
+    # Mirror of test_cas_screen_is_localized_on_language_switch: vectors share the
+    # operations model but were never exercised through the Bridge class.
+    try:
+        en = Bridge().vector_screen()
+        bridge = Bridge()
+        bridge.set_language("ru")
+        ru = bridge.vector_screen()
+        assert en["labels"]["compute"] != ru["labels"]["compute"]
+    finally:
+        i18n.set_language("en")
 
 
 def test_operations_screens_share_one_frontend_renderer():
