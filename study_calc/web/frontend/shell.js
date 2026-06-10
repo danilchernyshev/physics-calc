@@ -1,5 +1,5 @@
 // App shell: nav rail + header, rendered from the bridge's state (issue #4).
-// Vanilla JS on purpose — the framework choice for richer components is issue #5.
+// Vanilla JS (the framework choice settled in #5); `h()` comes from dom.js.
 // Selection (which subject/item is active) lives here, so a language switch only
 // refreshes labels and the current screen is preserved.
 
