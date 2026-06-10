@@ -64,9 +64,14 @@ def _repo_root() -> pathlib.Path:
 # ---------------------------------------------------------------------------
 
 def _apply_schema(conn: sqlite3.Connection, schema_path: pathlib.Path) -> None:
-    """Execute all DDL statements from schema.sql."""
+    """Execute all DDL statements from schema.sql.
+
+    ``schema_path`` is a fixed, in-repo file (``study_calc/data/schema.sql``,
+    the authoritative DDL per ADR 0002); it is never derived from user input,
+    so executing its contents is not an injection vector.
+    """
     ddl = schema_path.read_text(encoding="utf-8")
-    conn.executescript(ddl)
+    conn.executescript(ddl)  # NOSONAR S3649 - trusted in-repo DDL, not user input
     conn.commit()
 
 
