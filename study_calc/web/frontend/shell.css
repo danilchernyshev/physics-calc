@@ -128,6 +128,16 @@ body {
 
 .nav__foot-link:hover { background: rgba(255, 255, 255, 0.05); }
 
+/* A small dot trailing the label when a startup check found a newer release
+   (#74) — a non-blocking cue, not an interruption. */
+.nav__foot-link--alert::after {
+  content: '';
+  width: var(--space-sm);
+  height: var(--space-sm);
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
 .nav__lang-menu {
   display: flex;
   flex-direction: column;

@@ -8,12 +8,23 @@
 // `h()` (hyperscript helper) and `UI` (components) come from dom.js / components.js,
 // loaded before this script.
 
-const state = { data: null, subject: 0, item: 0, langOpen: false };
+const state = {
+  data: null, subject: 0, item: 0, langOpen: false,
+  // Software updates (#74): a non-blocking startup check may flag a newer
+  // release; the result is cached so opening the overlay shows it immediately.
+  updateAvailable: false, updateResult: null,
+};
 
 // Tool items that render the shared operations screen → their bridge methods.
 const OP_TOOLS = {
   'tool:cas': { screen: 'cas_screen', run: 'cas_run' },
   'tool:vectors': { screen: 'vector_screen', run: 'vector_run' },
+};
+
+// The two bridge calls the updates overlay drives (#74).
+const updatesApi = {
+  check: () => callApi('check_updates'),
+  setAuto: (enabled) => callApi('set_auto_update_check', enabled),
 };
 
 async function loadState() {
@@ -86,6 +97,17 @@ function renderNav(data) {
           if (model) Screens.openGuide(model);
         },
       }, ['ⓘ ' + data.labels.howToUse]), // ⓘ
+      h('button', {
+        // A subtle dot marks the button when a startup check found a newer
+        // release; clicking opens the (already-fetched) details, else an idle
+        // panel with a manual "Check for updates" action.
+        class: 'nav__foot-link' + (state.updateAvailable ? ' nav__foot-link--alert' : ''),
+        id: 'updates-btn',
+        onclick: async () => {
+          const model = state.updateResult || await callApi('update_screen');
+          if (model) Screens.openUpdates(model, updatesApi);
+        },
+      }, ['⬆ ' + data.labels.updates]), // ⬆
       langMenu,
       h('button', {
         class: 'nav__foot-link',
@@ -233,6 +255,20 @@ function render() {
 async function init() {
   state.data = await loadState();
   render();
+  maybeAutoCheck();
+}
+
+// Non-blocking startup update check (#74): only when the user left auto-check on.
+// It never interrupts — on a newer release it just lights the updates button's
+// dot and caches the result; offline/errors stay silent.
+async function maybeAutoCheck() {
+  if (!state.data || !state.data.autoUpdateCheck) return;
+  const result = await callApi('check_updates');
+  if (result && result.status === 'available') {
+    state.updateResult = result;
+    state.updateAvailable = true;
+    render(); // repaint the nav so the updates button shows its alert dot
+  }
 }
 
 // Start as soon as we have a state source. Guard against the race where
