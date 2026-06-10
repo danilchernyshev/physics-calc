@@ -117,6 +117,15 @@ def test_formula_screen_accepts_bare_and_navigation_item_ids():
     assert bare == prefixed
 
 
+def test_formula_screen_handles_chemistry_section_prefix():
+    # The split(":", 1)[-1] strip must also handle a chemistry section id, whose
+    # bare form itself contains no colon ("section:chem_solutions" ->
+    # "chem_solutions") — previously only the physics prefix path was covered.
+    screen = screens.formula_screen("section:chem_solutions")
+    assert screen["sectionId"] == "chem_solutions"
+    assert screen["formulas"]
+
+
 def test_formula_screen_unknown_section_is_empty_not_an_error():
     screen = screens.formula_screen("does-not-exist")
     assert screen["formulas"] == []
