@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from physics_calc.core.formula import Formula, Variable
+from study_calc.core.formula import Formula, Variable
 
 FORMULAS: list[Formula] = [
     Formula(

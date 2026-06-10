@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM  Physics Calculator launcher for Windows.
+REM  Study Calculator launcher for Windows.
 REM  Double-click this file to start the app.
 REM  (Requires Python with Tkinter - see README.md, section
 REM   "Getting started on Windows".)
@@ -13,7 +13,7 @@ REM Prefer the "py" launcher; fall back to "python" if it is not installed.
 set "PY=py"
 where py >nul 2>&1 || set "PY=python"
 
-%PY% -m physics_calc
+%PY% -m study_calc
 
 REM If the app failed to start, keep the window open and show a hint.
 if errorlevel 1 (

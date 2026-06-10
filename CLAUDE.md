@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Run the GUI
-python -m physics_calc          # or: uv run python -m physics_calc
+python -m study_calc          # or: uv run python -m study_calc
 
 # Tests (no graphical environment needed — they cover core + i18n, not the GUI)
 uv run --extra dev pytest       # or: pytest
@@ -47,7 +47,7 @@ language-agnostic:
   references — all i18n *keys* plus plain URLs, never prose. `learning.py` is the
   **rich learning-material loader**: where `explain.py` stores i18n *keys* for the
   short static note, `learning.py` loads *prose* (`Topic`/`Concept`/`WorkedExample`
-  frozen dataclasses) from the separate `physics_calc/learning/` content folder
+  frozen dataclasses) from the separate `study_calc/learning/` content folder
   (see below), with English fallback — so the panel can show a topic summary, the
   useful formulas, a step-by-step method, reusable glossary terms, and a worked
   example. `load_topic(id, lang)` / `load_concept(id, lang)` are `lru_cache`d.
@@ -83,7 +83,7 @@ language-agnostic:
   rebuilds *all* its widgets on language change (it destroys children and re-runs
   `_build()`), preserving the selected tab.
 
-### Learning materials (`physics_calc/learning/`)
+### Learning materials (`study_calc/learning/`)
 
 A **separate, format-flexible content folder** (data, not code — parallel to
 `locales/`) holding the *prose* the right panel shows, loaded by
@@ -108,7 +108,7 @@ The domain layer **never stores display strings** — only message *keys*
 Errors carry a machine `code` + params, not prose. All resolution happens in
 `i18n.py` (the `i18n` singleton and `t()` shortcut) and the GUI.
 
-Each language is a flat `{key: text}` JSON file in `physics_calc/locales/`
+Each language is a flat `{key: text}` JSON file in `study_calc/locales/`
 (`en`, `es`, `fr`, `ru`, `uk`). `en` is the default and fallback — a missing
 key in another catalog falls back to English, then to the key itself, so a
 partial translation never crashes the UI.

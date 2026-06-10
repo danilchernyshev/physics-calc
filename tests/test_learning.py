@@ -1,4 +1,4 @@
-"""Tests for the rich learning materials under ``physics_calc/learning/``.
+"""Tests for the rich learning materials under ``study_calc/learning/``.
 
 These validate the content folder's integrity (every referenced glossary term
 resolves, schema fields are present), the English fallback in the loader, and the
@@ -9,10 +9,10 @@ must be internally consistent.
 
 import pytest
 
-from physics_calc.core import learning
-from physics_calc.core.learning import Concept, Topic, load_concept, load_topic
-from physics_calc.domains import SECTIONS
-from physics_calc.i18n import I18n
+from study_calc.core import learning
+from study_calc.core.learning import Concept, Topic, load_concept, load_topic
+from study_calc.domains import SECTIONS
+from study_calc.i18n import I18n
 
 _UI_LABELS = [
     "ui.useful_formulas", "ui.key_terms", "ui.open_full", "ui.worked_example",
@@ -105,7 +105,7 @@ def test_every_physics_formula_has_a_topic():
 
 def test_every_cas_operation_has_a_topic():
     """Each Math/CAS operation has a 'cas_<op>' learning topic."""
-    from physics_calc.core import cas
+    from study_calc.core import cas
 
     for op in cas.OPERATIONS:
         assert load_topic(f"cas_{op}", "en") is not None, (

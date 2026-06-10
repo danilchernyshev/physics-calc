@@ -1,21 +1,21 @@
-"""Loader for the rich learning materials kept under ``physics_calc/learning/``.
+"""Loader for the rich learning materials kept under ``study_calc/learning/``.
 
 This is the engine behind the right-hand learning area. Unlike
-:mod:`physics_calc.core.explain` (which stores i18n *keys* for the short, static
+:mod:`study_calc.core.explain` (which stores i18n *keys* for the short, static
 theory note and the study links), this module loads *prose* content authored in a
 separate, format-flexible content folder so the depth and presentation can evolve
 without touching code.
 
 Layout of the content folder::
 
-    physics_calc/learning/
+    study_calc/learning/
         en/
             glossary/<term_id>.json   reusable concept/term definitions
             topics/<topic_id>.json    one per problem type (a formula key or CAS op)
         ru/ ... (optional, additive)
 
 English is the canonical language and the fallback: a file missing in the active
-language is served from ``en`` (mirroring :mod:`physics_calc.i18n`), so a partial
+language is served from ``en`` (mirroring :mod:`study_calc.i18n`), so a partial
 translation never leaves the panel blank.
 
 A **topic** bundles everything shown for one kind of problem: a short summary, the
@@ -77,7 +77,7 @@ class WorkedExample:
 class Topic:
     """All the learning material for one problem type (a formula or a CAS op).
 
-    :param topic_id: stable id — a :class:`~physics_calc.core.formula.Formula` ``key``
+    :param topic_id: stable id — a :class:`~study_calc.core.formula.Formula` ``key``
         for physics, or ``"cas_<operation>"`` for a Math/CAS operation.
     :param summary: a short overview of what this kind of problem is about.
     :param terms: ids of the glossary :class:`Concept` s needed to solve it.

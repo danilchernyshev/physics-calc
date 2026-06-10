@@ -1,14 +1,14 @@
 """Symbolic math (CAS) engine backed by SymPy.
 
-This is the algebraic counterpart of :mod:`physics_calc.core.formula`: where a
+This is the algebraic counterpart of :mod:`study_calc.core.formula`: where a
 ``Formula`` plugs *numbers* into a fixed equation, the CAS lets the user type an
 arbitrary expression and ask for a symbolic transformation — simplify, expand,
 factor, differentiate, integrate, solve an equation, or evaluate numerically.
 
-Like the rest of :mod:`physics_calc.core`, this module is UI- and
+Like the rest of :mod:`study_calc.core`, this module is UI- and
 language-agnostic. It speaks in stable operation ids (``"derivative"``) and
 raises :class:`CasError` with a machine ``code`` plus parameters; the GUI and
-:mod:`physics_calc.i18n` turn those into localized prose.
+:mod:`study_calc.i18n` turn those into localized prose.
 
 User input is never passed to :func:`eval`. Parsing goes through SymPy's
 :func:`~sympy.parsing.sympy_parser.parse_expr`, whose namespace resolves bare
@@ -85,7 +85,7 @@ class CasError(ValueError):
 class CasStep:
     """One line of a worked explanation.
 
-    Language-neutral, like everything else in :mod:`physics_calc.core`: ``key``
+    Language-neutral, like everything else in :mod:`study_calc.core`: ``key``
     is an i18n message key (``"cas.step.do.factor"``) and ``params`` holds the
     already-rendered math strings to interpolate. The GUI turns it into prose.
     """

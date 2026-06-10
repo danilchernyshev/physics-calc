@@ -17,7 +17,7 @@ All slugs below were checked to resolve (HTTP 200) at the time of writing.
 
 from __future__ import annotations
 
-from physics_calc.core.explain import Explanation, Reference
+from study_calc.core.explain import Explanation, Reference
 
 _OPENSTAX = "https://openstax.org/books/college-physics/pages/{}"
 _CPANSWERS = "https://collegephysicsanswers.com/{}"

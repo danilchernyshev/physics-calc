@@ -6,7 +6,7 @@ each formula carries a dict of "solvers" — one function per variable that can 
 expressed through the others.
 
 Domain objects stay UI-agnostic: they hold message *keys* (resolved later by
-:mod:`physics_calc.i18n`), and errors carry a machine code plus parameters so
+:mod:`study_calc.i18n`), and errors carry a machine code plus parameters so
 the GUI can render a localized message.
 """
 

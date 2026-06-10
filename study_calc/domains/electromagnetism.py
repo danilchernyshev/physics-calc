@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from physics_calc.core.formula import Formula, Variable
+from study_calc.core.formula import Formula, Variable
 
 # Coulomb constant, N·m²/C².
 K_COULOMB = 8.9875517873681764e9

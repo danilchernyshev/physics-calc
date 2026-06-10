@@ -2,7 +2,7 @@
 
 import pytest
 
-from physics_calc.core.units import convert, categories, units_of, ConversionError
+from study_calc.core.units import convert, categories, units_of, ConversionError
 
 
 def test_length_km_to_m():

@@ -1,29 +1,29 @@
 [project]
-name = "physics-calc"
+name = "study-calc"
 version = "0.4.0"
-description = "Physics calculator: mechanics, thermodynamics, electromagnetism, waves, a unit converter and a SymPy-backed symbolic math (CAS) tab, with a Tkinter GUI (English/Spanish/French/Russian/Ukrainian)"
+description = "Study calculator: physics (mechanics, thermodynamics, electromagnetism, waves), a unit converter, a SymPy-backed symbolic math (CAS) tab and built-in learning materials, with a Tkinter GUI (English/Spanish/French/Russian/Ukrainian)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Danil Chernyshev", email = "danil.chernyshev@gmail.com" }]
-keywords = ["physics", "calculator", "units", "tkinter", "gui", "cas", "sympy"]
+keywords = ["learning", "education", "physics", "math", "calculator", "units", "tkinter", "gui", "cas", "sympy"]
 dependencies = ["sympy>=1.12"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 
 [project.scripts]
-physics-calc = "physics_calc.gui:run"
+study-calc = "study_calc.gui:run"
 
 [project.gui-scripts]
-physics-calc-gui = "physics_calc.gui:run"
+study-calc-gui = "study_calc.gui:run"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["physics_calc"]
+packages = ["study_calc"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

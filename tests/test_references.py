@@ -4,10 +4,10 @@ import re
 
 import pytest
 
-from physics_calc.core.explain import DEFAULT_SOLVE_STEPS, Explanation
-from physics_calc.domains import SECTIONS
-from physics_calc.domains.references import explanation_for, references_for
-from physics_calc.i18n import I18n
+from study_calc.core.explain import DEFAULT_SOLVE_STEPS, Explanation
+from study_calc.domains import SECTIONS
+from study_calc.domains.references import explanation_for, references_for
+from study_calc.i18n import I18n
 
 
 @pytest.fixture

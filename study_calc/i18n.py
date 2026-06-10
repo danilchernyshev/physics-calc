@@ -7,7 +7,7 @@ missing, so a partially translated catalog never crashes the UI.
 
 The domain layer stores *keys* (e.g. ``"var.force"``), never display strings;
 rendering and language choice live here and in the GUI. That separation keeps
-:mod:`physics_calc.core` and :mod:`physics_calc.domains` free of UI concerns.
+:mod:`study_calc.core` and :mod:`study_calc.domains` free of UI concerns.
 """
 
 from __future__ import annotations

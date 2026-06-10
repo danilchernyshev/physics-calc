@@ -2,9 +2,9 @@
 
 import pytest
 
-from physics_calc.core.units import categories, units_of
-from physics_calc.domains import SECTIONS
-from physics_calc.i18n import I18n, _LOCALES_DIR
+from study_calc.core.units import categories, units_of
+from study_calc.domains import SECTIONS
+from study_calc.i18n import I18n, _LOCALES_DIR
 
 
 @pytest.fixture

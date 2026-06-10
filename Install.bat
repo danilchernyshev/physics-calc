@@ -1,9 +1,9 @@
 @echo off
 REM ============================================================
-REM  Physics Calculator installer for Windows.
+REM  Study Calculator installer for Windows.
 REM  Double-click this file to install the app into your Python.
 REM  After it finishes, you can start the calculator from any
-REM  terminal by typing:  physics-calc
+REM  terminal by typing:  study-calc
 REM  (Requires Python - see README.md, section
 REM   "Getting started on Windows".)
 REM ============================================================
@@ -15,7 +15,7 @@ REM Prefer the "py" launcher; fall back to "python" if it is not installed.
 set "PY=py"
 where py >nul 2>&1 || set "PY=python"
 
-echo Installing Physics Calculator into your Python...
+echo Installing Study Calculator into your Python...
 echo.
 %PY% -m pip install .
 
@@ -29,7 +29,7 @@ if errorlevel 1 (
     pause
 ) else (
     echo.
-    echo Done! You can now run the calculator by typing:  physics-calc
+    echo Done! You can now run the calculator by typing:  study-calc
     echo (or just double-click Run.bat).
     echo.
     pause

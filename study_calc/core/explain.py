@@ -1,10 +1,10 @@
 """Learning content attached to a computable thing (a formula now, a math topic later).
 
-Deliberately domain- and UI-agnostic, mirroring the rest of :mod:`physics_calc.core`:
+Deliberately domain- and UI-agnostic, mirroring the rest of :mod:`study_calc.core`:
 it stores i18n *keys* and plain URLs, never display prose. The GUI resolves the keys
-through :mod:`physics_calc.i18n` and renders the references as clickable links.
+through :mod:`study_calc.i18n` and renders the references as clickable links.
 
-The same model is meant to back both Physics (each :class:`~physics_calc.core.formula.Formula`)
+The same model is meant to back both Physics (each :class:`~study_calc.core.formula.Formula`)
 and, later, Math/CAS results — anything that can carry a short theory note, a list of
 solving steps, and pointers to external study material.
 """

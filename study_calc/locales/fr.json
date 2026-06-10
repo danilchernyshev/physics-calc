@@ -1,7 +1,7 @@
 {
   "language.native": "Français",
   "language.label": "Langue :",
-  "app.title": "Calculateur de physique",
+  "app.title": "Calculateur d'étude",
 
   "ui.formula": "Formule :",
   "ui.hint": "Remplissez tous les champs sauf un — le champ vide sera calculé.",

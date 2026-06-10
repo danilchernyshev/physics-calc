@@ -1,7 +1,7 @@
 {
   "language.native": "English",
   "language.label": "Language:",
-  "app.title": "Physics Calculator",
+  "app.title": "Study Calculator",
 
   "ui.formula": "Formula:",
   "ui.hint": "Fill all fields but one — the empty one will be computed.",

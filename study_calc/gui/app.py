@@ -1,11 +1,11 @@
-"""Tkinter desktop window for the physics calculator.
+"""Tkinter desktop window for the study calculator.
 
 The UI is a set of tabs: one per physics section plus a unit-converter tab.
 Inside a section the user picks a formula, fills every variable but one, and
 clicks "Compute" — the empty field is filled with the result. That "solve for
-any variable" behaviour comes from :class:`~physics_calc.core.formula.Formula`.
+any variable" behaviour comes from :class:`~study_calc.core.formula.Formula`.
 
-All user-facing text comes from :mod:`physics_calc.i18n`. A language selector at
+All user-facing text comes from :mod:`study_calc.i18n`. A language selector at
 the top switches the catalog at runtime; the window is then rebuilt so every
 label, tab and combobox is re-rendered in the new language.
 """
@@ -17,13 +17,13 @@ import tkinter as tk
 import webbrowser
 from tkinter import ttk
 
-from physics_calc.core.explain import Explanation
-from physics_calc.core.formula import Formula, SolveError
-from physics_calc.core.learning import Concept, Topic, load_concept, load_topic
-from physics_calc.core.units import categories, convert, units_of, ConversionError
-from physics_calc.domains import SECTIONS
-from physics_calc.domains.references import explanation_for
-from physics_calc.i18n import i18n, t
+from study_calc.core.explain import Explanation
+from study_calc.core.formula import Formula, SolveError
+from study_calc.core.learning import Concept, Topic, load_concept, load_topic
+from study_calc.core.units import categories, convert, units_of, ConversionError
+from study_calc.domains import SECTIONS
+from study_calc.domains.references import explanation_for
+from study_calc.i18n import i18n, t
 
 _OK_COLOR = "#0a6"
 _ERROR_COLOR = "#c33"
@@ -184,8 +184,8 @@ class ExplanationPanel(ttk.Frame):
     A read-only, scrollable :class:`_RichText` driven by language-neutral content
     (i18n keys, learning-folder data, URLs), so the same widget serves two cases:
 
-    - :meth:`show` renders a static :class:`~physics_calc.core.explain.Explanation`
-      plus the rich :class:`~physics_calc.core.learning.Topic` (useful formulas, key
+    - :meth:`show` renders a static :class:`~study_calc.core.explain.Explanation`
+      plus the rich :class:`~study_calc.core.learning.Topic` (useful formulas, key
       terms with pop-up explanations, a worked example) for a physics formula.
     - :meth:`show_steps` renders a dynamic worked solution — used by the CAS tab for
       SymPy's step-by-step, and reusable for Math later.
@@ -565,14 +565,14 @@ class ConverterPanel(ttk.Frame):
 class CasPanel(ttk.Frame):
     """Symbolic math (CAS) tab: type an expression and pick a transformation.
 
-    Backed by :mod:`physics_calc.core.cas` (SymPy). SymPy is imported lazily so
+    Backed by :mod:`study_calc.core.cas` (SymPy). SymPy is imported lazily so
     a missing install degrades to a friendly notice instead of crashing the app;
     :func:`_build_cas_tab` only adds this panel when the import succeeds.
     """
 
     def __init__(self, master: tk.Misc) -> None:
         super().__init__(master, padding=12)
-        from physics_calc.core import cas  # local import: only reached when sympy is present
+        from study_calc.core import cas  # local import: only reached when sympy is present
 
         self._cas = cas
         self._op_ids = cas.OPERATIONS

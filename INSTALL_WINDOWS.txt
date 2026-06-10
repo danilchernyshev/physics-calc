@@ -1,8 +1,8 @@
 ============================================================
- PHYSICS CALCULATOR - INSTALLATION GUIDE FOR WINDOWS
+ STUDY CALCULATOR - INSTALLATION GUIDE FOR WINDOWS
 ============================================================
 
-This guide explains how to set up and run the Physics Calculator
+This guide explains how to set up and run the Study Calculator
 on a Windows computer. You do not need any programming experience.
 Just follow the steps in order. The whole process takes about five
 minutes.
@@ -19,7 +19,7 @@ You will do three things:
 
  - A Windows computer (Windows 10 or 11).
  - An internet connection (to download Python).
- - The "physics-calc" project folder (for example, on this USB drive).
+ - The "study-calc" project folder (for example, on this USB drive).
 
 
 ------------------------------------------------------------
@@ -61,8 +61,8 @@ To check that Python installed correctly:
  STEP 2 - COPY THE PROJECT FOLDER
 ------------------------------------------------------------
 
-Copy the whole "physics-calc" folder from the USB drive to your
-computer - for example, onto your Desktop or to C:\physics-calc.
+Copy the whole "study-calc" folder from the USB drive to your
+computer - for example, onto your Desktop or to C:\study-calc.
 
 Keep all the files together in one folder. Nothing else needs to
 be set up.
@@ -76,7 +76,7 @@ There are two easy ways. Pick whichever you prefer.
 
  EASIEST - double-click Run.bat
  ------------------------------
-   Open the "physics-calc" folder and double-click the file named
+   Open the "study-calc" folder and double-click the file named
    "Run.bat". The calculator window opens right away. That's it!
 
    (If Windows shows a blue "Windows protected your PC" message the
@@ -85,23 +85,23 @@ There are two easy ways. Pick whichever you prefer.
 
  OR - type one command
  ---------------------
-   1. Open the "physics-calc" folder.
+   1. Open the "study-calc" folder.
    2. Right-click an empty area inside the folder and choose
       "Open in Terminal" (older Windows: "Open PowerShell window here").
    3. Type this and press Enter:
-          py -m physics_calc
+          py -m study_calc
 
 
 ------------------------------------------------------------
  OPTIONAL - INSTALL IT AS A COMMAND
 ------------------------------------------------------------
 
-If you would like to start the calculator by typing "physics-calc"
+If you would like to start the calculator by typing "study-calc"
 from any terminal (instead of opening the folder each time), just
 double-click the file named "Install.bat" once.
 
 After it finishes, you can open any terminal and type:
-        physics-calc
+        study-calc
 
 The "Run.bat" file keeps working too.
 
@@ -117,7 +117,7 @@ The "Run.bat" file keeps working too.
 
  A window flashes and closes instantly
      Open the folder, then open a terminal there (Step 3, second
-     method) and run "py -m physics_calc" so you can read any message.
+     method) and run "py -m study_calc" so you can read any message.
 
  No window appears at all
      Make sure "tcl/tk and IDLE" was selected when you installed

@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from physics_calc.core.formula import Formula, Variable, SolveError
-from physics_calc.domains import SECTIONS
+from study_calc.core.formula import Formula, Variable, SolveError
+from study_calc.domains import SECTIONS
 
 
 def _find(section: str, key: str) -> Formula:

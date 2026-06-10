@@ -1,9 +1,11 @@
-# Physics Calculator
+# Study Calculator
 
-A desktop calculator for solving problems in **mechanics, thermodynamics,
-electromagnetism and waves**, and for **converting units of measurement**.
-A simple, clear Tkinter interface: pick a formula, fill in every field but
-one — the program computes the missing quantity.
+A desktop study calculator for solving problems in **mechanics,
+thermodynamics, electromagnetism and waves**, for **symbolic math (CAS)**, and
+for **converting units of measurement** — with **built-in learning materials**
+(key terms, useful formulas, a step-by-step method and a worked example) shown
+alongside every problem. A simple, clear Tkinter interface: pick a formula,
+fill in every field but one — the program computes the missing quantity.
 
 The interface is **localized** (English, Spanish, French, Russian, Ukrainian)
 and the language can be switched at runtime.
@@ -72,20 +74,20 @@ reinstalling and checking that box usually fixes it.
 
 ### Step 2 — Get the project files
 
-Copy the `physics-calc` folder onto your computer — for example, from the USB
-drive to your Desktop or to `C:\physics-calc`. Keep all the files together in
+Copy the `study-calc` folder onto your computer — for example, from the USB
+drive to your Desktop or to `C:\study-calc`. Keep all the files together in
 one folder; nothing else needs to be set up.
 
 ### Step 3 — Run the calculator
 
-1. Open the `physics-calc` folder in File Explorer.
+1. Open the `study-calc` folder in File Explorer.
 2. Right-click an empty area inside the folder and choose
    **"Open in Terminal"** (on older Windows versions this may say
    "Open PowerShell window here").
 3. Type this command and press **Enter**:
 
    ```powershell
-   py -m physics_calc
+   py -m study_calc
    ```
 
 The calculator window should open. That's it! To use it again later, just repeat
@@ -96,9 +98,9 @@ Step 3.
 > folder to open the calculator — no terminal needed.
 
 > **Optional — install it as a command:** if you would like to start the
-> calculator by typing `physics-calc` from any terminal (instead of running it
+> calculator by typing `study-calc` from any terminal (instead of running it
 > from this folder), **double-click `Install.bat`** once. It installs the app
-> into your Python using `py -m pip install .`. After that, `physics-calc`
+> into your Python using `py -m pip install .`. After that, `study-calc`
 > works from anywhere, and `Run.bat` keeps working too.
 
 If you get stuck on any step, it is completely normal — feel free to ask for
@@ -118,14 +120,14 @@ both cross-platform. Pick the command for your shell:
 
 ```bash
 # option 1 — run the module directly
-python -m physics_calc
+python -m study_calc
 
 # option 2 — via uv (no system install; resolves the project automatically)
-uv run python -m physics_calc
+uv run python -m study_calc
 
-# option 3 — install as a package; a `physics-calc` command appears on PATH
+# option 3 — install as a package; a `study-calc` command appears on PATH
 pip install -e .
-physics-calc
+study-calc
 ```
 
 ### Windows
@@ -135,7 +137,7 @@ include Tkinter by default (keep the "tcl/tk and IDLE" option checked during
 setup). Use the `py` launcher in **PowerShell** or **cmd**:
 
 ```powershell
-py -m physics_calc
+py -m study_calc
 ```
 
 If you cloned the repo, run it from the project folder. To install it as a
@@ -143,7 +145,7 @@ command instead:
 
 ```powershell
 py -m pip install .
-physics-calc
+study-calc
 ```
 
 > Note: the Python from the Microsoft Store also bundles Tkinter and works the
@@ -155,7 +157,7 @@ The official [python.org](https://www.python.org/downloads/macos/) installer
 includes Tkinter:
 
 ```bash
-python3 -m physics_calc
+python3 -m study_calc
 ```
 
 If you use Homebrew's Python, install the Tk bindings once:
@@ -167,7 +169,7 @@ brew install python-tk
 ### Linux
 
 Tkinter is usually a separate system package. Install it for your distribution,
-then run `python3 -m physics_calc`:
+then run `python3 -m study_calc`:
 
 ```bash
 sudo apt-get install -y python3-tk        # Debian / Ubuntu / Mint
@@ -191,7 +193,7 @@ uv run --extra dev pytest        # or: pytest
 ## Project structure
 
 ```
-physics_calc/
+study_calc/
 ├── core/            # formula model + solving engine, unit converter
 │   ├── formula.py
 │   └── units.py
@@ -204,7 +206,7 @@ physics_calc/
 │   └── app.py
 ├── i18n.py          # runtime localization engine
 ├── locales/         # translation catalogs (en, es, fr, ru, uk)
-└── __main__.py      # entry point for `python -m physics_calc`
+└── __main__.py      # entry point for `python -m study_calc`
 tests/               # pytest tests for the core (no GUI)
 ```
 
@@ -213,7 +215,7 @@ tests/               # pytest tests for the core (no GUI)
 Formulas are declarative. To add a new one, create a `Formula` object in the
 relevant section module and provide one solver per variable the formula can
 compute. Display text is referenced by i18n *keys* (`name_key`, `unit_key`),
-which must be added to every catalog in `physics_calc/locales/`:
+which must be added to every catalog in `study_calc/locales/`:
 
 ```python
 Formula(

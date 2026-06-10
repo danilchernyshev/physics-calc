@@ -3,12 +3,12 @@
 Prose study content for the calculator's right-hand learning panel, kept here —
 deliberately **separate from code** — so its depth, wording and presentation can be
 reshaped without touching the application. The loader is
-`physics_calc/core/learning.py`; the GUI renders it in `ExplanationPanel`.
+`study_calc/core/learning.py`; the GUI renders it in `ExplanationPanel`.
 
 All content is **original**, written from the openly-licensed
 [OpenStax *College Physics*](https://openstax.org/books/college-physics) text and
 general knowledge. The paid video solutions on CollegePhysicsAnswers are linked as
-external references only (see `physics_calc/domains/references.py`) — never copied.
+external references only (see `study_calc/domains/references.py`) — never copied.
 
 ## Layout
 

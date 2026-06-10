@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 
-from physics_calc.core.formula import Formula, SolveError, Variable
+from study_calc.core.formula import Formula, SolveError, Variable
 
 # Planck constant (J·s) and speed of light in vacuum (m/s).
 PLANCK = 6.62607015e-34

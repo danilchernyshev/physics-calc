@@ -2,7 +2,7 @@
 
 Categories and units are identified by stable, language-neutral ids
 (``"length"``, ``"meter"``, ``"celsius"``, ...). Display names are resolved by
-:mod:`physics_calc.i18n` via the ``category.<id>`` and ``unit.<id>`` keys; this
+:mod:`study_calc.i18n` via the ``category.<id>`` and ``unit.<id>`` keys; this
 module deals only with the physics.
 
 Most quantities convert through a common SI base unit with a linear factor.

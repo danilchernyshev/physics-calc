@@ -1,7 +1,7 @@
 {
   "language.native": "Español",
   "language.label": "Idioma:",
-  "app.title": "Calculadora de física",
+  "app.title": "Calculadora de estudio",
 
   "ui.formula": "Fórmula:",
   "ui.hint": "Rellene todos los campos menos uno: el campo vacío se calculará.",

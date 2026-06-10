@@ -2,8 +2,8 @@
 
 import pytest
 
-from physics_calc.core import cas
-from physics_calc.i18n import I18n
+from study_calc.core import cas
+from study_calc.i18n import I18n
 
 
 def test_simplify_cancels_common_factor():
