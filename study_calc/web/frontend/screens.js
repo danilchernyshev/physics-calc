@@ -1054,6 +1054,18 @@ const Screens = {
             target: '_blank', rel: 'noopener noreferrer',
           }, [m.viewRelease]));
         }
+        // Per-format apply guidance (#75): how to install on this packaging
+        // format, plus the exact command where one applies (Flatpak/source).
+        if (m.apply) {
+          nodes.push(h('h3', { class: 'learn__heading', text: m.apply.heading }));
+          nodes.push(h('p', { class: 'rich__body', text: m.apply.instructions }));
+          if (m.apply.command) {
+            if (m.apply.commandLabel) {
+              nodes.push(h('p', { class: 'updates__cmd-label', text: m.apply.commandLabel }));
+            }
+            nodes.push(h('pre', { class: 'updates__command', text: m.apply.command }));
+          }
+        }
       } else if (m.status === 'up_to_date') {
         nodes.push(h('p', { class: 'updates__ok', text: m.message }));
       } else if (m.status === 'error') {
