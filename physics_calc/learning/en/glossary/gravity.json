@@ -1,0 +1,7 @@
+{
+  "title": "Gravitational acceleration",
+  "short": "The acceleration of free fall, g ≈ 9.81 m/s² near Earth's surface.",
+  "full": "Near Earth's surface every freely falling object accelerates downward at the same rate, g ≈ 9.81 m/s², regardless of its mass (ignoring air resistance). This is the gravitational field strength: it also equals the gravitational force per unit mass, so the weight of a mass m is W = m·g.\n\nThe value varies slightly with location and altitude and is different on other bodies (about 1.6 m/s² on the Moon).\n\nThe SI unit is m/s² (or equivalently N/kg when viewed as field strength).",
+  "formulas": ["W = m·g", "E = m·g·h"],
+  "see_also": ["acceleration", "potential_energy", "mass"]
+}

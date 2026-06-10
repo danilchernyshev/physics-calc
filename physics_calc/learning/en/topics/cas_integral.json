@@ -1,0 +1,23 @@
+{
+  "summary": "Integration reverses differentiation. The indefinite integral (antiderivative) is the function whose derivative is the one you started with.",
+  "terms": ["integral", "antiderivative", "derivative", "function"],
+  "formulas": ["∫xⁿ dx = xⁿ⁺¹/(n + 1) + C   (n ≠ −1)", "∫(1/x) dx = ln|x| + C", "∫cos x dx = sin x + C"],
+  "method": [
+    "Choose the variable to integrate with respect to.",
+    "Integrate each term using the reverse power rule: raise the power by one and divide by the new power.",
+    "Handle special cases (1/x, trig, exponentials) with their standard integrals.",
+    "Remember the constant of integration C (the calculator omits it for brevity).",
+    "Check by differentiating the result — it should give back the original integrand."
+  ],
+  "example": {
+    "title": "Integrate a power",
+    "given": ["the function f(x) = 2x"],
+    "find": "the indefinite integral ∫2x dx",
+    "steps": [
+      "Apply the reverse power rule: raise the power of x¹ to x², divide by 2.",
+      "So ∫2x dx = 2·(x²/2).",
+      "Simplify: x² (plus a constant C)."
+    ],
+    "answer": "x² + C"
+  }
+}

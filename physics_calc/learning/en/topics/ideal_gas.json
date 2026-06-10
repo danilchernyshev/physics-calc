@@ -1,0 +1,23 @@
+{
+  "summary": "The ideal gas law ties together the pressure, volume, amount and temperature of a gas: P·V = n·R·T. It is the workhorse equation for gas problems.",
+  "terms": ["pressure", "volume", "amount_of_substance", "temperature", "gas_constant"],
+  "formulas": ["P·V = n·R·T", "P = n·R·T / V", "V = n·R·T / P", "n = P·V / (R·T)", "T = P·V / (n·R)"],
+  "method": [
+    "List the four state variables — pressure P, volume V, amount n, temperature T — and mark the unknown.",
+    "Convert temperature to kelvin (T[K] = T[°C] + 273.15); the law is wrong with Celsius.",
+    "Use SI units: pascals, cubic metres, moles, kelvin (R is already in SI).",
+    "Rearrange P·V = n·R·T for the unknown.",
+    "Substitute and compute; the calculator supplies R ≈ 8.314 J/(mol·K)."
+  ],
+  "example": {
+    "title": "Pressure of gas in a tank",
+    "given": ["amount n = 2 mol", "temperature T = 300 K", "volume V = 0.05 m³"],
+    "find": "the pressure P",
+    "steps": [
+      "The unknown is P, so use P = n·R·T / V.",
+      "Substitute: P = 2 · 8.314 · 300 / 0.05.",
+      "Compute the top: 2 · 8.314 · 300 ≈ 4988, then divide by 0.05."
+    ],
+    "answer": "P ≈ 99 800 Pa (about 1 atm)"
+  }
+}

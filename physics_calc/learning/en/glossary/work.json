@@ -1,0 +1,7 @@
+{
+  "title": "Work",
+  "short": "Energy transferred by a force acting over a distance, A = F·s, measured in joules (J).",
+  "full": "Work is done when a force moves an object through a displacement: A = F·s for a constant force along the direction of motion. It is the mechanism by which energy is transferred — doing positive work on an object adds energy to it.\n\nIf the force is perpendicular to the motion it does no work (carrying a bag horizontally does no work against gravity). The work–energy theorem states that the net work equals the change in kinetic energy.\n\nThe SI unit is the joule (J); 1 J = 1 N·m.",
+  "formulas": ["A = F·s", "W_net = ΔE"],
+  "see_also": ["force", "displacement", "energy", "power"]
+}

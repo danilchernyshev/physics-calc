@@ -1,0 +1,23 @@
+{
+  "summary": "Newton's second law ties force, mass and acceleration together: the net force on an object equals its mass times its acceleration. It is the central tool for any problem about why motion changes.",
+  "terms": ["force", "mass", "acceleration"],
+  "formulas": ["F = m·a", "a = F / m", "m = F / a", "1 N = 1 kg·m/s²"],
+  "method": [
+    "Identify the object and add up all forces on it to get the net force F.",
+    "Decide which quantity is unknown — force, mass, or acceleration.",
+    "Rearrange F = m·a for that unknown (a = F/m or m = F/a).",
+    "Put every quantity in SI units (kg, m/s², N) before substituting.",
+    "Substitute and compute; check the direction of the acceleration matches the net force."
+  ],
+  "example": {
+    "title": "Accelerating a shopping cart",
+    "given": ["mass m = 5 kg", "acceleration a = 2 m/s²"],
+    "find": "the net force F",
+    "steps": [
+      "The unknown is the force, so use F = m·a directly.",
+      "Substitute the values: F = 5 kg · 2 m/s².",
+      "Multiply: F = 10 kg·m/s²."
+    ],
+    "answer": "F = 10 N"
+  }
+}

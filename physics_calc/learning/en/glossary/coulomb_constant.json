@@ -1,0 +1,7 @@
+{
+  "title": "Coulomb constant",
+  "short": "The proportionality constant in Coulomb's law, k ≈ 8.99 × 10⁹ N·m²/C².",
+  "full": "The Coulomb constant k sets the strength of the electrostatic force in Coulomb's law, F = k·q₁·q₂/r². Its large value, k ≈ 8.99 × 10⁹ N·m²/C², tells you the electric force between everyday charges is enormous compared with gravity — which is why bulk matter is almost perfectly neutral.\n\nThe calculator substitutes k for you. It is related to the permittivity of free space by k = 1/(4πε₀).\n\nThe SI unit is N·m²/C².",
+  "formulas": ["F = k·q₁·q₂ / r²", "k = 1 / (4·π·ε₀)"],
+  "see_also": ["charge", "distance", "force"]
+}

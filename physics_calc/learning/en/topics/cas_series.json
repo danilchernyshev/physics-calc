@@ -1,0 +1,22 @@
+{
+  "summary": "A Taylor series approximates a function near a point by a polynomial built from its derivatives. Near x = 0 a few terms can stand in for the whole function.",
+  "terms": ["taylor_series", "derivative", "function", "polynomial"],
+  "formulas": ["f(x) ≈ f(0) + f′(0)x + ½f″(0)x² + …", "eˣ ≈ 1 + x + x²/2 + x³/6", "sin x ≈ x − x³/6"],
+  "method": [
+    "Pick the variable and the point to expand around (the CAS tab uses x = 0).",
+    "Compute the function's value and successive derivatives at that point.",
+    "Build the polynomial: the coefficient of xⁿ is the nth derivative at the point divided by n!.",
+    "Keep terms up to the chosen order; the more terms, the wider the accurate range."
+  ],
+  "example": {
+    "title": "Series of eˣ around 0",
+    "given": ["the function f(x) = eˣ", "expansion point x = 0, up to x³"],
+    "find": "the Taylor polynomial",
+    "steps": [
+      "Every derivative of eˣ is eˣ, which equals 1 at x = 0.",
+      "So each coefficient is 1/n!: 1, 1, 1/2, 1/6.",
+      "Assemble: 1 + x + x²/2 + x³/6."
+    ],
+    "answer": "1 + x + x²/2 + x³/6 + …"
+  }
+}

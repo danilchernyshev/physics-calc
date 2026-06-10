@@ -1,0 +1,7 @@
+{
+  "title": "Displacement",
+  "short": "The straight-line change in position, from start to finish, measured in metres (m).",
+  "full": "Displacement is the vector from an object's starting point to its ending point. It differs from distance travelled: a runner who completes one lap of a track covers a large distance but has zero displacement, because they end where they began.\n\nIn the definition of work, W = F·s, the s is the displacement along the direction of the force.\n\nThe SI unit is the metre (m).",
+  "formulas": ["A = F·s"],
+  "see_also": ["work", "force"]
+}

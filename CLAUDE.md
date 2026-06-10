@@ -44,7 +44,13 @@ language-agnostic:
   can back both): `Reference(label_key, url)` is a link to study material, and
   `Explanation(theory_key, steps_keys, references)` bundles a theory note, the
   "how to solve" steps (defaulting to the shared `DEFAULT_SOLVE_STEPS`), and
-  references — all i18n *keys* plus plain URLs, never prose.
+  references — all i18n *keys* plus plain URLs, never prose. `learning.py` is the
+  **rich learning-material loader**: where `explain.py` stores i18n *keys* for the
+  short static note, `learning.py` loads *prose* (`Topic`/`Concept`/`WorkedExample`
+  frozen dataclasses) from the separate `physics_calc/learning/` content folder
+  (see below), with English fallback — so the panel can show a topic summary, the
+  useful formulas, a step-by-step method, reusable glossary terms, and a worked
+  example. `load_topic(id, lang)` / `load_concept(id, lang)` are `lru_cache`d.
 
 - **`domains/`** — declarative formula sets, one module per physics section
   (mechanics, thermodynamics, electromagnetism, waves). `domains/__init__.py`
@@ -61,13 +67,37 @@ language-agnostic:
   CAS tab (`CasPanel`, added by `_build_cas_tab` which falls back to a notice tab
   if SymPy can't be imported). Every section tab *and* the CAS tab is a horizontal
   `PanedWindow`: the calculator/input form on the left, an `ExplanationPanel` (the
-  right-hand learning area) on the right. `ExplanationPanel` has two render modes,
-  so the same widget serves both: `show(Explanation)` paints a formula's *static*
-  theory / how-to-solve / study links, while `show_steps(title_key, segments)`
-  paints a *dynamic* worked solution — the CAS tab feeds SymPy's step-by-step
-  through it (answers tagged green), and Math will reuse it. Clickable references
-  open in a browser. `App` rebuilds *all* its widgets on language change (it
-  destroys children and re-runs `_build()`), preserving the selected tab.
+  right-hand learning area) on the right. All read-only rich text (the panel and
+  the pop-up window) is built on the shared `_RichText` widget (heading / body /
+  formula / link styling; a "link" opens a URL *or* runs a callback).
+  `ExplanationPanel` has three render modes on one widget: `show(Explanation,
+  Topic)` paints a formula's *static* learning area — theory, **useful formulas**,
+  how-to-solve, **key terms** (each a short inline blurb + an "Open full
+  explanation →" link that opens a `ConceptWindow` pop-up), a **worked example**,
+  and study links; `show_topic(title_key, Topic)` paints the same rich material on
+  its own (the CAS tab shows it for the selected operation *before* a result);
+  `show_steps(title_key, segments)` paints a *dynamic* worked solution — the CAS
+  tab feeds SymPy's step-by-step through it (answers tagged green). `ConceptWindow`
+  is the term pop-up: full definition + related formulas + clickable "See also"
+  terms. Clickable references/terms open in a browser or a new window. `App`
+  rebuilds *all* its widgets on language change (it destroys children and re-runs
+  `_build()`), preserving the selected tab.
+
+### Learning materials (`physics_calc/learning/`)
+
+A **separate, format-flexible content folder** (data, not code — parallel to
+`locales/`) holding the *prose* the right panel shows, loaded by
+`core/learning.py`. Layout: `learning/<lang>/topics/<id>.json` (one bundle per
+problem type — a formula `key` for physics, `cas_<op>` for Math) and
+`learning/<lang>/glossary/<term_id>.json` (reusable term definitions). `en` is
+canonical and the fallback (a file missing in another language is served from
+`en`, mirroring i18n). A topic carries `summary`, `terms[]` (glossary ids),
+`formulas[]`, `method[]`, and a worked `example`; a concept carries `title`,
+`short` (inline), `full` (pop-up), `formulas[]`, `see_also[]`. All content is
+**original** (written from OpenStax + general knowledge); CollegePhysicsAnswers
+videos are linked only, never copied. `tests/test_learning.py` enforces that every
+formula and CAS op has a topic, every referenced term resolves, and `see_also`
+links don't dangle. See `learning/README.md` for the schema and how to extend it.
 
 ### The i18n contract (most important to preserve)
 
@@ -104,5 +134,8 @@ variable you want to be computable, then add its `formula.*`, `var.*`, and
 `unit.*` keys to all five locale files. To give it the right-hand learning panel,
 add a `theory.<key>` paragraph (at least to `en`, ideally `ru`) and one row to
 `_SOURCES` in `domains/references.py` mapping it to an OpenStax section slug and a
-CollegePhysicsAnswers chapter slug (verify both resolve). The GUI picks all of
-this up automatically — no GUI edits needed.
+CollegePhysicsAnswers chapter slug (verify both resolve). For the **rich learning
+material** (useful formulas, method, key terms, worked example), add
+`learning/en/topics/<key>.json` and a `learning/en/glossary/<term_id>.json` for any
+term it references that doesn't exist yet (`tests/test_learning.py` requires both).
+The GUI picks all of this up automatically — no GUI edits needed.

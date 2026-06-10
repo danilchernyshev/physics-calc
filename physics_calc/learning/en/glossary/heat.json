@@ -1,0 +1,7 @@
+{
+  "title": "Heat",
+  "short": "Energy transferred between bodies because of a temperature difference, measured in joules (J).",
+  "full": "Heat is energy in transit: it flows from a hotter body to a colder one purely because of their temperature difference. It is not a substance stored in an object — what an object stores is internal (thermal) energy; heat is the transfer.\n\nWhen heat flows into an object without changing its phase, its temperature rises by an amount set by its mass and specific heat capacity: Q = c·m·ΔT.\n\nThe SI unit is the joule (J). The calorie (1 cal ≈ 4.186 J) is an older unit still seen in nutrition.",
+  "formulas": ["Q = c·m·ΔT"],
+  "see_also": ["temperature", "specific_heat", "energy"]
+}

@@ -1,0 +1,23 @@
+{
+  "summary": "Gravitational potential energy is the energy stored by lifting an object to a height, E = m·g·h. It converts to kinetic energy as the object falls.",
+  "terms": ["potential_energy", "mass", "gravity", "height", "energy"],
+  "formulas": ["E = m·g·h", "h = E / (m·g)", "m = E / (g·h)"],
+  "method": [
+    "Choose a reference level where the height (and the potential energy) is zero.",
+    "Measure the height h of the object above that level.",
+    "Decide which quantity is unknown — energy, mass, or height.",
+    "Rearrange E = m·g·h for the unknown.",
+    "Use g ≈ 9.81 m/s² and SI units, so the energy comes out in joules."
+  ],
+  "example": {
+    "title": "Lifting a box onto a shelf",
+    "given": ["mass m = 2 kg", "g = 9.81 m/s²", "height h = 1.5 m"],
+    "find": "the gravitational potential energy E",
+    "steps": [
+      "The unknown is E, so use E = m·g·h.",
+      "Substitute: E = 2 · 9.81 · 1.5.",
+      "Multiply: E ≈ 29.4 J."
+    ],
+    "answer": "E ≈ 29.4 J"
+  }
+}

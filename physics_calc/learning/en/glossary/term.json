@@ -1,0 +1,7 @@
+{
+  "title": "Term",
+  "short": "A single piece of an expression separated by + or −, such as 3x² or −5x.",
+  "full": "A term is one of the additive pieces of an expression: in 3x² − 5x + 2 the terms are 3x², −5x and 2. Each term is a coefficient times some power of the variable (the constant 2 is the coefficient of x⁰).\n\n'Like terms' share the same variable power and can be combined — this is the core of simplifying. For example 2x + 3x = 5x.\n\nTerms have no units of their own; they are pure algebra.",
+  "formulas": ["3x² − 5x + 2", "2x + 3x = 5x"],
+  "see_also": ["coefficient", "polynomial", "expression"]
+}

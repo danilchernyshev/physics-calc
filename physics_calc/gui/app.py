@@ -19,6 +19,7 @@ from tkinter import ttk
 
 from physics_calc.core.explain import Explanation
 from physics_calc.core.formula import Formula, SolveError
+from physics_calc.core.learning import Concept, Topic, load_concept, load_topic
 from physics_calc.core.units import categories, convert, units_of, ConversionError
 from physics_calc.domains import SECTIONS
 from physics_calc.domains.references import explanation_for
@@ -74,55 +75,154 @@ class ResultArea(ttk.Frame):
         self.show([])
 
 
-class ExplanationPanel(ttk.Frame):
-    """The learning area on the right of a tab: theory, worked steps, and study links.
+class _RichText(tk.Text):
+    """A read-only, selectable text widget with shared heading/body/link styling.
 
-    A read-only, scrollable :class:`tk.Text` driven by language-neutral content
-    (i18n keys + URLs), so the same widget serves two cases:
+    The building block for both the right-hand :class:`ExplanationPanel` and the
+    pop-up :class:`ConceptWindow`, so links, headings and formulas look identical
+    everywhere. Content is written between :meth:`begin` and :meth:`end` (the widget
+    is briefly made editable, then locked back to ``disabled`` so it stays read-only
+    but still allows text selection for copy/paste).
+
+    A "link" may open a URL in the browser *or* run a Python callback (used to open
+    a concept window), so the same styling drives both kinds of click.
+    """
+
+    def __init__(self, master: tk.Misc, **kwargs: object) -> None:
+        options: dict[str, object] = dict(
+            wrap="word", relief="solid", borderwidth=1,
+            font=("TkDefaultFont", 11), padx=10, pady=8,
+            background="#f7f9fc", state="disabled", cursor="arrow",
+        )
+        options.update(kwargs)
+        super().__init__(master, **options)
+        self.tag_configure(
+            "heading", foreground=_HEADING_COLOR, font=("TkDefaultFont", 11, "bold"),
+            spacing1=8, spacing3=3,
+        )
+        self.tag_configure("body", foreground="#222", spacing3=4)
+        self.tag_configure("step", foreground="#222", lmargin1=4, lmargin2=18, spacing3=3)
+        self.tag_configure("formula", foreground="#1b3a6b", font=("TkFixedFont", 11),
+                           lmargin1=8, spacing3=2)
+        self.tag_configure("label", foreground="#222", font=("TkDefaultFont", 11, "bold"))
+        self.tag_configure("answer", foreground=_OK_COLOR, font=("TkDefaultFont", 11, "bold"))
+        self.tag_configure("error", foreground=_ERROR_COLOR)
+        self.tag_configure("hint", foreground=_HINT_COLOR, spacing3=4)
+        self._link_count = 0
+
+    def begin(self) -> None:
+        self.config(state="normal")
+        self.delete("1.0", "end")
+        self._link_count = 0
+
+    def end(self) -> None:
+        self.config(state="disabled")
+        self.see("1.0")
+
+    def heading(self, text: str) -> None:
+        # A leading blank line before every heading but the first keeps sections apart.
+        prefix = "" if self.index("end-1c") == "1.0" else "\n"
+        self.insert("end", prefix + text + "\n", "heading")
+
+    def write(self, text: str, tag: str = "body") -> None:
+        self.insert("end", text, tag)
+
+    def link(self, label: str, target) -> None:
+        """Insert one clickable line.
+
+        ``target`` is either a URL string (opened in the browser) or a zero-arg
+        callable (invoked on click — used to open a concept window).
+        """
+        tag = f"link-{self._link_count}"
+        self._link_count += 1
+        self.tag_configure(tag, foreground=_LINK_COLOR, underline=True, spacing3=3)
+
+        def on_click(_event, target=target):
+            webbrowser.open(target) if isinstance(target, str) else target()
+
+        self.tag_bind(tag, "<Button-1>", on_click)
+        self.tag_bind(tag, "<Enter>", lambda _e: self.config(cursor="hand2"))
+        self.tag_bind(tag, "<Leave>", lambda _e: self.config(cursor="arrow"))
+        self.insert("end", label + "\n", tag)
+
+
+class ConceptWindow(tk.Toplevel):
+    """A pop-up explaining one glossary term: its full definition, related
+    formulas, and links to related terms (which open further concept windows)."""
+
+    def __init__(self, master: tk.Misc, concept: Concept) -> None:
+        super().__init__(master)
+        self.title(concept.title)
+        self.minsize(440, 340)
+        text = _RichText(self, width=56)
+        scroll = ttk.Scrollbar(self, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scroll.set)
+        scroll.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+
+        text.begin()
+        text.heading(concept.title)
+        for paragraph in concept.full.split("\n\n"):
+            text.write(paragraph.strip() + "\n", "body")
+        if concept.formulas:
+            text.heading(t("ui.related_formulas"))
+            for formula in concept.formulas:
+                text.write(formula + "\n", "formula")
+        if concept.see_also:
+            text.heading(t("ui.see_also"))
+            for term_id in concept.see_also:
+                other = load_concept(term_id, i18n.language)
+                if other is not None:
+                    text.link(other.title, lambda c=other: ConceptWindow(self, c))
+        text.end()
+
+
+class ExplanationPanel(ttk.Frame):
+    """The learning area on the right of a tab: theory, formulas, terms, an
+    example, worked steps, and study links.
+
+    A read-only, scrollable :class:`_RichText` driven by language-neutral content
+    (i18n keys, learning-folder data, URLs), so the same widget serves two cases:
 
     - :meth:`show` renders a static :class:`~physics_calc.core.explain.Explanation`
-      (*Explanation* / *How to solve* / *Learn more*) for a physics formula.
+      plus the rich :class:`~physics_calc.core.learning.Topic` (useful formulas, key
+      terms with pop-up explanations, a worked example) for a physics formula.
     - :meth:`show_steps` renders a dynamic worked solution — used by the CAS tab for
       SymPy's step-by-step, and reusable for Math later.
 
-    References render as clickable links that open in the user's web browser.
+    References and term explanations render as clickable links (browser / pop-up).
     """
 
     def __init__(self, master: tk.Misc, width: int = 40) -> None:
         super().__init__(master)
-        self._text = tk.Text(
-            self, width=width, wrap="word", relief="solid", borderwidth=1,
-            font=("TkDefaultFont", 11), padx=10, pady=8,
-            background="#f7f9fc", state="disabled", cursor="arrow",
-        )
+        self._text = _RichText(self, width=width)
         scroll = ttk.Scrollbar(self, orient="vertical", command=self._text.yview)
         self._text.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right", fill="y")
         self._text.pack(side="left", fill="both", expand=True)
-        self._text.tag_configure(
-            "heading", foreground=_HEADING_COLOR, font=("TkDefaultFont", 11, "bold"),
-            spacing1=8, spacing3=3,
-        )
-        self._text.tag_configure("body", foreground="#222", spacing3=4)
-        self._text.tag_configure("step", foreground="#222", lmargin1=4, lmargin2=18, spacing3=3)
-        self._text.tag_configure("answer", foreground=_OK_COLOR, font=("TkDefaultFont", 11, "bold"))
-        self._text.tag_configure("error", foreground=_ERROR_COLOR)
-        self._text.tag_configure("hint", foreground=_HINT_COLOR, spacing3=4)
-        self._link_count = 0
 
-    def show(self, explanation: Explanation) -> None:
-        """Render a static ``explanation`` (theory, steps, references)."""
-        self._begin()
-        self._heading(t("ui.theory"))
-        self._text.insert("end", t(explanation.theory_key) + "\n", "body")
+    def show(self, explanation: Explanation, topic: Topic | None = None) -> None:
+        """Render the static ``explanation`` and, when present, the rich ``topic``."""
+        text = self._text
+        text.begin()
+        text.heading(t("ui.theory"))
+        text.write(t(explanation.theory_key) + "\n")
 
-        if explanation.steps_keys:
-            self._heading(t("ui.how_to_solve"))
-            for index, key in enumerate(explanation.steps_keys, start=1):
-                self._text.insert("end", f"{index}. {t(key)}\n", "step")
+        if topic is not None and topic.formulas:
+            text.heading(t("ui.useful_formulas"))
+            for formula in topic.formulas:
+                text.write(formula + "\n", "formula")
+
+        self._how_to_solve(explanation, topic)
+
+        if topic is not None and topic.terms:
+            self._key_terms(topic.terms)
+
+        if topic is not None and topic.example is not None:
+            self._worked_example(topic.example)
 
         self._references(explanation.references)
-        self._end()
+        text.end()
 
     def show_steps(
         self, title_key: str, segments: list[tuple[str, str]], references: tuple = ()
@@ -132,62 +232,103 @@ class ExplanationPanel(ttk.Frame):
         ``segments`` are pre-rendered ``(text, tag)`` pairs (tag in
         ``"answer"``/``"step"``); each ``text`` already carries its own newline.
         """
-        self._begin()
-        self._heading(t(title_key))
-        for text, tag in segments:
-            self._text.insert("end", text, tag)
+        self._text.begin()
+        self._text.heading(t(title_key))
+        for segment, tag in segments:
+            self._text.write(segment, tag)
         self._references(references)
-        self._end()
+        self._text.end()
+
+    def show_topic(self, title_key: str, topic: Topic) -> None:
+        """Render a topic's learning material on its own, under ``title_key``.
+
+        Unlike :meth:`show`, this needs no :class:`Explanation` — it is used by the
+        CAS/Math tab to teach the selected operation (summary, useful formulas,
+        method, key terms, worked example) before a result has been computed.
+        """
+        text = self._text
+        text.begin()
+        text.heading(t(title_key))
+        if topic.summary:
+            text.write(topic.summary + "\n")
+        if topic.formulas:
+            text.heading(t("ui.useful_formulas"))
+            for formula in topic.formulas:
+                text.write(formula + "\n", "formula")
+        if topic.method:
+            text.heading(t("ui.how_to_solve"))
+            for index, step in enumerate(topic.method, start=1):
+                text.write(f"{index}. {step}\n", "step")
+        if topic.terms:
+            self._key_terms(topic.terms)
+        if topic.example is not None:
+            self._worked_example(topic.example)
+        text.end()
 
     def show_hint(self, title_key: str, hint_key: str) -> None:
         """Show a quiet placeholder (e.g. before the CAS tab has been run)."""
-        self._begin()
-        self._heading(t(title_key))
-        self._text.insert("end", t(hint_key) + "\n", "hint")
-        self._end()
+        self._text.begin()
+        self._text.heading(t(title_key))
+        self._text.write(t(hint_key) + "\n", "hint")
+        self._text.end()
 
     def show_error(self, message: str) -> None:
-        self._begin()
-        self._text.insert("end", "⚠ " + message, "error")
-        self._end()
+        self._text.begin()
+        self._text.write("⚠ " + message, "error")
+        self._text.end()
 
     def clear(self) -> None:
-        self._begin()
-        self._end()
+        self._text.begin()
+        self._text.end()
 
-    # --- low-level building blocks (text widget is editable between begin/end) ---
+    # --- section builders ---
 
-    def _begin(self) -> None:
-        self._text.config(state="normal")
-        self._text.delete("1.0", "end")
-        self._link_count = 0
+    def _how_to_solve(self, explanation: Explanation, topic: Topic | None) -> None:
+        # Prefer the topic's specific method; fall back to the generic solve steps.
+        if topic is not None and topic.method:
+            self._text.heading(t("ui.how_to_solve"))
+            for index, step in enumerate(topic.method, start=1):
+                self._text.write(f"{index}. {step}\n", "step")
+        elif explanation.steps_keys:
+            self._text.heading(t("ui.how_to_solve"))
+            for index, key in enumerate(explanation.steps_keys, start=1):
+                self._text.write(f"{index}. {t(key)}\n", "step")
 
-    def _end(self) -> None:
-        self._text.config(state="disabled")
-        self._text.see("1.0")
+    def _key_terms(self, term_ids: tuple[str, ...]) -> None:
+        self._text.heading(t("ui.key_terms"))
+        for term_id in term_ids:
+            concept = load_concept(term_id, i18n.language)
+            if concept is None:
+                continue
+            self._text.write(f"• {concept.title} — ", "label")
+            self._text.write(concept.short + "\n", "body")
+            self._text.link(t("ui.open_full"), lambda c=concept: ConceptWindow(self, c))
 
-    def _heading(self, text: str) -> None:
-        # A leading blank line before every heading but the first keeps sections apart.
-        prefix = "" if self._text.index("end-1c") == "1.0" else "\n"
-        self._text.insert("end", prefix + text + "\n", "heading")
+    def _worked_example(self, example) -> None:
+        self._text.heading(t("ui.worked_example"))
+        if example.title:
+            self._text.write(example.title + "\n", "body")
+        if example.given:
+            self._text.write(t("ui.given") + ":\n", "label")
+            for item in example.given:
+                self._text.write(f"   • {item}\n", "step")
+        if example.find:
+            self._text.write(t("ui.find") + ": ", "label")
+            self._text.write(example.find + "\n", "body")
+        if example.steps:
+            self._text.write(t("ui.solution") + ":\n", "label")
+            for index, step in enumerate(example.steps, start=1):
+                self._text.write(f"   {index}. {step}\n", "step")
+        if example.answer:
+            self._text.write(t("ui.answer") + ": ", "label")
+            self._text.write(example.answer + "\n", "answer")
 
     def _references(self, references: tuple) -> None:
         if not references:
             return
-        self._heading(t("ui.learn_more"))
+        self._text.heading(t("ui.learn_more"))
         for ref in references:
-            self._insert_link(t(ref.label_key), ref.url)
-
-    def _insert_link(self, label: str, url: str) -> None:
-        """Insert one clickable line that opens ``url`` in the browser."""
-        tag = f"link-{self._link_count}"
-        self._link_count += 1
-        self._text.tag_configure(tag, foreground=_LINK_COLOR, underline=True, spacing3=3)
-        # Bind on this line's own tag so each link opens its own URL.
-        self._text.tag_bind(tag, "<Button-1>", lambda _e, u=url: webbrowser.open(u))
-        self._text.tag_bind(tag, "<Enter>", lambda _e: self._text.config(cursor="hand2"))
-        self._text.tag_bind(tag, "<Leave>", lambda _e: self._text.config(cursor="arrow"))
-        self._text.insert("end", label + "\n", tag)
+            self._text.link(t(ref.label_key), ref.url)
 
 
 def _format_number(value: float) -> str:
@@ -279,7 +420,9 @@ class FormulaPanel(ttk.Frame):
         self._current = formula
         self._expr.config(text=formula.expression)
         self._result.clear()
-        self._explain.show(explanation_for(formula.key))
+        self._explain.show(
+            explanation_for(formula.key), load_topic(formula.key, i18n.language)
+        )
 
         for row, var in enumerate(formula.variables):
             ttk.Label(
@@ -497,12 +640,25 @@ class CasPanel(ttk.Frame):
         state = "normal" if needs_var else "disabled"
         self._var.config(state=state)
         self._var_label.config(foreground="" if needs_var else _HINT_COLOR)
-        self._explain.show_hint("cas.steps_title", "cas.steps_placeholder")
+        self._show_topic_or_hint(op)
 
     def _clear(self) -> None:
         self._expr.delete(0, "end")
         self._var.delete(0, "end")
-        self._explain.show_hint("cas.steps_title", "cas.steps_placeholder")
+        self._show_topic_or_hint(self._op_ids[self._combo.current()])
+
+    def _show_topic_or_hint(self, op: str) -> None:
+        """Teach the selected operation, or fall back to a quiet placeholder.
+
+        Before a result is computed the right panel shows the Math learning
+        material for the chosen operation (under ``cas_<op>``); operations without
+        content yet degrade to the original placeholder.
+        """
+        topic = load_topic(f"cas_{op}", i18n.language)
+        if topic is not None:
+            self._explain.show_topic(f"cas.op.{op}", topic)
+        else:
+            self._explain.show_hint("cas.steps_title", "cas.steps_placeholder")
 
     def _compute(self) -> None:
         op = self._op_ids[self._combo.current()]

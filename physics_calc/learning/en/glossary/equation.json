@@ -1,0 +1,7 @@
+{
+  "title": "Equation",
+  "short": "A statement that two expressions are equal, like x² − 4 = 0. Solving it finds the values that make it true.",
+  "full": "An equation asserts that two expressions have the same value, joined by an equals sign, such as 2x + 1 = 7. Solving an equation means finding every value of the variable that makes the statement true — its solutions or roots.\n\nA standard tactic is to move everything to one side so the equation reads 'expression = 0', then factor or apply a formula. In the CAS tab's Solve operation you can write the two sides directly (left = right).\n\nEquations are pure algebra and carry no units.",
+  "formulas": ["x² − 4 = 0  ⟹  x = ±2", "expression = 0"],
+  "see_also": ["root", "expression", "factor"]
+}

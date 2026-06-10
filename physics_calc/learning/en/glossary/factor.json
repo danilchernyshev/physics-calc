@@ -1,0 +1,7 @@
+{
+  "title": "Factor / factored form",
+  "short": "Writing an expression as a product, like x² − 4 = (x − 2)(x + 2).",
+  "full": "To factor an expression is to rewrite it as a product of simpler factors: x² − 4 = (x − 2)(x + 2). It is the reverse of expanding (multiplying out).\n\nFactoring is powerful for solving equations: once a polynomial is a product of factors equal to zero, each factor can be set to zero in turn, immediately giving the roots. The factored form also reveals an expression's roots at a glance.\n\nIt is a pure-algebra operation with no units.",
+  "formulas": ["x² − 4 = (x − 2)(x + 2)", "x² + 2x = x(x + 2)"],
+  "see_also": ["polynomial", "root", "equation"]
+}

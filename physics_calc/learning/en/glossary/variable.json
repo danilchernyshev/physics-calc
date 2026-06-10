@@ -1,0 +1,7 @@
+{
+  "title": "Variable",
+  "short": "A symbol such as x that stands for an unknown or changing quantity.",
+  "full": "A variable is a letter that represents a number which may be unknown or may vary — most often x, but any symbol works. Operations like differentiation, integration and solving are always carried out 'with respect to' a particular variable.\n\nIn the CAS tab you may name the variable explicitly; if you leave the field blank and the expression has a single unknown, the tool detects it automatically (the way Wolfram Alpha does).\n\nA constant, by contrast, is a fixed number that does not change.",
+  "formulas": ["d/dx (x²) = 2x"],
+  "see_also": ["expression", "coefficient", "function"]
+}

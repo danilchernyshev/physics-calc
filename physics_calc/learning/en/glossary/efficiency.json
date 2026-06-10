@@ -1,0 +1,7 @@
+{
+  "title": "Efficiency",
+  "short": "The fraction of input energy a machine turns into useful output, a number between 0 and 1.",
+  "full": "Efficiency is useful output energy divided by input energy — a dimensionless fraction often written as a percentage. No real engine reaches 1 (100%): some energy is always lost, usually as waste heat.\n\nFor a heat engine working between a hot reservoir at T_h and a cold one at T_c, the second law caps the efficiency at the Carnot value η = 1 − T_c/T_h, with the temperatures in kelvin. Raising T_h or lowering T_c raises the ceiling.\n\nBeing a ratio, efficiency has no units.",
+  "formulas": ["η = useful / input", "η = 1 − T_c / T_h"],
+  "see_also": ["temperature", "energy", "heat"]
+}

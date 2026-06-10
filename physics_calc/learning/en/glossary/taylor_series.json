@@ -1,0 +1,7 @@
+{
+  "title": "Taylor series",
+  "short": "A polynomial approximation of a function near a point, built from its derivatives.",
+  "full": "A Taylor series approximates a smooth function near a chosen point by a polynomial whose coefficients come from the function's derivatives there. Around x = 0 (a Maclaurin series) the first terms are f(0) + f′(0)·x + ½·f″(0)·x² + …\n\nKeeping only the first few terms gives a simple approximation that is accurate close to the point — for instance sin(x) ≈ x − x³/6 for small x. The more terms, the wider the range where it stays accurate.\n\nThe CAS tab expands around x = 0 up to a chosen order.",
+  "formulas": ["eˣ ≈ 1 + x + x²/2 + x³/6", "sin(x) ≈ x − x³/6"],
+  "see_also": ["derivative", "function", "polynomial"]
+}

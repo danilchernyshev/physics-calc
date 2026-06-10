@@ -1,0 +1,23 @@
+{
+  "summary": "Each photon of light carries an energy fixed by its frequency: E = h·f. Higher-frequency light means more energetic photons.",
+  "terms": ["photon_energy", "frequency", "planck_constant", "energy"],
+  "formulas": ["E = h·f", "f = E / h", "E = h·c / λ"],
+  "method": [
+    "Identify the light's frequency (or convert from wavelength with f = c/λ).",
+    "Decide which quantity is unknown — energy or frequency.",
+    "Rearrange E = h·f for the unknown.",
+    "Use SI units (Hz, J); the calculator supplies h ≈ 6.63 × 10⁻³⁴ J·s.",
+    "Substitute and compute; results are tiny, so expect powers of ten like 10⁻¹⁹ J."
+  ],
+  "example": {
+    "title": "Energy of a green-light photon",
+    "given": ["frequency f = 5.5 × 10¹⁴ Hz"],
+    "find": "the photon energy E",
+    "steps": [
+      "The unknown is E, so use E = h·f.",
+      "Substitute: E = 6.63 × 10⁻³⁴ · 5.5 × 10¹⁴.",
+      "Multiply: E ≈ 3.6 × 10⁻¹⁹ J."
+    ],
+    "answer": "E ≈ 3.6 × 10⁻¹⁹ J (about 2.3 eV)"
+  }
+}

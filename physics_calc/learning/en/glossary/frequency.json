@@ -1,0 +1,7 @@
+{
+  "title": "Frequency",
+  "short": "How many cycles happen per second, f = 1/T, measured in hertz (Hz).",
+  "full": "Frequency f counts how many complete cycles of a wave or oscillation occur each second, f = 1/T, where T is the period. One hertz is one cycle per second.\n\nFor light, frequency fixes the colour and, through E = h·f, the energy of each photon; for sound it fixes the pitch. Frequency does not change when a wave passes between media, even though its speed and wavelength do.\n\nThe SI unit is the hertz (Hz).",
+  "formulas": ["f = 1 / T", "v = λ·f", "E = h·f"],
+  "see_also": ["period", "wavelength", "photon_energy"]
+}

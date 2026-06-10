@@ -1,0 +1,23 @@
+{
+  "summary": "Work is energy transferred by a force acting over a distance, A = F·s. It is positive when the force pushes along the motion.",
+  "terms": ["work", "force", "displacement", "energy"],
+  "formulas": ["A = F·s", "F = A / s", "s = A / F", "1 J = 1 N·m"],
+  "method": [
+    "Identify the force doing the work and the displacement over which it acts.",
+    "Make sure the force is along the direction of motion (only that component does work).",
+    "Decide which quantity is unknown — work, force, or displacement.",
+    "Rearrange A = F·s for the unknown.",
+    "Substitute in SI units (N, m) so the work comes out in joules."
+  ],
+  "example": {
+    "title": "Pushing a crate across the floor",
+    "given": ["force F = 50 N", "displacement s = 3 m"],
+    "find": "the work A done",
+    "steps": [
+      "The unknown is A, so use A = F·s.",
+      "Substitute: A = 50 · 3.",
+      "Multiply: A = 150 N·m."
+    ],
+    "answer": "A = 150 J"
+  }
+}

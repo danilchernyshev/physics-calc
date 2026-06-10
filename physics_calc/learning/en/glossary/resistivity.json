@@ -1,0 +1,7 @@
+{
+  "title": "Resistivity",
+  "short": "A material's intrinsic opposition to current, ρ, measured in ohm-metres (Ω·m).",
+  "full": "Resistivity ρ is a property of the material itself, independent of shape: it says how strongly a given substance resists current. Copper has a low resistivity (a good conductor); rubber's is enormous (an insulator).\n\nTo get the resistance of an actual wire you fold in its geometry: R = ρ·L/S, longer and thinner being more resistive. Resistivity also rises with temperature in metals.\n\nThe SI unit is the ohm-metre (Ω·m).",
+  "formulas": ["R = ρ·L / S", "ρ = R·S / L"],
+  "see_also": ["resistance", "length", "cross_section"]
+}

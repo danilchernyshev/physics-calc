@@ -1,0 +1,23 @@
+{
+  "summary": "Period and frequency are reciprocals: T = 1/f. The period is how long one cycle takes; the frequency is how many cycles fit in a second.",
+  "terms": ["period", "frequency", "time"],
+  "formulas": ["T = 1 / f", "f = 1 / T"],
+  "method": [
+    "Identify whether you are given the period (a time) or the frequency (a rate).",
+    "Decide which one is unknown.",
+    "Use T = 1/f or, equivalently, f = 1/T.",
+    "Use SI units: seconds for the period, hertz for the frequency.",
+    "Substitute and compute; check that a short period means a high frequency."
+  ],
+  "example": {
+    "title": "Frequency of a pendulum",
+    "given": ["period T = 0.5 s"],
+    "find": "the frequency f",
+    "steps": [
+      "The unknown is f, so use f = 1/T.",
+      "Substitute: f = 1 / 0.5.",
+      "Divide: f = 2."
+    ],
+    "answer": "f = 2 Hz"
+  }
+}

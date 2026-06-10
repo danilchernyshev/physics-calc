@@ -1,0 +1,23 @@
+{
+  "summary": "Most solids stretch a little when heated. The change in length is ΔL = α·L₀·ΔT, set by the material's expansion coefficient, its starting length, and the temperature change.",
+  "terms": ["length_change", "expansion_coefficient", "initial_length", "temperature_change"],
+  "formulas": ["ΔL = α·L₀·ΔT", "α = ΔL / (L₀·ΔT)", "L₀ = ΔL / (α·ΔT)", "ΔT = ΔL / (α·L₀)"],
+  "method": [
+    "Identify the material's expansion coefficient α and the object's initial length L₀.",
+    "Find the temperature change ΔT (a Celsius difference equals the Kelvin one).",
+    "Decide which quantity is unknown — ΔL, α, L₀, or ΔT.",
+    "Rearrange ΔL = α·L₀·ΔT for the unknown.",
+    "Keep lengths in metres; expect a small ΔL, and a negative one if the object cools."
+  ],
+  "example": {
+    "title": "Expansion of a steel rail",
+    "given": ["expansion coefficient α = 1.2 × 10⁻⁵ 1/K", "initial length L₀ = 30 m", "temperature change ΔT = 25 K"],
+    "find": "the change in length ΔL",
+    "steps": [
+      "The unknown is ΔL, so use ΔL = α·L₀·ΔT.",
+      "Substitute: ΔL = 1.2 × 10⁻⁵ · 30 · 25.",
+      "Multiply: ΔL = 9 × 10⁻³ m."
+    ],
+    "answer": "ΔL = 0.009 m (9 mm)"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Derivative",
+  "short": "The instantaneous rate of change of a function, written d/dx f(x) or f′(x).",
+  "full": "The derivative of a function measures how fast its output changes as the input changes — the slope of its graph at each point. It is written df/dx or f′(x). For f(x) = x², the derivative is 2x: the slope grows as you move right.\n\nKey rules: the power rule d/dx (xⁿ) = n·xⁿ⁻¹, plus rules for sums, products, quotients and compositions (the chain rule). Velocity is the derivative of position; acceleration is the derivative of velocity.\n\nThe units of a derivative are the function's units divided by the variable's units.",
+  "formulas": ["d/dx (xⁿ) = n·xⁿ⁻¹", "d/dx (x²) = 2x"],
+  "see_also": ["function", "integral", "variable"]
+}

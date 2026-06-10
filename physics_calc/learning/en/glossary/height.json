@@ -1,0 +1,7 @@
+{
+  "title": "Height",
+  "short": "Vertical distance above a chosen reference level, measured in metres (m).",
+  "full": "Height is the vertical position of an object measured from a reference level you are free to choose. It enters gravitational potential energy, E = m·g·h: only the change in height between start and finish affects the energy.\n\nBecause the reference is arbitrary, potential energy can be made zero at any convenient level — what is physical is always a difference of heights.\n\nThe SI unit is the metre (m).",
+  "formulas": ["E = m·g·h"],
+  "see_also": ["potential_energy", "gravity"]
+}

@@ -1,0 +1,22 @@
+{
+  "summary": "Expanding multiplies everything out, turning products and powers of brackets into a sum of plain terms. It is the opposite of factoring.",
+  "terms": ["expression", "polynomial", "term"],
+  "formulas": ["(a + b)² = a² + 2ab + b²", "(a + b)(a − b) = a² − b²", "a(b + c) = ab + ac"],
+  "method": [
+    "Apply the distributive law: multiply each term in one bracket by each term in the other.",
+    "Use the known identities for squares and differences of squares to speed things up.",
+    "Multiply out any powers of brackets, e.g. (x + 1)² = (x + 1)(x + 1).",
+    "Collect like terms to tidy the result into a single polynomial."
+  ],
+  "example": {
+    "title": "Expand a squared binomial",
+    "given": ["the expression (x + 3)²"],
+    "find": "the expanded polynomial",
+    "steps": [
+      "Write it as a product: (x + 3)(x + 3).",
+      "Multiply each pair: x·x + x·3 + 3·x + 3·3 = x² + 3x + 3x + 9.",
+      "Collect like terms: 3x + 3x = 6x."
+    ],
+    "answer": "x² + 6x + 9"
+  }
+}

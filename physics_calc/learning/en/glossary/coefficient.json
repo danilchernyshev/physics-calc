@@ -1,0 +1,7 @@
+{
+  "title": "Coefficient",
+  "short": "The numerical multiplier in front of a variable term, like the 3 in 3x².",
+  "full": "A coefficient is the number multiplying a variable part of a term: in 3x² the coefficient is 3, in −5x it is −5. The constant term (with no variable) can be thought of as the coefficient of x⁰ = 1.\n\nCoefficients are what you read off when matching or comparing polynomials, and they determine the roots of an equation.\n\nThey are ordinary numbers, so they carry no special units.",
+  "formulas": ["a·x² + b·x + c"],
+  "see_also": ["polynomial", "variable", "term"]
+}

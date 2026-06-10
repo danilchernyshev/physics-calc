@@ -1,0 +1,7 @@
+{
+  "title": "Integral",
+  "short": "The reverse of differentiation; the indefinite integral accumulates a function, ∫f(x) dx.",
+  "full": "Integration is the inverse of differentiation. The indefinite integral ∫f(x) dx, also called the antiderivative, is the function whose derivative is f. For f(x) = 2x, the integral is x² (+ C).\n\nBecause the derivative of a constant is zero, every indefinite integral carries an arbitrary constant of integration C — the CAS tab omits it for brevity. A definite integral, over an interval, gives the signed area under the curve.\n\nThe key rule is the power rule in reverse: ∫xⁿ dx = xⁿ⁺¹/(n+1) for n ≠ −1.",
+  "formulas": ["∫xⁿ dx = xⁿ⁺¹ / (n + 1) + C", "∫2x dx = x² + C"],
+  "see_also": ["derivative", "antiderivative", "function"]
+}

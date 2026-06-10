@@ -1,0 +1,7 @@
+{
+  "title": "Speed of light",
+  "short": "The speed of electromagnetic waves in vacuum, c ≈ 3.00 × 10⁸ m/s — nature's universal speed limit.",
+  "full": "The speed of light in vacuum, c ≈ 299 792 458 m/s (about 3 × 10⁸ m/s), is the same for every observer and is the fastest anything carrying information can travel. All electromagnetic waves — radio, light, X-rays — move at c in vacuum.\n\nFor light it links wavelength and frequency, c = λ·f, so a known frequency fixes the wavelength. Light slows down in glass or water, which is what makes it bend (refraction).\n\nThe SI unit is metres per second (m/s).",
+  "formulas": ["c = λ·f", "λ = c / f"],
+  "see_also": ["wavelength", "frequency", "refractive_index"]
+}

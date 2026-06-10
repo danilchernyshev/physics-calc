@@ -1,0 +1,7 @@
+{
+  "title": "Capacitance",
+  "short": "How much charge a capacitor stores per volt, C = Q / U, measured in farads (F).",
+  "full": "Capacitance measures a capacitor's ability to store charge: the charge held per unit voltage, C = Q/U. A larger capacitance stores more charge at the same voltage. It depends on the geometry of the conductors and the insulating material between them.\n\nThe energy stored in a charged capacitor is W = ½·C·U².\n\nThe SI unit is the farad (F); 1 F = 1 C/V. A farad is large, so real capacitors are often microfarads (µF) or smaller.",
+  "formulas": ["Q = C·U", "W = ½·C·U²"],
+  "see_also": ["charge", "voltage", "energy"]
+}

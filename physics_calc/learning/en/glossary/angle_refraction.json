@@ -1,0 +1,7 @@
+{
+  "title": "Angle of refraction",
+  "short": "The angle between a refracted ray and the normal after it crosses into a new medium, in degrees.",
+  "full": "The angle of refraction θ₂ is the angle, measured from the normal, at which a ray travels after bending as it enters a new medium. Light entering a denser medium (higher n) bends toward the normal, so θ₂ is smaller than θ₁; entering a less dense medium it bends away.\n\nSnell's law gives it: n₁·sin θ₁ = n₂·sin θ₂. If the required sine exceeds 1 there is no refracted ray — the light is totally internally reflected.\n\nIt is measured in degrees (or radians).",
+  "formulas": ["n₁·sin θ₁ = n₂·sin θ₂"],
+  "see_also": ["angle_incidence", "refractive_index"]
+}

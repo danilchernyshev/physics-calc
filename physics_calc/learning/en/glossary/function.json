@@ -1,0 +1,7 @@
+{
+  "title": "Function",
+  "short": "A rule that assigns one output to each input, such as f(x) = x² + 1.",
+  "full": "A function is a rule that takes an input value and returns exactly one output, written like f(x) = x² + 1. The independent variable (x) is the input; the value f(x) is the output.\n\nCalculus studies how functions change: the derivative measures the instantaneous rate of change, and the integral accumulates the function over an interval. A Taylor series approximates a function near a point by a polynomial.\n\nFunctions are abstract mathematical objects; units depend on what they model.",
+  "formulas": ["f(x) = x² + 1", "f(x) = sin(x)"],
+  "see_also": ["variable", "derivative", "integral"]
+}

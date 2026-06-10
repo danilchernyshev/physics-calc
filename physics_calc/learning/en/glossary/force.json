@@ -1,0 +1,7 @@
+{
+  "title": "Force",
+  "short": "A push or pull on an object, measured in newtons (N). A net force changes an object's motion.",
+  "full": "A force is an interaction that pushes or pulls on an object. Force is a vector: it has both a magnitude and a direction, and forces add as vectors.\n\nWhat matters for motion is the net force — the vector sum of all forces acting on the object. By Newton's second law the net force equals mass times acceleration, F = m·a, so a non-zero net force always produces an acceleration.\n\nThe SI unit is the newton (N): one newton is the force that gives a 1 kg mass an acceleration of 1 m/s². Equivalently, 1 N = 1 kg·m/s².",
+  "formulas": ["F = m·a", "1 N = 1 kg·m/s²"],
+  "see_also": ["mass", "acceleration"]
+}

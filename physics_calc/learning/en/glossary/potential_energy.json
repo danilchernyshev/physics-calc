@@ -1,0 +1,7 @@
+{
+  "title": "Gravitational potential energy",
+  "short": "Stored energy due to height in a gravitational field, E = m·g·h, measured in joules (J).",
+  "full": "Gravitational potential energy is the energy an object has by virtue of its position above some reference level, E = m·g·h, where h is the height and g the gravitational acceleration. Lifting an object stores energy; letting it fall releases that energy as kinetic energy.\n\nOnly differences in height matter, so you are free to choose the zero level (the floor, the table, the ground) wherever it is convenient.\n\nThe SI unit is the joule (J). In an ideal fall with no friction, the sum of kinetic and potential energy stays constant — conservation of mechanical energy.",
+  "formulas": ["E = m·g·h"],
+  "see_also": ["energy", "gravity", "height"]
+}

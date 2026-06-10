@@ -1,0 +1,7 @@
+{
+  "title": "Universal gas constant",
+  "short": "The constant R ≈ 8.314 J/(mol·K) linking pressure, volume, moles and temperature in the ideal gas law.",
+  "full": "The universal gas constant R is the proportionality constant in the ideal gas law, P·V = n·R·T. Its value, R ≈ 8.314 J/(mol·K), is the same for every ideal gas — that universality is what makes the law so useful.\n\nIt ties together the macroscopic state variables (pressure, volume, temperature) with the amount of gas in moles. The calculator already substitutes R for you.\n\nThe SI unit is the joule per mole-kelvin, J/(mol·K).",
+  "formulas": ["P·V = n·R·T", "R ≈ 8.314 J/(mol·K)"],
+  "see_also": ["amount_of_substance", "pressure", "temperature"]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Momentum",
+  "short": "Mass in motion, p = m·v, measured in kg·m/s. Conserved when no external force acts.",
+  "full": "Momentum is the product of an object's mass and velocity, p = m·v. It is a vector pointing along the velocity, and it measures how hard it is to stop a moving object — a heavy truck and a fast bullet can carry comparable momentum.\n\nNewton's second law in its general form says force is the rate of change of momentum, F = Δp / Δt. It follows that when the net external force is zero the total momentum of a system is conserved, which is the key tool for analysing collisions and explosions.\n\nThe SI unit is the kilogram-metre per second (kg·m/s).",
+  "formulas": ["p = m·v", "F = Δp / Δt"],
+  "see_also": ["mass", "velocity", "force"]
+}

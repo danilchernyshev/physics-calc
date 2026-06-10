@@ -1,0 +1,7 @@
+{
+  "title": "Cross-sectional area",
+  "short": "The area of a wire's end face, measured in square metres (m²).",
+  "full": "The cross-sectional area S is the area of the slice you would see by cutting a wire straight across. A thicker wire (larger S) gives charge more room to flow and so has a lower resistance, R = ρ·L/S — the area is in the denominator.\n\nFor a round wire of radius r, S = π·r². The SI unit is the square metre (m²).",
+  "formulas": ["R = ρ·L / S", "S = π·r²"],
+  "see_also": ["resistivity", "length", "resistance"]
+}

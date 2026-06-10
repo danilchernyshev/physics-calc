@@ -1,0 +1,7 @@
+{
+  "title": "Acceleration",
+  "short": "The rate at which velocity changes over time, measured in m/s². Caused by a net force.",
+  "full": "Acceleration is how quickly an object's velocity changes, a = Δv / Δt. Like velocity it is a vector, so an object accelerates whenever its speed changes, its direction changes, or both.\n\nA net force is what produces acceleration: a = F / m. With no net force the velocity stays constant (Newton's first law).\n\nThe SI unit is metres per second squared (m/s²). A familiar value is g ≈ 9.81 m/s², the acceleration of free fall near Earth's surface.",
+  "formulas": ["a = Δv / Δt", "a = F / m"],
+  "see_also": ["velocity", "force", "gravity"]
+}

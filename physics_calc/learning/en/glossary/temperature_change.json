@@ -1,0 +1,7 @@
+{
+  "title": "Temperature change",
+  "short": "The difference between final and initial temperature, ΔT = T − T₀, in kelvin (K).",
+  "full": "A temperature change ΔT is the difference between a final and an initial temperature. Because the Kelvin and Celsius degrees are the same size, a change of 20 °C is identical to a change of 20 K — so you can use Celsius differences directly in Q = c·m·ΔT and ΔL = α·L₀·ΔT.\n\nA positive ΔT means heating (and expansion); a negative ΔT means cooling (and contraction).\n\nThe SI unit is the kelvin (K).",
+  "formulas": ["ΔT = T − T₀", "Q = c·m·ΔT"],
+  "see_also": ["temperature", "heat", "expansion_coefficient"]
+}

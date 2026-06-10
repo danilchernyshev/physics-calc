@@ -1,0 +1,23 @@
+{
+  "summary": "Coulomb's law gives the electric force between two point charges: F = k·q₁·q₂/r². Like gravity it is inverse-square, so the force falls off sharply with distance.",
+  "terms": ["coulomb_constant", "charge", "distance", "force"],
+  "formulas": ["F = k·q₁·q₂ / r²", "r = √(k·q₁·q₂ / F)", "q₁ = F·r² / (k·q₂)"],
+  "method": [
+    "Identify the two charges q₁ and q₂ and the distance r between them.",
+    "Decide which quantity is unknown — force, a charge, or the distance.",
+    "Rearrange F = k·q₁·q₂/r²; solving for r involves a square root.",
+    "Use SI units (coulombs, metres); the calculator supplies k ≈ 8.99 × 10⁹ N·m²/C².",
+    "Interpret the sign: like charges repel, unlike charges attract."
+  ],
+  "example": {
+    "title": "Force between two small charges",
+    "given": ["charge q₁ = 2 × 10⁻⁶ C", "charge q₂ = 3 × 10⁻⁶ C", "distance r = 0.1 m"],
+    "find": "the force F",
+    "steps": [
+      "The unknown is F, so use F = k·q₁·q₂/r².",
+      "Substitute: F = 8.99 × 10⁹ · 2 × 10⁻⁶ · 3 × 10⁻⁶ / 0.1².",
+      "Top: 8.99 × 10⁹ · 6 × 10⁻¹² ≈ 0.0539; divide by 0.01."
+    ],
+    "answer": "F ≈ 5.4 N (repulsive)"
+  }
+}

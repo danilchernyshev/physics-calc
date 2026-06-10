@@ -1,0 +1,7 @@
+{
+  "title": "Change in length",
+  "short": "How much an object lengthens or shortens when its temperature changes, in metres (m).",
+  "full": "The change in length ΔL is the difference between an object's final and initial length caused by thermal expansion or contraction, ΔL = α·L₀·ΔT. It is positive when the object is heated and negative when cooled.\n\nThough usually small, ΔL is why gaps are left in bridges, pipelines and railway tracks — without them the expansion would buckle the structure.\n\nThe SI unit is the metre (m).",
+  "formulas": ["ΔL = α·L₀·ΔT"],
+  "see_also": ["initial_length", "expansion_coefficient", "temperature_change"]
+}

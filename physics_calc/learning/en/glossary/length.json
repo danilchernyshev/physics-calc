@@ -1,0 +1,7 @@
+{
+  "title": "Length",
+  "short": "The extent of an object along one dimension, measured in metres (m).",
+  "full": "Length is a one-dimensional measure of size or extent. For a current-carrying wire, the length L is how far the charge has to travel through the resistive material: the longer the wire, the greater its resistance, R = ρ·L/S.\n\nThe SI unit is the metre (m).",
+  "formulas": ["R = ρ·L / S"],
+  "see_also": ["resistivity", "cross_section", "resistance"]
+}

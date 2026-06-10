@@ -1,0 +1,7 @@
+{
+  "title": "Velocity",
+  "short": "How fast an object moves and in which direction, measured in m/s. Speed is its magnitude.",
+  "full": "Velocity is the rate of change of position, v = Δx / Δt. It is a vector — it carries a direction — whereas speed is just its magnitude. Walking 2 m/s east and 2 m/s west are the same speed but opposite velocities.\n\nUnder constant acceleration the velocity changes uniformly, v = v₀ + a·t, where v₀ is the initial velocity.\n\nThe SI unit is metres per second (m/s); 1 m/s is 3.6 km/h.",
+  "formulas": ["v = Δx / Δt", "v = v₀ + a·t"],
+  "see_also": ["acceleration", "momentum", "time"]
+}

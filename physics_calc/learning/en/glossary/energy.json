@@ -1,0 +1,7 @@
+{
+  "title": "Energy",
+  "short": "The capacity to do work, measured in joules (J). It is conserved — never created or destroyed, only transformed.",
+  "full": "Energy is the quantity that lets a system do work. It comes in many forms — kinetic (motion), gravitational potential (height), thermal, electrical — and the central principle of physics is that it is conserved: energy is never created or destroyed, only transferred or converted from one form to another.\n\nIn mechanics, a falling object trades gravitational potential energy for kinetic energy while their sum (the mechanical energy) stays constant, as long as friction does not bleed energy away as heat.\n\nThe SI unit is the joule (J).",
+  "formulas": ["E = ½·m·v²", "E = m·g·h", "1 J = 1 N·m"],
+  "see_also": ["kinetic_energy", "potential_energy", "work"]
+}

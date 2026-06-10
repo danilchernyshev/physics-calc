@@ -1,0 +1,7 @@
+{
+  "title": "Wavelength",
+  "short": "The distance between successive crests of a wave, λ, measured in metres (m).",
+  "full": "Wavelength λ is the spatial period of a wave — the distance over which its shape repeats, from one crest to the next. It connects to frequency through the wave speed, v = λ·f, so for a fixed speed a longer wavelength means a lower frequency.\n\nVisible light spans roughly 400 nm (violet) to 700 nm (red); radio waves are metres long; gamma rays are smaller than an atom.\n\nThe SI unit is the metre (m); light wavelengths are usually quoted in nanometres (nm).",
+  "formulas": ["v = λ·f", "λ = c / f"],
+  "see_also": ["frequency", "wave_speed", "speed_of_light"]
+}

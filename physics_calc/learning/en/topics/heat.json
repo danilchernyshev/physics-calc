@@ -1,0 +1,23 @@
+{
+  "summary": "This is the heat needed to change a substance's temperature without changing its phase: Q = c·m·ΔT. The specific heat c says how 'thermally heavy' the material is.",
+  "terms": ["heat", "specific_heat", "mass", "temperature_change", "temperature"],
+  "formulas": ["Q = c·m·ΔT", "c = Q / (m·ΔT)", "m = Q / (c·ΔT)", "ΔT = Q / (c·m)"],
+  "method": [
+    "Identify the substance and look up (or be given) its specific heat c.",
+    "Find the mass m and the temperature change ΔT = T_final − T_initial.",
+    "Decide which quantity is unknown — heat, mass, specific heat, or ΔT.",
+    "Rearrange Q = c·m·ΔT for that unknown.",
+    "Use SI units (J, kg, K); a Celsius temperature difference equals the Kelvin one, so ΔT can stay in °C."
+  ],
+  "example": {
+    "title": "Heating water for tea",
+    "given": ["specific heat c = 4186 J/(kg·K)", "mass m = 0.5 kg", "temperature change ΔT = 80 K"],
+    "find": "the heat Q required",
+    "steps": [
+      "The unknown is Q, so use Q = c·m·ΔT.",
+      "Substitute: Q = 4186 · 0.5 · 80.",
+      "Multiply: Q = 167 440 J."
+    ],
+    "answer": "Q ≈ 167 kJ"
+  }
+}

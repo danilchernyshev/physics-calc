@@ -1,0 +1,7 @@
+{
+  "title": "Time",
+  "short": "The duration over which a process happens, measured in seconds (s).",
+  "full": "Time is the quantity that orders events and sets the duration of a process. In kinematics it is the independent variable: position and velocity are tracked as functions of time.\n\nMany relations are rates with respect to time — velocity is change in position per unit time, acceleration is change in velocity per unit time, power is energy delivered per unit time.\n\nThe SI unit is the second (s). Common multiples are minutes (60 s) and hours (3600 s); convert to seconds before substituting into SI formulas.",
+  "formulas": ["v = v₀ + a·t", "P = A / t"],
+  "see_also": ["velocity", "acceleration", "power"]
+}

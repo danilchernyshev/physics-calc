@@ -1,0 +1,7 @@
+{
+  "title": "Period",
+  "short": "The time for one full cycle of an oscillation, T = 1/f, measured in seconds (s).",
+  "full": "The period T is the time taken for one complete cycle — one full swing of a pendulum, one full wave to pass. It is the reciprocal of frequency, T = 1/f: a fast oscillation (high frequency) has a short period.\n\nA pendulum that ticks once per second has a period of 1 s and a frequency of 1 Hz.\n\nThe SI unit is the second (s).",
+  "formulas": ["T = 1 / f", "f = 1 / T"],
+  "see_also": ["frequency", "time"]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Voltage",
+  "short": "The energy given to each unit of charge — the 'push' that drives a current, measured in volts (V).",
+  "full": "Voltage (potential difference) is the electrical energy delivered per unit of charge between two points, measured in volts: 1 V = 1 J/C. It is the 'push' that makes charge flow — water pressure is a useful analogy, with voltage as the pressure and current as the flow.\n\nAcross a resistor, voltage and current are linked by Ohm's law, U = I·R. A battery's voltage sets how much energy each coulomb of charge carries around the circuit.\n\nThe SI unit is the volt (V).",
+  "formulas": ["U = I·R", "1 V = 1 J/C"],
+  "see_also": ["current", "resistance", "charge"]
+}

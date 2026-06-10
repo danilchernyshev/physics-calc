@@ -1,0 +1,7 @@
+{
+  "title": "Planck constant",
+  "short": "The fundamental constant linking a photon's energy to its frequency, h ≈ 6.63 × 10⁻³⁴ J·s.",
+  "full": "Planck's constant h is the proportionality between a photon's energy and its frequency, E = h·f. Its extreme smallness, h ≈ 6.63 × 10⁻³⁴ J·s, is why quantum effects are invisible in everyday life — the energy steps are tiny.\n\nIt is one of the cornerstones of quantum mechanics; the calculator substitutes it for you.\n\nThe SI unit is the joule-second (J·s).",
+  "formulas": ["E = h·f", "h ≈ 6.63 × 10⁻³⁴ J·s"],
+  "see_also": ["photon_energy", "frequency"]
+}

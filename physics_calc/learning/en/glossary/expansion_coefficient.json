@@ -1,0 +1,7 @@
+{
+  "title": "Coefficient of linear expansion",
+  "short": "The fractional change in length per degree of temperature change, α, in units of 1/K.",
+  "full": "The coefficient of linear expansion α measures how much a material stretches per unit length for each degree of heating: ΔL = α·L₀·ΔT. Most solids expand when heated because the atoms vibrate more strongly and sit slightly farther apart.\n\nThe values are tiny (steel α ≈ 1.2 × 10⁻⁵ 1/K), but over long spans or large temperature swings they matter — hence expansion joints in bridges and railway tracks.\n\nThe SI unit is the reciprocal kelvin (1/K).",
+  "formulas": ["ΔL = α·L₀·ΔT", "α = ΔL / (L₀·ΔT)"],
+  "see_also": ["temperature_change", "initial_length"]
+}

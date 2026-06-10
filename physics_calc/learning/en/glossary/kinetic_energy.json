@@ -1,0 +1,7 @@
+{
+  "title": "Kinetic energy",
+  "short": "The energy of motion, E = ½·m·v², measured in joules (J).",
+  "full": "Kinetic energy is the energy an object has because it is moving, E = ½·m·v². Unlike momentum it is a scalar (no direction) and it grows with the square of the speed — doubling the speed quadruples the kinetic energy.\n\nThe work–energy theorem connects it to force: the net work done on an object equals the change in its kinetic energy. That is why stopping a fast car takes a much longer braking distance than stopping a slow one.\n\nThe SI unit is the joule (J); 1 J = 1 kg·m²/s².",
+  "formulas": ["E = ½·m·v²", "W_net = ΔE"],
+  "see_also": ["energy", "velocity", "work"]
+}

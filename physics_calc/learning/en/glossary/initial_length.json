@@ -1,0 +1,7 @@
+{
+  "title": "Initial length",
+  "short": "The length of an object before it is heated or cooled, measured in metres (m).",
+  "full": "The initial length L₀ is the object's length at the starting temperature, before any thermal expansion. It sets the scale of the expansion: the change in length is proportional to it, ΔL = α·L₀·ΔT, so a long rail expands far more than a short bolt for the same temperature rise.\n\nThe SI unit is the metre (m).",
+  "formulas": ["ΔL = α·L₀·ΔT"],
+  "see_also": ["length_change", "expansion_coefficient"]
+}

@@ -1,0 +1,23 @@
+{
+  "summary": "The charge stored on a capacitor is proportional to the voltage across it: Q = C·U. The capacitance C is the constant of proportionality.",
+  "terms": ["charge", "capacitance", "voltage"],
+  "formulas": ["Q = C·U", "C = Q / U", "U = Q / C"],
+  "method": [
+    "Identify the capacitor and the two known quantities.",
+    "Decide which quantity is unknown — charge, capacitance, or voltage.",
+    "Rearrange Q = C·U for the unknown.",
+    "Use SI units (coulombs, farads, volts); real capacitances are often microfarads, so convert µF to F.",
+    "Substitute and compute."
+  ],
+  "example": {
+    "title": "Charge on a capacitor",
+    "given": ["capacitance C = 100 × 10⁻⁶ F (100 µF)", "voltage U = 9 V"],
+    "find": "the stored charge Q",
+    "steps": [
+      "The unknown is Q, so use Q = C·U.",
+      "Substitute: Q = 100 × 10⁻⁶ · 9.",
+      "Multiply: Q = 9 × 10⁻⁴ C."
+    ],
+    "answer": "Q = 0.0009 C (0.9 mC)"
+  }
+}

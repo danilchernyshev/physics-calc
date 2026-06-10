@@ -1,0 +1,7 @@
+{
+  "title": "Antiderivative",
+  "short": "A function whose derivative is the given one; the result of indefinite integration.",
+  "full": "An antiderivative of f is any function F whose derivative is f, that is F′ = f. Finding one is exactly what indefinite integration does, so 'antiderivative' and 'indefinite integral' name the same thing.\n\nAntiderivatives are not unique: if F works, so does F + C for any constant C, because the derivative of a constant is zero. That family is why integrals carry '+ C'.\n\nYou can always check an integral by differentiating the answer — it should return the original integrand.",
+  "formulas": ["F′(x) = f(x)", "∫2x dx = x² + C"],
+  "see_also": ["integral", "derivative"]
+}

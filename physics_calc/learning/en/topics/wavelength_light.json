@@ -1,0 +1,23 @@
+{
+  "summary": "For light in vacuum the wavelength and frequency are tied by the speed of light: λ = c/f. Use it to convert between colour (wavelength) and frequency.",
+  "terms": ["wavelength", "frequency", "speed_of_light"],
+  "formulas": ["λ = c / f", "f = c / λ", "c = λ·f"],
+  "method": [
+    "Identify whether the wavelength or the frequency is known.",
+    "Decide which one is unknown.",
+    "Rearrange λ = c/f for the unknown.",
+    "Use SI units (m, Hz); the calculator supplies c ≈ 3 × 10⁸ m/s.",
+    "Substitute and compute; visible light comes out around 10⁻⁷ m (hundreds of nm)."
+  ],
+  "example": {
+    "title": "Wavelength of an FM radio wave",
+    "given": ["frequency f = 1.0 × 10⁸ Hz (100 MHz)"],
+    "find": "the wavelength λ",
+    "steps": [
+      "The unknown is λ, so use λ = c/f.",
+      "Substitute: λ = 3 × 10⁸ / 1.0 × 10⁸.",
+      "Divide: λ = 3."
+    ],
+    "answer": "λ = 3 m"
+  }
+}

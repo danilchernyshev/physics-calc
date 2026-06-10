@@ -1,0 +1,7 @@
+{
+  "title": "Amount of substance (moles)",
+  "short": "The number of particles counted in moles, where one mole is about 6.022 × 10²³ particles.",
+  "full": "The amount of substance n counts how many elementary entities (atoms, molecules) are present, in moles. One mole contains Avogadro's number, about 6.022 × 10²³, of them — a bookkeeping unit that turns vast particle counts into manageable numbers.\n\nIt appears in the ideal gas law P·V = n·R·T, where doubling the number of moles at fixed volume and temperature doubles the pressure.\n\nThe SI unit is the mole (mol).",
+  "formulas": ["P·V = n·R·T", "n = P·V / (R·T)"],
+  "see_also": ["gas_constant", "pressure", "volume"]
+}

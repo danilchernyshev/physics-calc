@@ -1,0 +1,7 @@
+{
+  "title": "Distance",
+  "short": "The separation between two objects, measured in metres (m).",
+  "full": "Distance is the separation between two points or objects. In force laws that fall off with separation it is decisive: Coulomb's law and gravitation are inverse-square, F ∝ 1/r², so doubling the distance quarters the force.\n\nFor point charges r is measured centre to centre. Always convert to metres before substituting.\n\nThe SI unit is the metre (m).",
+  "formulas": ["F = k·q₁·q₂ / r²"],
+  "see_also": ["coulomb_constant", "charge", "force"]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Temperature",
+  "short": "A measure of the average kinetic energy of a substance's particles, measured in kelvin (K).",
+  "full": "Temperature measures how hot or cold something is; microscopically it reflects the average kinetic energy of the random motion of the particles. Two bodies in thermal equilibrium have the same temperature.\n\nGas-law and efficiency formulas require the absolute (Kelvin) scale, where 0 K is absolute zero. Convert from Celsius with T[K] = T[°C] + 273.15. A difference of 1 K equals a difference of 1 °C.\n\nThe SI unit is the kelvin (K).",
+  "formulas": ["T[K] = T[°C] + 273.15", "P·V = n·R·T"],
+  "see_also": ["heat", "temperature_change", "pressure"]
+}

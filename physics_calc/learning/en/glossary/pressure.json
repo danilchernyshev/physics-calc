@@ -1,0 +1,7 @@
+{
+  "title": "Pressure",
+  "short": "Force spread over an area, P = F / A, measured in pascals (Pa).",
+  "full": "Pressure is the force exerted perpendicular to a surface divided by the area over which it acts, P = F/A. The same force concentrated on a small area (a sharp knife) produces a large pressure; spread over a big area (snowshoes) it produces a small one.\n\nIn a gas, pressure comes from countless molecules colliding with the container walls, and it is linked to volume, amount and temperature by the ideal gas law, P·V = n·R·T.\n\nThe SI unit is the pascal (Pa); 1 Pa = 1 N/m². Atmospheric pressure is about 101 325 Pa.",
+  "formulas": ["P = F / A", "P·V = n·R·T"],
+  "see_also": ["volume", "temperature", "force"]
+}

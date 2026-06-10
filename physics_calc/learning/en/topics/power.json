@@ -1,0 +1,23 @@
+{
+  "summary": "Power is how fast work is done or energy is delivered, P = A / t. The same work done in less time means more power.",
+  "terms": ["power", "work", "time", "energy"],
+  "formulas": ["P = A / t", "A = P·t", "t = A / P", "1 W = 1 J/s"],
+  "method": [
+    "Find the work done or energy transferred, A.",
+    "Find the time interval t over which it happens.",
+    "Decide which quantity is unknown — power, work, or time.",
+    "Rearrange P = A / t for the unknown.",
+    "Substitute in SI units (J, s) so the power comes out in watts."
+  ],
+  "example": {
+    "title": "Power of a winch",
+    "given": ["work A = 600 J", "time t = 4 s"],
+    "find": "the power P",
+    "steps": [
+      "The unknown is P, so use P = A / t.",
+      "Substitute: P = 600 / 4.",
+      "Divide: P = 150 J/s."
+    ],
+    "answer": "P = 150 W"
+  }
+}

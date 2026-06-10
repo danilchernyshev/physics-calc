@@ -1,0 +1,7 @@
+{
+  "title": "Electric charge",
+  "short": "A basic property of matter that causes electric force, measured in coulombs (C).",
+  "full": "Electric charge is the property of matter responsible for electrical interactions. It comes in two signs — positive and negative — with like charges repelling and unlike charges attracting. Charge is quantized (a multiple of the elementary charge e ≈ 1.6 × 10⁻¹⁹ C) and conserved.\n\nThe force between two point charges follows Coulomb's law, F = k·q₁·q₂/r²; the charge stored on a capacitor is Q = C·U.\n\nThe SI unit is the coulomb (C); one coulomb is one ampere flowing for one second.",
+  "formulas": ["F = k·q₁·q₂ / r²", "Q = C·U"],
+  "see_also": ["coulomb_constant", "current", "capacitance"]
+}

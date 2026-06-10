@@ -1,0 +1,23 @@
+{
+  "summary": "Electric power is the rate at which a device converts electrical energy: P = U·I. It tells you how bright a bulb is or how fast a heater warms a room.",
+  "terms": ["power", "voltage", "current", "energy"],
+  "formulas": ["P = U·I", "U = P / I", "I = P / U", "P = I²·R", "P = U² / R"],
+  "method": [
+    "Identify the device and the voltage across it and current through it.",
+    "Decide which quantity is unknown — power, voltage, or current.",
+    "Rearrange P = U·I for the unknown.",
+    "If you know the resistance instead, combine with Ohm's law: P = I²·R or P = U²/R.",
+    "Use SI units (V, A, W) and substitute."
+  ],
+  "example": {
+    "title": "Power drawn by a light bulb",
+    "given": ["voltage U = 230 V", "current I = 0.26 A"],
+    "find": "the power P",
+    "steps": [
+      "The unknown is P, so use P = U·I.",
+      "Substitute: P = 230 · 0.26.",
+      "Multiply: P ≈ 59.8."
+    ],
+    "answer": "P ≈ 60 W"
+  }
+}

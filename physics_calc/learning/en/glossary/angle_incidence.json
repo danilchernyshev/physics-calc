@@ -1,0 +1,7 @@
+{
+  "title": "Angle of incidence",
+  "short": "The angle between an incoming ray and the normal to a surface, measured in degrees.",
+  "full": "The angle of incidence θ₁ is measured between the incoming ray and the normal — the line perpendicular to the surface at the point where the ray strikes — not the surface itself. A ray hitting a surface head-on has an angle of incidence of 0°.\n\nIt is the input to Snell's law, n₁·sin θ₁ = n₂·sin θ₂, which predicts the angle of refraction on the far side.\n\nIt is measured in degrees (or radians).",
+  "formulas": ["n₁·sin θ₁ = n₂·sin θ₂"],
+  "see_also": ["angle_refraction", "refractive_index"]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Refractive index",
+  "short": "How much a medium slows light, n = c/v — a dimensionless number ≥ 1.",
+  "full": "The refractive index n of a material is the ratio of the speed of light in vacuum to its speed in that material, n = c/v. It is always at least 1 (vacuum is exactly 1; air ≈ 1.0003; water ≈ 1.33; glass ≈ 1.5).\n\nThe higher the index, the slower light travels and the more it bends when crossing a boundary, as described by Snell's law, n₁·sin θ₁ = n₂·sin θ₂.\n\nBeing a ratio, the refractive index has no units.",
+  "formulas": ["n = c / v", "n₁·sin θ₁ = n₂·sin θ₂"],
+  "see_also": ["speed_of_light", "angle_incidence", "angle_refraction"]
+}

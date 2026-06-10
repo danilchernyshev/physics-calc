@@ -1,0 +1,23 @@
+{
+  "summary": "The derivative gives the instantaneous rate of change of a function — the slope of its graph. Differentiation applies a small set of rules term by term.",
+  "terms": ["derivative", "function", "variable", "term"],
+  "formulas": ["d/dx (xⁿ) = n·xⁿ⁻¹", "d/dx (sin x) = cos x", "(f·g)′ = f′·g + f·g′", "chain: (f(g))′ = f′(g)·g′"],
+  "method": [
+    "Choose the variable to differentiate with respect to (e.g. x).",
+    "Differentiate each term separately; constants differentiate to zero.",
+    "Apply the power rule d/dx(xⁿ) = n·xⁿ⁻¹ to power terms.",
+    "Use the product, quotient and chain rules for combinations of functions.",
+    "Add the results back together."
+  ],
+  "example": {
+    "title": "Differentiate a polynomial",
+    "given": ["the function f(x) = x³ + 2x"],
+    "find": "the derivative f′(x)",
+    "steps": [
+      "Differentiate x³ with the power rule: 3x².",
+      "Differentiate 2x: 2.",
+      "Add them: f′(x) = 3x² + 2."
+    ],
+    "answer": "f′(x) = 3x² + 2"
+  }
+}

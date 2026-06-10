@@ -1,0 +1,23 @@
+{
+  "summary": "The Carnot efficiency is the highest fraction of heat any engine can turn into work between two temperatures: η = 1 − T_c/T_h. It is an ideal ceiling, never quite reached.",
+  "terms": ["efficiency", "temperature", "heat", "energy"],
+  "formulas": ["η = 1 − T_c / T_h", "T_c = T_h·(1 − η)", "T_h = T_c / (1 − η)"],
+  "method": [
+    "Identify the hot reservoir temperature T_h and the cold one T_c.",
+    "Convert both temperatures to kelvin — the formula only works on the absolute scale.",
+    "Decide which quantity is unknown — efficiency, T_c, or T_h.",
+    "Rearrange η = 1 − T_c/T_h for the unknown.",
+    "Substitute; the efficiency comes out as a fraction between 0 and 1 (multiply by 100 for a percentage)."
+  ],
+  "example": {
+    "title": "Best possible efficiency of a steam engine",
+    "given": ["hot temperature T_h = 500 K", "cold temperature T_c = 300 K"],
+    "find": "the maximum efficiency η",
+    "steps": [
+      "The unknown is η, so use η = 1 − T_c/T_h.",
+      "Substitute: η = 1 − 300/500.",
+      "Compute: η = 1 − 0.6 = 0.4."
+    ],
+    "answer": "η = 0.4 (40%)"
+  }
+}

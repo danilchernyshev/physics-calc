@@ -1,0 +1,7 @@
+{
+  "title": "Polynomial",
+  "short": "A sum of terms with whole-number powers of a variable, like 3x² − 5x + 2.",
+  "full": "A polynomial is an expression built from a variable using only addition, subtraction and multiplication by constants, with non-negative whole-number powers — for example 3x² − 5x + 2. Its degree is the highest power present (2 here, a quadratic).\n\nPolynomials are the bread and butter of algebra: they can be expanded, factored, differentiated and integrated, and their roots are the solutions of the equation 'polynomial = 0'.\n\nThey are pure mathematical objects with no units.",
+  "formulas": ["a·x² + b·x + c", "x³ − 1 = (x − 1)(x² + x + 1)"],
+  "see_also": ["term", "coefficient", "factor"]
+}

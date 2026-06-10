@@ -1,0 +1,7 @@
+{
+  "title": "Volume",
+  "short": "The amount of space a substance occupies, measured in cubic metres (m³).",
+  "full": "Volume measures the three-dimensional space occupied by a gas, liquid or solid. For a gas the volume is set by its container, and it changes with pressure and temperature through the ideal gas law, P·V = n·R·T.\n\nThe SI unit is the cubic metre (m³). The litre (1 L = 0.001 m³) is convenient for everyday quantities; convert to m³ before substituting into SI formulas.",
+  "formulas": ["P·V = n·R·T", "1 m³ = 1000 L"],
+  "see_also": ["pressure", "amount_of_substance", "temperature"]
+}

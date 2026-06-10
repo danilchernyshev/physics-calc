@@ -1,0 +1,7 @@
+{
+  "title": "Expression",
+  "short": "A combination of numbers, variables and operations, like 2x + 1 — it has a value but no equals sign.",
+  "full": "An algebraic expression is a meaningful combination of numbers, variables and operations (+, −, ·, ÷, powers), such as 3x² − 5x + 2. Unlike an equation it makes no claim of equality — it simply stands for a value that depends on its variables.\n\nThe CAS tab transforms expressions: it can simplify, expand, or factor them, or differentiate and integrate them. Type powers with ^ (x^2) and the tool reads 2x as 2·x.\n\nSee equation for the related notion that does assert equality.",
+  "formulas": ["3x² − 5x + 2", "(x + 1)·(x − 1)"],
+  "see_also": ["variable", "equation", "polynomial"]
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Mass",
+  "short": "The amount of matter in an object and its resistance to acceleration (inertia), measured in kilograms (kg).",
+  "full": "Mass measures how much matter an object contains and, just as importantly, how strongly it resists a change in motion — its inertia. The larger the mass, the more force is needed to produce a given acceleration (F = m·a).\n\nMass is not the same as weight. Mass is an intrinsic property and is the same everywhere; weight is the gravitational force on that mass, W = m·g, and changes with location (it is smaller on the Moon).\n\nThe SI unit of mass is the kilogram (kg).",
+  "formulas": ["F = m·a", "W = m·g"],
+  "see_also": ["force", "acceleration"]
+}

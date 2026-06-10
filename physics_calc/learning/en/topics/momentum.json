@@ -1,0 +1,23 @@
+{
+  "summary": "Momentum is mass in motion, p = m·v. It is the natural quantity for collisions and pushes, because the total momentum of an isolated system is conserved.",
+  "terms": ["momentum", "mass", "velocity"],
+  "formulas": ["p = m·v", "v = p / m", "m = p / v", "F = Δp / Δt"],
+  "method": [
+    "Identify the moving object and note its mass and velocity.",
+    "Decide which quantity is unknown — momentum, mass, or velocity.",
+    "Rearrange p = m·v for that unknown (v = p/m or m = p/v).",
+    "Use SI units (kg, m/s) so the momentum comes out in kg·m/s.",
+    "Keep track of direction: momentum is a vector, so a sign tells you which way it points."
+  ],
+  "example": {
+    "title": "Momentum of a rolling ball",
+    "given": ["mass m = 0.5 kg", "velocity v = 4 m/s"],
+    "find": "the momentum p",
+    "steps": [
+      "The unknown is p, so use p = m·v.",
+      "Substitute: p = 0.5 · 4.",
+      "Multiply: p = 2 kg·m/s."
+    ],
+    "answer": "p = 2 kg·m/s"
+  }
+}

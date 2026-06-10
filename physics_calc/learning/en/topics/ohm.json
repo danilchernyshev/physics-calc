@@ -1,0 +1,23 @@
+{
+  "summary": "Ohm's law links the voltage across a resistor, the current through it, and its resistance: U = I·R. It is the starting point for almost every circuit problem.",
+  "terms": ["voltage", "current", "resistance"],
+  "formulas": ["U = I·R", "I = U / R", "R = U / I"],
+  "method": [
+    "Identify the part of the circuit you are analysing and the two known quantities.",
+    "Decide which quantity is unknown — voltage, current, or resistance.",
+    "Rearrange U = I·R for the unknown (I = U/R or R = U/I).",
+    "Use SI units: volts, amperes, ohms.",
+    "Substitute and compute; sanity-check that a bigger resistance gives a smaller current."
+  ],
+  "example": {
+    "title": "Current through a resistor",
+    "given": ["voltage U = 12 V", "resistance R = 4 Ω"],
+    "find": "the current I",
+    "steps": [
+      "The unknown is I, so use I = U/R.",
+      "Substitute: I = 12 / 4.",
+      "Divide: I = 3."
+    ],
+    "answer": "I = 3 A"
+  }
+}

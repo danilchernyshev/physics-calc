@@ -1,0 +1,7 @@
+{
+  "title": "Wave speed",
+  "short": "How fast a wave's crests travel, v = λ·f, measured in m/s.",
+  "full": "Wave speed is how fast a disturbance — a crest, a pulse — moves through a medium, v = λ·f. It is set by the medium, not by the source: sound travels at about 340 m/s in air whatever its pitch, and light at c ≈ 3 × 10⁸ m/s in vacuum.\n\nBecause v = λ·f is fixed by the medium, raising the frequency shortens the wavelength in proportion.\n\nThe SI unit is metres per second (m/s).",
+  "formulas": ["v = λ·f"],
+  "see_also": ["wavelength", "frequency", "speed_of_light"]
+}

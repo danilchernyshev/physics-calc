@@ -1,0 +1,23 @@
+{
+  "summary": "The resistance of a uniform wire depends on its material and shape: R = ρ·L/S. Longer wires resist more; thicker wires resist less.",
+  "terms": ["resistance", "resistivity", "length", "cross_section"],
+  "formulas": ["R = ρ·L / S", "ρ = R·S / L", "L = R·S / ρ", "S = ρ·L / R"],
+  "method": [
+    "Identify the wire's material (its resistivity ρ), its length L, and its cross-sectional area S.",
+    "Decide which quantity is unknown — resistance, resistivity, length, or area.",
+    "Rearrange R = ρ·L/S for the unknown.",
+    "Use SI units (Ω·m, m, m²); for a round wire, S = π·r².",
+    "Substitute and compute; check that longer/thinner gives more resistance."
+  ],
+  "example": {
+    "title": "Resistance of a copper wire",
+    "given": ["resistivity ρ = 1.7 × 10⁻⁸ Ω·m", "length L = 50 m", "cross-section S = 1 × 10⁻⁶ m²"],
+    "find": "the resistance R",
+    "steps": [
+      "The unknown is R, so use R = ρ·L/S.",
+      "Substitute: R = 1.7 × 10⁻⁸ · 50 / 1 × 10⁻⁶.",
+      "Top: 1.7 × 10⁻⁸ · 50 = 8.5 × 10⁻⁷; divide by 1 × 10⁻⁶."
+    ],
+    "answer": "R = 0.85 Ω"
+  }
+}

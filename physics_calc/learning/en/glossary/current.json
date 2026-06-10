@@ -1,0 +1,7 @@
+{
+  "title": "Electric current",
+  "short": "The rate at which charge flows past a point, I = Q / t, measured in amperes (A).",
+  "full": "Electric current is the flow of electric charge: the amount of charge passing a point per unit time, I = Q/t. One ampere is one coulomb per second. By convention current points in the direction positive charge would move, opposite to the actual drift of electrons in a wire.\n\nIn a simple circuit the current is set by the driving voltage and the resistance, I = U/R (Ohm's law).\n\nThe SI unit is the ampere (A).",
+  "formulas": ["I = Q / t", "I = U / R"],
+  "see_also": ["voltage", "resistance", "charge"]
+}

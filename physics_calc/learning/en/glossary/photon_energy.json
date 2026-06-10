@@ -1,0 +1,7 @@
+{
+  "title": "Photon energy",
+  "short": "The energy carried by a single quantum of light, E = h·f, measured in joules (J).",
+  "full": "Light comes in indivisible packets called photons, and each carries an energy proportional to its frequency, E = h·f, where h is Planck's constant. Higher-frequency light (blue, ultraviolet, X-rays) has more energetic photons than lower-frequency light (red, infrared).\n\nThis quantisation explains why ultraviolet light can damage skin while brighter red light cannot: a single photon must carry enough energy to do the job. Photon energies are often quoted in electronvolts (1 eV ≈ 1.6 × 10⁻¹⁹ J).\n\nThe SI unit is the joule (J).",
+  "formulas": ["E = h·f", "E = h·c / λ"],
+  "see_also": ["planck_constant", "frequency", "energy"]
+}

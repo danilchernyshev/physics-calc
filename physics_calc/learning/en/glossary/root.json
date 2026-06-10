@@ -1,0 +1,7 @@
+{
+  "title": "Root (solution)",
+  "short": "A value of the variable that makes an expression zero or an equation true.",
+  "full": "A root of an expression is a value of the variable that makes it equal to zero; equivalently, a solution of the equation 'expression = 0'. For x² − 4, the roots are x = 2 and x = −2, because both make the expression vanish.\n\nGraphically, the real roots are where the curve crosses the horizontal axis. A polynomial of degree n has at most n roots. Factoring exposes the roots directly: from (x − 2)(x + 2) you read off x = 2 and x = −2.\n\nRoots are pure numbers.",
+  "formulas": ["(x − 2)(x + 2) = 0  ⟹  x = 2 or x = −2"],
+  "see_also": ["equation", "factor", "polynomial"]
+}

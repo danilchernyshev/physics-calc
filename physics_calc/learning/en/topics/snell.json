@@ -1,0 +1,23 @@
+{
+  "summary": "Snell's law describes how light bends when it crosses between media: n₁·sin θ₁ = n₂·sin θ₂. Angles are measured from the normal, not the surface.",
+  "terms": ["refractive_index", "angle_incidence", "angle_refraction", "speed_of_light"],
+  "formulas": ["n₁·sin θ₁ = n₂·sin θ₂", "sin θ₂ = n₁·sin θ₁ / n₂", "n₂ = n₁·sin θ₁ / sin θ₂"],
+  "method": [
+    "Identify the two media (their refractive indices n₁ and n₂) and which angle is known.",
+    "Measure all angles from the normal to the surface, in degrees.",
+    "Decide which quantity is unknown — an index or an angle.",
+    "Rearrange n₁·sin θ₁ = n₂·sin θ₂ for the unknown.",
+    "If solving for an angle gives sin θ > 1, the ray is totally internally reflected — no refracted angle exists."
+  ],
+  "example": {
+    "title": "Light entering water from air",
+    "given": ["index n₁ = 1.0 (air)", "angle of incidence θ₁ = 30°", "index n₂ = 1.33 (water)"],
+    "find": "the angle of refraction θ₂",
+    "steps": [
+      "Solve for θ₂: sin θ₂ = n₁·sin θ₁ / n₂.",
+      "Substitute: sin θ₂ = 1.0 · sin 30° / 1.33 = 0.5 / 1.33 ≈ 0.376.",
+      "Take the inverse sine: θ₂ = arcsin(0.376)."
+    ],
+    "answer": "θ₂ ≈ 22° (bent toward the normal)"
+  }
+}

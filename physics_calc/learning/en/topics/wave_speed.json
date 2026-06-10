@@ -1,0 +1,23 @@
+{
+  "summary": "Every periodic wave obeys v = λ·f: its speed equals wavelength times frequency. Use it to move between how long, how often, and how fast.",
+  "terms": ["wave_speed", "wavelength", "frequency"],
+  "formulas": ["v = λ·f", "λ = v / f", "f = v / λ"],
+  "method": [
+    "Identify the wave and the two known quantities.",
+    "Decide which quantity is unknown — speed, wavelength, or frequency.",
+    "Rearrange v = λ·f for the unknown.",
+    "Use SI units (m/s, m, Hz); convert wavelengths in nm or cm to metres first.",
+    "Substitute and compute."
+  ],
+  "example": {
+    "title": "Wavelength of a sound wave",
+    "given": ["wave speed v = 340 m/s", "frequency f = 170 Hz"],
+    "find": "the wavelength λ",
+    "steps": [
+      "The unknown is λ, so use λ = v/f.",
+      "Substitute: λ = 340 / 170.",
+      "Divide: λ = 2."
+    ],
+    "answer": "λ = 2 m"
+  }
+}

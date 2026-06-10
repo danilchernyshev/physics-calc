@@ -1,0 +1,7 @@
+{
+  "title": "Specific heat capacity",
+  "short": "The heat needed to raise 1 kg of a substance by 1 K, measured in J/(kg·K).",
+  "full": "Specific heat capacity c tells you how much heat a material soaks up per kilogram for each degree of temperature rise: Q = c·m·ΔT. Materials with a high specific heat (water, c ≈ 4186 J/(kg·K)) warm up and cool down slowly, which is why water is used as a coolant and why coastal climates are mild.\n\nMetals have low specific heats, so a small amount of heat changes their temperature a lot.\n\nThe SI unit is the joule per kilogram-kelvin, J/(kg·K).",
+  "formulas": ["Q = c·m·ΔT", "c = Q / (m·ΔT)"],
+  "see_also": ["heat", "temperature_change", "mass"]
+}

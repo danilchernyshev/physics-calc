@@ -1,0 +1,23 @@
+{
+  "summary": "A charged capacitor stores energy in its electric field: W = ½·C·U². Because of the square, doubling the voltage quadruples the stored energy.",
+  "terms": ["energy", "capacitance", "voltage", "charge"],
+  "formulas": ["W = ½·C·U²", "C = 2·W / U²", "U = √(2·W / C)"],
+  "method": [
+    "Identify the capacitor's capacitance C and the voltage U across it.",
+    "Decide which quantity is unknown — energy, capacitance, or voltage.",
+    "Rearrange W = ½·C·U²; solving for U involves a square root.",
+    "Use SI units (farads, volts) so the energy comes out in joules.",
+    "Substitute and compute."
+  ],
+  "example": {
+    "title": "Energy in a camera-flash capacitor",
+    "given": ["capacitance C = 200 × 10⁻⁶ F (200 µF)", "voltage U = 300 V"],
+    "find": "the stored energy W",
+    "steps": [
+      "The unknown is W, so use W = ½·C·U².",
+      "Square the voltage: U² = 300² = 90 000.",
+      "Substitute: W = ½ · 200 × 10⁻⁶ · 90 000."
+    ],
+    "answer": "W = 9 J"
+  }
+}

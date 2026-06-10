@@ -1,0 +1,7 @@
+{
+  "title": "Resistance",
+  "short": "How strongly a component opposes current, R = U / I, measured in ohms (Ω).",
+  "full": "Resistance measures how much a component opposes the flow of current: for a given voltage, a higher resistance means a smaller current, R = U/I. The lost electrical energy turns into heat, which is how kettles and incandescent bulbs work.\n\nThe resistance of a wire depends on the material and its shape — longer and thinner means more resistance, R = ρ·L/S.\n\nThe SI unit is the ohm (Ω); 1 Ω = 1 V/A.",
+  "formulas": ["R = U / I", "R = ρ·L / S"],
+  "see_also": ["voltage", "current", "resistivity"]
+}
