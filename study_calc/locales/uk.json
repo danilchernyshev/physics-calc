@@ -391,5 +391,6 @@
   "ui.atomic_number": "Атомний номер",
   "ui.atomic_mass": "Атомна маса",
   "ui.group": "Група",
-  "ui.period": "Період"
+  "ui.period": "Період",
+  "ui.close": "Закрити"
 }

@@ -114,6 +114,35 @@
    collapsing between conversions — mirrors the Tk ResultArea visual weight. */
 .converter__result { min-height: var(--space-2xl); }
 
+/* ---- Guide overlay (issue #40) -------------------------------------- */
+
+/* The guide card sits inside the shared .modal backdrop.  It is wider than
+   the key-term pop-up (.modal__card, 520 px) because it carries six sections
+   of prose.  Header (title + × close) stays pinned; the body scrolls. */
+.guide__card {
+  position: relative;     /* anchor for the absolutely-positioned modal__close */
+  max-width: 640px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;       /* clip the card; card__body scrolls internally */
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);     /* override card's --radius-md */
+  box-shadow: var(--elevation-raised); /* override card's --elevation-card */
+}
+
+/* Pin the header so the title and × close button never scroll away. */
+.guide__card .card__header {
+  flex-shrink: 0;
+  padding-right: var(--space-3xl); /* keep title clear of the × button */
+}
+
+/* The body scrolls; flex: 1 fills whatever space remains after the header. */
+.guide__card .card__body {
+  overflow-y: auto;
+  flex: 1;
+}
+
 /* ---- Key-term pop-up ------------------------------------------------ */
 
 .modal {

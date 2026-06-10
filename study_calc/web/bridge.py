@@ -108,3 +108,7 @@ class Bridge:
     def convert_run(self, category: str, value: str, from_unit: str, to_unit: str) -> dict:
         """Convert a value between units; localized result string or error."""
         return screens.convert_run(category, value, from_unit, to_unit)
+
+    def guide_screen(self) -> dict:
+        """The guide overlay model: title, intro, and six localized sections."""
+        return screens.guide_screen()

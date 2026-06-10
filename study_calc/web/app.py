@@ -45,6 +45,7 @@ def render_preview_html(state: dict | None = None) -> str:
     cas = json.dumps(screens.cas_screen())
     vectors = json.dumps(screens.vector_screen())
     converter = json.dumps(screens.converter_screen())
+    guide = json.dumps(screens.guide_screen())
     inject = (
         f"<script>window.__STUDY_CALC_STATE__ = {json.dumps(state)};\n"
         f"window.__STUDY_CALC_API__ = (function () {{\n"
@@ -52,6 +53,7 @@ def render_preview_html(state: dict | None = None) -> str:
         f"  var cas = {cas};\n"
         f"  var vectors = {vectors};\n"
         f"  var converter = {converter};\n"
+        f"  var guide = {guide};\n"
         f"  return {{\n"
         f"    formula_screen: function (id) {{ return byId[String(id).split(':').pop()] || null; }},\n"
         f"    solve_formula: function () {{ return null; }},\n"
@@ -60,7 +62,8 @@ def render_preview_html(state: dict | None = None) -> str:
         f"    vector_screen: function () {{ return vectors; }},\n"
         f"    vector_run: function () {{ return null; }},\n"
         f"    converter_screen: function () {{ return converter; }},\n"
-        f"    convert_run: function () {{ return null; }}\n"
+        f"    convert_run: function () {{ return null; }},\n"
+        f"    guide_screen: function () {{ return guide; }}\n"
         f"  }};\n"
         f"}})();</script>"
     )
