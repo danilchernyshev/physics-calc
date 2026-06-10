@@ -144,18 +144,20 @@ help. The shorter, technical instructions for each operating system are below.
 
 ## Running
 
-The app runs on **Windows, macOS and Linux** — it only needs Python and Tkinter,
-both cross-platform. Pick the command for your shell:
+`python -m study_calc` (and the `study-calc` command) now open the new
+**PyWebView** web shell — see [ADR 0001](docs/adr/0001-ui-framework.md) — so they
+need the optional `web` extra installed. The app runs on **Windows, macOS and
+Linux**; pick the command for your shell:
 
 ```bash
-# option 1 — run the module directly
+# option 1 — via uv (no system install; resolves the project automatically)
+uv run --extra web python -m study_calc
+
+# option 2 — run the module directly (needs the `web` extra in your environment)
 python -m study_calc
 
-# option 2 — via uv (no system install; resolves the project automatically)
-uv run python -m study_calc
-
-# option 3 — install as a package; a `study-calc` command appears on PATH
-pip install -e .
+# option 3 — install with the web extra; a `study-calc` command appears on PATH
+pip install -e ".[web]"
 study-calc
 ```
 
