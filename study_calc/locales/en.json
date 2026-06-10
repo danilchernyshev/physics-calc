@@ -22,7 +22,7 @@
   "guide.language.body": "Use the Language menu to switch between English, Spanish, French, Russian and Ukrainian at any time — the whole window is re-rendered in the language you pick.",
   "about.version": "Version",
   "about.created_by": "Created by",
-  "about.role": "Student",
+  "about.school_line": "Student of Applewood Heights Secondary School (2023 – 2027)",
   "ui.formula": "Formula:",
   "ui.hint": "Fill all fields but one — the empty one will be computed.",
   "ui.compute": "Compute",
