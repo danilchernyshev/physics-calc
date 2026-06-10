@@ -5,9 +5,9 @@
 # them to a GitHub Release. The version is single-sourced from `pyproject.toml`.
 #
 # Per the epic, this lands incrementally as each platform builder becomes ready.
-# Wired today: the test gate, the Linux AppImage (#66), and the Release publish.
+# Wired today: the test gate, the Linux AppImage (#66), the Windows installer
+# (#63), and the Release publish.
 # Pending their builder tickets (uncomment the job once the builder is merged):
-#   - windows-installer  → Inno Setup .exe        (#63)
 #   - macos-dmg (arm64 + intel) → py2app + DMG    (#64)
 #   - linux-flatpak      → flatpak-builder         (#65)
 # Each new job follows the same shape: `needs: test`, build, run packaging/
@@ -94,11 +94,36 @@ jobs:
           path: dist/study-calc-${{ env.VERSION }}-linux.AppImage
           if-no-files-found: error
 
+  windows-installer:
+    needs: [test, resolve-version]
+    runs-on: windows-2022
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+      - name: Build the installer
+        # build_installer.ps1 freezes with PyInstaller, smoke-tests the bundle,
+        # generates the icon, fetches the WebView2 bootstrapper, and compiles the
+        # .iss with Inno Setup (preinstalled on the windows-2022 runner image).
+        shell: pwsh
+        run: |
+          uv run --extra packaging powershell -File packaging/windows/build_installer.ps1
+      - name: Upload the installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-calc-${{ env.VERSION }}-windows-setup.exe
+          path: packaging/windows/Output/study-calc-${{ env.VERSION }}-windows-setup.exe
+          if-no-files-found: error
+
   # Collect every built artifact and attach them to the GitHub Release. New
   # platform jobs just add themselves to `needs` and upload an artifact — the glob
   # below picks them up automatically.
   release:
-    needs: [linux-appimage]
+    needs: [linux-appimage, windows-installer]
     runs-on: ubuntu-22.04
     permissions:
       contents: write # publish the Release and upload assets
