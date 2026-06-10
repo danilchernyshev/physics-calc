@@ -269,6 +269,14 @@ Formula(
 The GUI picks up the new formula automatically — no interface changes are
 needed. (See `CLAUDE.md` for the full i18n contract.)
 
+## Design decisions
+
+Architecture decisions are recorded as ADRs under [`docs/adr/`](docs/adr/):
+
+- [0001 — UI framework for the redesign](docs/adr/0001-ui-framework.md): adopts
+  a PyWebView web frontend (reusing the existing `core`/`domains`/i18n layers)
+  for the upcoming flat, card-based redesign.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
