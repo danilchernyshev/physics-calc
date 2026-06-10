@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
       - name: Run the test suite (release gate)
         run: uv run --extra dev pytest
 
@@ -76,7 +76,7 @@ jobs:
             libgirepository1.0-dev libcairo2-dev pkg-config \
             gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0 python3-gi
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
       - name: Build the AppImage
         # PyGObject lets the frozen build import pywebview's GTK backend; the AppImage
         # itself relies on the host's libwebkit2gtk-4.1-0 (see packaging/linux/README.md).
@@ -108,7 +108,7 @@ jobs:
         with:
           path: artifacts
       - name: Publish the GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: artifacts/**/*
           fail_on_unmatched_files: true
