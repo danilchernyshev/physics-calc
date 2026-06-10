@@ -101,4 +101,6 @@ def write_css(path: Path | None = None) -> Path:
 
 if __name__ == "__main__":
     out = write_css()
-    print(f"Wrote {out.relative_to(_HERE.parent.parent)}")
+    # resource_path() (no args) is the package root; its parent is the repo root,
+    # so this prints the committed CSS path relative to the checkout.
+    print(f"Wrote {out.relative_to(resource_path().parent)}")
