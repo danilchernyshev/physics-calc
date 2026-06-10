@@ -127,6 +127,12 @@ const Screens = {
 
     const L = model.labels;
     const ops = model.operations;
+    // Persistent fields (expression / variable / u / v / k) keep their text
+    // across op changes — the Tk panels only disable the ones the new op can't
+    // use, never wiping them. The op-specific extras (e.g. CAS rate's a/b) are
+    // not persistent and get cleared on every op change (Tk rebuilds them empty).
+    const persistentIds = new Set();
+    for (const o of ops) for (const f of o.fields) if (f.persist) persistentIds.add(f.id);
     // `run` is a generation token — see the formula screen: it discards a late
     // in-flight result when the op changes, Clear is pressed, or a newer compute
     // starts.
@@ -162,11 +168,10 @@ const Screens = {
     function selectOp(index) {
       st.run++;
       st.op = index;
-      // Keep values for fields the new op still has (e.g. the expression / u),
-      // drop the op-specific ones — mirroring the Tk panels, which preserve the
-      // main inputs but rebuild the extra fields.
-      const ids = new Set(ops[index].fields.map((f) => f.id));
-      for (const key of Object.keys(st.values)) if (!ids.has(key)) delete st.values[key];
+      // Keep the persistent main inputs; drop the op-specific extras — mirroring
+      // the Tk panels, which preserve expression/variable/u/v/k but rebuild the
+      // extra fields empty.
+      for (const key of Object.keys(st.values)) if (!persistentIds.has(key)) delete st.values[key];
       st.view = null;
       chipsWrap.replaceChildren(opChips());
       renderInputs();

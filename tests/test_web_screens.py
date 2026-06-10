@@ -203,6 +203,9 @@ def test_vector_screen_lists_operations_with_per_op_fields():
     assert fields_of["add"] == ["u", "v"]
     assert fields_of["scale"] == ["u", "k"]
     assert all(o["learning"] for o in screen["operations"])
+    # Every vector field is a persistent main input — the frontend keeps u/v/k
+    # across op changes (mirror of the Tk VectorPanel, which only disables them).
+    assert all(f["persist"] for o in screen["operations"] for f in o["fields"])
 
 
 def test_vector_run_returns_steps_with_a_green_answer():

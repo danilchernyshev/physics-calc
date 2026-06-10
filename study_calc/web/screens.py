@@ -329,9 +329,11 @@ def cas_screen() -> dict:
 
     operations = []
     for op in cas.OPERATIONS:
-        fields = [{"id": "expression", "label": t("cas.expression"), "mono": True}]
+        # `persist` marks the main inputs the frontend keeps across op changes;
+        # the op-specific extras below are cleared each time (see Screens.operations).
+        fields = [{"id": "expression", "label": t("cas.expression"), "mono": True, "persist": True}]
         if op in cas.USES_VARIABLE:
-            fields.append({"id": "variable", "label": t("cas.variable"), "mono": True})
+            fields.append({"id": "variable", "label": t("cas.variable"), "mono": True, "persist": True})
         for fid in cas.OP_FIELDS.get(op, ()):
             fields.append({"id": fid, "label": t(f"cas.field.{fid}"), "mono": True})
         operations.append({
@@ -398,11 +400,13 @@ def vector_screen() -> dict:
 
     operations = []
     for op in vectors.OPERATIONS:
-        fields = [{"id": "u", "label": t("vector.u"), "mono": False}]
+        # Every vector field is a persistent main input — the frontend keeps u/v/k
+        # across op changes, mirroring the Tk VectorPanel (it only disables them).
+        fields = [{"id": "u", "label": t("vector.u"), "mono": False, "persist": True}]
         if op in vectors.NEEDS_SECOND:
-            fields.append({"id": "v", "label": t("vector.v"), "mono": False})
+            fields.append({"id": "v", "label": t("vector.v"), "mono": False, "persist": True})
         if op in vectors.NEEDS_SCALAR:
-            fields.append({"id": "k", "label": t("vector.scalar"), "mono": False})
+            fields.append({"id": "k", "label": t("vector.scalar"), "mono": False, "persist": True})
         operations.append({
             "id": op,
             "label": t(f"vector.op.{op}"),
