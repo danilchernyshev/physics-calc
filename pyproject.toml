@@ -11,9 +11,11 @@ dependencies = ["sympy>=1.12", "matplotlib>=3.7"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+web = ["pywebview>=5.0"]
 
 [project.scripts]
 study-calc = "study_calc.gui:run"
+study-calc-web = "study_calc.web.app:run"
 
 [project.gui-scripts]
 study-calc-gui = "study_calc.gui:run"

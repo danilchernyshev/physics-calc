@@ -159,6 +159,20 @@ pip install -e .
 study-calc
 ```
 
+#### Preview of the new web shell (in progress)
+
+The redesign (a flat, card-based UI — see
+[ADR 0001](docs/adr/0001-ui-framework.md)) is being built as a PyWebView
+frontend alongside the Tkinter app. The app shell (nav rail + header) can be run
+with the optional `web` extra:
+
+```bash
+uv run --extra web python -m study_calc.web   # or: study-calc-web
+```
+
+It reuses the same `core`/`domains`/`navigation`/i18n layers; the individual
+screens land incrementally (issues #6–#11).
+
 ### Windows
 
 The installers from [python.org](https://www.python.org/downloads/windows/)
