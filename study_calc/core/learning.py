@@ -1,27 +1,27 @@
-"""Loader for the rich learning materials kept under ``study_calc/learning/``.
+"""Loader for the rich learning materials stored in the knowledgebase SQLite DB.
 
-This is the engine behind the right-hand learning area. Unlike
+This is the engine behind the right-hand learning area.  Unlike
 :mod:`study_calc.core.explain` (which stores i18n *keys* for the short, static
-theory note and the study links), this module loads *prose* content authored in a
-separate, format-flexible content folder so the depth and presentation can evolve
-without touching code.
+theory note and the study links), this module loads *prose* content from the
+knowledgebase database (``study_calc/data/knowledgebase.db``, seeded from the
+``study_calc/learning/`` content folder by ``scripts/seed_db.py``).
 
-Layout of the content folder::
+The public API is identical to the previous JSON-file-backed implementation so
+no caller — GUI, web bridge, or tests — needs to change.
 
-    study_calc/learning/
-        en/
-            glossary/<term_id>.json   reusable concept/term definitions
-            topics/<topic_id>.json    one per problem type (a formula key or CAS op)
-        ru/ ... (optional, additive)
+i18n fallback contract
+-----------------------
+Each lookup first tries the requested language; if no row exists for that
+``(id, language)`` pair it falls back to ``"en"`` (English is the canonical
+language and is always present).  This mirrors the previous file-based fallback
+where a missing ``learning/<lang>/...`` file caused a retry from
+``learning/en/...``.
 
-English is the canonical language and the fallback: a file missing in the active
-language is served from ``en`` (mirroring :mod:`study_calc.i18n`), so a partial
-translation never leaves the panel blank.
-
-A **topic** bundles everything shown for one kind of problem: a short summary, the
-glossary terms needed to understand it, the useful formulas, a step-by-step solving
-method, and one worked example. A **concept** is a single reusable term definition
-(short inline blurb + full explanation), shared across topics.
+A **topic** bundles everything shown for one kind of problem: a short summary,
+the glossary terms needed to understand it, the useful formulas, a
+step-by-step solving method, and one worked example.  A **concept** is a
+single reusable term definition (short inline blurb + full explanation),
+shared across topics.
 """
 
 from __future__ import annotations
@@ -29,9 +29,9 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from functools import lru_cache
-from pathlib import Path
 
-_LEARNING_DIR = Path(__file__).parent.parent / "learning"
+from study_calc.core import db as _db
+
 DEFAULT_LANGUAGE = "en"
 
 # Ontario course code -> grade level, for the curriculum badge shown on a topic
@@ -127,6 +127,8 @@ class Problem:
     :param courses: Ontario course codes this problem belongs to (e.g.
         ``("SCH4U",)``), rendered as a curriculum badge. See
         :data:`CURRICULUM_GRADES`.
+    :param difficulty: optional difficulty tag (e.g. ``"easy"``, ``"hard"``).
+        Populated by the M3-1 milestone; empty string until then.
     """
 
     problem_id: str
@@ -135,102 +137,247 @@ class Problem:
     video_url: str = ""
     topic_id: str = ""
     courses: tuple[str, ...] = ()
+    difficulty: str = ""
 
 
-def _read_json(language: str, kind: str, item_id: str) -> dict | None:
-    """Read ``learning/<language>/<kind>/<item_id>.json`` or ``None`` if absent."""
-    path = _LEARNING_DIR / language / kind / f"{item_id}.json"
-    if not path.is_file():
-        return None
-    return json.loads(path.read_text(encoding="utf-8"))
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
 
+def _as_example_from_row(row: object | None) -> WorkedExample | None:
+    """Reconstruct a :class:`WorkedExample` from a ``topic_examples`` DB row.
 
-def _as_example(data: dict | None) -> WorkedExample | None:
-    if not data:
+    Args:
+        row: A :class:`sqlite3.Row` from the ``topic_examples`` table, or
+            ``None`` when the topic has no worked example.
+
+    Returns:
+        A :class:`WorkedExample` instance, or ``None`` if *row* is ``None``.
+    """
+    if row is None:
         return None
     return WorkedExample(
-        title=data.get("title", ""),
-        given=tuple(data.get("given", ())),
-        find=data.get("find", ""),
-        steps=tuple(data.get("steps", ())),
-        answer=data.get("answer", ""),
+        title=row["title"],
+        given=tuple(json.loads(row["given_json"])),
+        find=row["find"],
+        steps=tuple(json.loads(row["steps_json"])),
+        answer=row["answer"],
     )
 
 
+def _fetch_localized(
+    table: str,
+    id_col: str,
+    item_id: str,
+    language: str,
+) -> object | None:
+    """Fetch the full row for ``(item_id, language)``, falling back to English.
+
+    Tries *language* first; if no row exists falls back to ``DEFAULT_LANGUAGE``
+    (``"en"``, the canonical language).  This single fetch-then-fallback also
+    yields the *effective* language via the row's ``language`` column, so
+    callers needing related-table queries (e.g. a topic's terms/example) don't
+    need a separate probe.
+
+    Args:
+        table: The DB table name (``"topics"`` / ``"concepts"`` / ``"problems"``).
+        id_col: The primary id column name (``"topic_id"`` / ``"term_id"`` /
+            ``"problem_id"``).
+        item_id: The id value to look up.
+        language: The initially requested language code.
+
+    Returns:
+        The :class:`sqlite3.Row`, or ``None`` when the item does not exist in
+        any language.
+    """
+    conn = _db.get_connection()
+    # nosec B608 — table and id_col are internal constants, never user input
+    row = conn.execute(  # noqa: S608
+        f"SELECT * FROM {table} WHERE {id_col}=? AND language=?",
+        (item_id, language),
+    ).fetchone()
+    if row is None and language != DEFAULT_LANGUAGE:
+        row = conn.execute(  # noqa: S608
+            f"SELECT * FROM {table} WHERE {id_col}=? AND language=?",
+            (item_id, DEFAULT_LANGUAGE),
+        ).fetchone()
+    return row
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
 @lru_cache(maxsize=None)
 def load_concept(term_id: str, language: str = DEFAULT_LANGUAGE) -> Concept | None:
-    """Load one glossary term, falling back to English, or ``None`` if unknown."""
-    data = _read_json(language, "glossary", term_id)
-    if data is None and language != DEFAULT_LANGUAGE:
-        data = _read_json(DEFAULT_LANGUAGE, "glossary", term_id)
-    if data is None:
+    """Load one glossary term, falling back to English, or ``None`` if unknown.
+
+    Args:
+        term_id: The stable glossary term id.
+        language: The preferred language code (default ``"en"``).
+
+    Returns:
+        A :class:`Concept` for the requested (or English fallback) language, or
+        ``None`` if *term_id* does not exist in the database at all.
+    """
+    row = _fetch_localized("concepts", "term_id", term_id, language)
+    if row is None:
         return None
     return Concept(
         term_id=term_id,
-        title=data.get("title", term_id),
-        short=data.get("short", ""),
-        full=data.get("full", ""),
-        formulas=tuple(data.get("formulas", ())),
-        see_also=tuple(data.get("see_also", ())),
+        # Fall back to the id when a row carries no title, matching the prior
+        # file loader (``data.get("title", term_id)``).
+        title=row["title"] or term_id,
+        short=row["short"],
+        full=row["full"],
+        formulas=tuple(json.loads(row["formulas_json"])),
+        see_also=tuple(json.loads(row["see_also_json"])),
     )
 
 
 @lru_cache(maxsize=None)
 def load_topic(topic_id: str, language: str = DEFAULT_LANGUAGE) -> Topic | None:
-    """Load one topic bundle, falling back to English, or ``None`` if none exists."""
-    data = _read_json(language, "topics", topic_id)
-    if data is None and language != DEFAULT_LANGUAGE:
-        data = _read_json(DEFAULT_LANGUAGE, "topics", topic_id)
-    if data is None:
+    """Load one topic bundle, falling back to English, or ``None`` if none exists.
+
+    The topic is assembled from three tables:
+
+    * ``topics`` — summary, formula list, method steps, course codes.
+    * ``topic_terms`` — ordered list of glossary term ids for this topic.
+    * ``topic_examples`` — the optional single worked example.
+
+    All three tables are queried with the *effective* language (the requested
+    language if a row exists, otherwise ``"en"``).
+
+    Args:
+        topic_id: The stable topic id (a formula key or ``"cas_<op>"``).
+        language: The preferred language code (default ``"en"``).
+
+    Returns:
+        A :class:`Topic` for the requested (or English fallback) language, or
+        ``None`` if *topic_id* does not exist in the database at all.
+    """
+    row = _fetch_localized("topics", "topic_id", topic_id, language)
+    if row is None:
         return None
+    # The related-table queries must use the language that actually resolved
+    # (the requested one, or the English fallback), read off the topic row.
+    effective = row["language"]
+
+    conn = _db.get_connection()
+    term_rows = conn.execute(
+        "SELECT term_id FROM topic_terms"
+        " WHERE topic_id=? AND language=? ORDER BY position",
+        (topic_id, effective),
+    ).fetchall()
+
+    example_row = conn.execute(
+        "SELECT * FROM topic_examples WHERE topic_id=? AND language=?",
+        (topic_id, effective),
+    ).fetchone()
+
     return Topic(
         topic_id=topic_id,
-        summary=data.get("summary", ""),
-        terms=tuple(data.get("terms", ())),
-        formulas=tuple(data.get("formulas", ())),
-        method=tuple(data.get("method", ())),
-        example=_as_example(data.get("example")),
-        courses=tuple(data.get("courses", ())),
+        summary=row["summary"],
+        terms=tuple(r["term_id"] for r in term_rows),
+        formulas=tuple(json.loads(row["formulas_json"])),
+        method=tuple(json.loads(row["method_json"])),
+        example=_as_example_from_row(example_row),
+        courses=tuple(json.loads(row["courses_json"])),
     )
 
 
 def available_topic_ids(language: str = DEFAULT_LANGUAGE) -> tuple[str, ...]:
-    """Sorted ids of every topic file present for ``language``."""
-    directory = _LEARNING_DIR / language / "topics"
-    if not directory.is_dir():
-        return ()
-    return tuple(sorted(p.stem for p in directory.glob("*.json")))
+    """Sorted ids of every topic present for *language* in the database.
+
+    Args:
+        language: The language code to query (default ``"en"``).
+
+    Returns:
+        A sorted tuple of topic id strings, empty if no topics exist for
+        *language*.
+    """
+    conn = _db.get_connection()
+    rows = conn.execute(
+        "SELECT topic_id FROM topics WHERE language=? ORDER BY topic_id",
+        (language,),
+    ).fetchall()
+    return tuple(r["topic_id"] for r in rows)
 
 
 @lru_cache(maxsize=None)
 def load_problem(problem_id: str, language: str = DEFAULT_LANGUAGE) -> Problem | None:
-    """Load one practice problem, falling back to English, or ``None`` if unknown."""
-    data = _read_json(language, "problems", problem_id)
-    if data is None and language != DEFAULT_LANGUAGE:
-        data = _read_json(DEFAULT_LANGUAGE, "problems", problem_id)
-    if data is None:
+    """Load one practice problem, falling back to English, or ``None`` if unknown.
+
+    The ``problems`` table uses ``problem_id`` as its sole primary key (the
+    ``language`` column is present for future translations; all current rows
+    are ``"en"``).  The fallback strategy tries:
+
+    1. ``WHERE problem_id=? AND language=<requested>``
+    2. ``WHERE problem_id=? AND language='en'`` (if requested language differs)
+    3. Returns ``None`` if the problem_id does not exist at all.
+
+    Args:
+        problem_id: The stable problem id.
+        language: The preferred language code (default ``"en"``).
+
+    Returns:
+        A :class:`Problem` for the requested (or English fallback) language, or
+        ``None`` if *problem_id* does not exist in the database.
+    """
+    row = _fetch_localized("problems", "problem_id", problem_id, language)
+    if row is None:
         return None
+
+    example = WorkedExample(
+        title=row["title"],
+        given=tuple(json.loads(row["given_json"])),
+        find=row["find"],
+        steps=tuple(json.loads(row["steps_json"])),
+        answer=row["answer"],
+    )
     return Problem(
         problem_id=problem_id,
-        subject=data.get("subject", ""),
-        example=_as_example(data) or WorkedExample("", (), "", (), ""),
-        video_url=data.get("video_url", ""),
-        topic_id=data.get("topic", ""),
-        courses=tuple(data.get("courses", ())),
+        subject=row["subject"],
+        example=example,
+        video_url=row["video_url"],
+        topic_id=row["topic_id"],
+        courses=tuple(json.loads(row["courses_json"])),
+        difficulty=row["difficulty"],
     )
 
 
 def available_problem_ids(language: str = DEFAULT_LANGUAGE) -> tuple[str, ...]:
-    """Sorted ids of every problem file present (English is the canonical set)."""
-    directory = _LEARNING_DIR / DEFAULT_LANGUAGE / "problems"
-    if not directory.is_dir():
-        return ()
-    return tuple(sorted(p.stem for p in directory.glob("*.json")))
+    """Sorted ids of every problem in the database (English is the canonical set).
+
+    The *language* argument is accepted for API symmetry but the problems table
+    currently holds one row per problem (all ``"en"``), so the returned set is
+    language-independent.
+
+    Args:
+        language: Accepted for API symmetry; currently unused in the query.
+
+    Returns:
+        A sorted tuple of all problem id strings.
+    """
+    conn = _db.get_connection()
+    rows = conn.execute(
+        "SELECT problem_id FROM problems ORDER BY problem_id",
+    ).fetchall()
+    return tuple(r["problem_id"] for r in rows)
 
 
 def problems_for_subject(
     subject: str, language: str = DEFAULT_LANGUAGE
 ) -> tuple[Problem, ...]:
-    """Every problem tagged with ``subject``, in id order, for the Problems helper."""
+    """Every problem tagged with *subject*, in id order, for the Problems helper.
+
+    Args:
+        subject: The navigation subject id (e.g. ``"physics"``, ``"chemistry"``).
+        language: The preferred language code (default ``"en"``).
+
+    Returns:
+        A tuple of :class:`Problem` instances whose ``subject`` matches, in
+        alphabetical id order.
+    """
     problems = (load_problem(pid, language) for pid in available_problem_ids(language))
     return tuple(p for p in problems if p is not None and p.subject == subject)

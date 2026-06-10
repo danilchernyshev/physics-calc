@@ -360,6 +360,76 @@ def test_converter_screen_has_dedicated_frontend_renderer():
     assert "convert_run" in shell
 
 
+# --- Periodic-table screen ---
+
+
+def test_periodic_screen_lists_all_elements_with_positions_and_series():
+    screen = screens.periodic_screen()
+    assert screen["available"] is True
+    els = screen["elements"]
+    assert len(els) == 118
+    # Each element must carry the full set of fields the grid renderer needs.
+    required = {"number", "symbol", "name", "mass", "group", "period",
+                "category", "xpos", "ypos", "series"}
+    assert required <= set(els[0].keys())
+    # xpos/ypos must span the 18-column periodic table (columns 1-18, rows 1-10).
+    assert all(1 <= e["xpos"] <= 18 and 1 <= e["ypos"] <= 10 for e in els)
+    # Hydrogen: top-left corner, diatomic nonmetal.
+    h_el = next(e for e in els if e["symbol"] == "H")
+    assert h_el["xpos"] == 1 and h_el["ypos"] == 1
+    assert h_el["series"] == "diatomic-nonmetal"
+    # Synthetic/unknown elements map to the fallback slug, not a hex colour.
+    assert all(not e["series"].startswith("#") for e in els)
+    # Labels are localized prose — never raw i18n keys.
+    L = screen["labels"]
+    assert not L["molarMass"].startswith("ui.")
+    assert not L["equation"].startswith("ui.")
+    assert not L["balance"].startswith("ui.")
+
+
+def test_molar_mass_run_happy_path():
+    # H2O: 2 × 1.008 + 15.999 = 18.015 g/mol.
+    res = screens.molar_mass_run("H2O")
+    assert res["ok"] is True
+    # Mirror the Tk format: "H2O = 18.015 g/mol  (H:2, O:1)".
+    assert "H2O" in res["result"]
+    assert "18." in res["result"]
+    assert "g/mol" in res["result"]       # unit label (English default)
+    assert "H:2" in res["result"] and "O:1" in res["result"]
+
+
+def test_molar_mass_run_unknown_element_returns_localized_error():
+    res = screens.molar_mass_run("Xx")   # "Xx" is not a real element
+    assert res["ok"] is False
+    # Localized prose, not the raw "error.*" key.
+    assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_balance_run_happy_path():
+    # 2H2 + O2 -> 2H2O
+    res = screens.balance_run("H2 + O2 -> H2O")
+    assert res["ok"] is True
+    assert "->" in res["result"] and "H2O" in res["result"]
+
+
+def test_balance_run_no_arrow_returns_localized_error():
+    res = screens.balance_run("H2 O2 H2O")   # no arrow separator
+    assert res["ok"] is False
+    assert res["error"] and not res["error"].startswith("error.")
+
+
+def test_periodic_screen_has_dedicated_frontend_renderer():
+    # The periodic table is its own 118-cell grid — not a section, CAS/vectors
+    # operation, or converter — so it gets its own Screens.periodic renderer.
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    assert "periodic(model, ctx)" in js
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    assert "Screens.periodic" in shell
+    assert "periodic_screen" in shell
+    assert "molar_mass_run" in shell
+    assert "balance_run" in shell
+
+
 # --- language switching ---
 
 

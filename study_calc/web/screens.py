@@ -538,6 +538,114 @@ def convert_run(category: str, value: str, from_unit: str, to_unit: str) -> dict
     }
 
 
+# --- Periodic-table (chemistry tool) screen ---
+
+# Category string (raw from elements.json) → CSS token slug for var(--series-<slug>).
+# Unknown/synthetic categories (e.g. "unknown, probably metalloid") fall back to
+# "default" (grey), mirroring the Tk PeriodicTablePanel._DEFAULT_COLOR.
+_CATEGORY_SERIES: dict[str, str] = {
+    "alkali metal":          "alkali-metal",
+    "alkaline earth metal":  "alkaline-earth-metal",
+    "transition metal":      "transition-metal",
+    "post-transition metal": "post-transition-metal",
+    "metalloid":             "metalloid",
+    "diatomic nonmetal":     "diatomic-nonmetal",
+    "polyatomic nonmetal":   "polyatomic-nonmetal",
+    "noble gas":             "noble-gas",
+    "lanthanide":            "lanthanide",
+    "actinide":              "actinide",
+}
+_DEFAULT_SERIES = "default"
+
+
+def periodic_screen() -> dict:
+    """The periodic-table screen model: all elements pre-baked for the CSS grid.
+
+    ``core.periodic`` is standard-library only (always importable), so this screen
+    is always ``available`` — no absent-fallback branch (unlike the SymPy-gated CAS
+    tab). Each element in ``elements`` carries its position (``xpos``/``ypos``), its
+    raw English ``category``, and a ``series`` slug that maps directly to a
+    ``var(--series-*)`` CSS token so the frontend can colour the grid cell without a
+    round-trip. The detail annotation line is rendered client-side from the pre-baked
+    element list, mirroring the converter's no-round-trip approach for unit selects.
+    """
+    from ..core.periodic import elements as _elements
+
+    els = [
+        {
+            "number":   el.number,
+            "symbol":   el.symbol,
+            "name":     el.name,        # raw English string — shown verbatim (not localized)
+            "mass":     el.mass,
+            "group":    el.group,       # int | None (None for lanthanides / actinides)
+            "period":   el.period,
+            "category": el.category,    # raw English string — shown verbatim in the detail line
+            "xpos":     el.xpos,
+            "ypos":     el.ypos,
+            "series":   _CATEGORY_SERIES.get(el.category, _DEFAULT_SERIES),
+        }
+        for el in _elements()
+    ]
+    return {
+        "available": True,
+        "title": t("tab.periodic_table"),
+        "labels": {
+            "molarMass":    t("ui.molar_mass"),
+            "compute":      t("ui.compute"),
+            "clear":        t("ui.clear"),
+            "equation":     t("ui.equation"),
+            "balance":      t("ui.balance"),
+            "atomicNumber": t("ui.atomic_number"),
+            "atomicMass":   t("ui.atomic_mass"),
+            "group":        t("ui.group"),
+            "period":       t("ui.period"),
+            "gramPerMol":   t("unit.gram_per_mol"),
+        },
+        "elements": els,
+    }
+
+
+def molar_mass_run(formula: str) -> dict:
+    """Compute the molar mass of ``formula``; mirror of ``PeriodicTablePanel._molar_mass``.
+
+    Returns ``{"ok": True, "result": "<formula> = <mass> g/mol  (<breakdown>)"}``
+    or ``{"ok": False, "error": <localized>}``. The result string mirrors the Tk
+    panel exactly, including the element→count breakdown (e.g. ``H:2, O:1``).
+    """
+    from ..core.periodic import ChemError
+    from ..core.periodic import composition as _composition
+    from ..core.periodic import molar_mass as _molar_mass
+
+    formula = str(formula or "").strip()
+    try:
+        mass = _molar_mass(formula)
+        comp = _composition(formula)
+    except ChemError as exc:
+        return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
+    breakdown = ", ".join(f"{sym}:{n}" for sym, n in comp.items())
+    return {
+        "ok": True,
+        "result": f"{formula} = {mass:.3f} {t('unit.gram_per_mol')}  ({breakdown})",
+    }
+
+
+def balance_run(equation: str) -> dict:
+    """Balance a chemical equation; mirror of ``PeriodicTablePanel._balance``.
+
+    Returns ``{"ok": True, "result": <balanced string>}`` or
+    ``{"ok": False, "error": <localized>}``.
+    """
+    from ..core.periodic import ChemError
+    from ..core.periodic import balance as _balance
+
+    equation = str(equation or "").strip()
+    try:
+        balanced = _balance(equation)
+    except ChemError as exc:
+        return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
+    return {"ok": True, "result": balanced}
+
+
 # --- Guide overlay screen ---
 
 
