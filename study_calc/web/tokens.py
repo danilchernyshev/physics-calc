@@ -4,8 +4,10 @@
 definition — colors, typography, spacing, radii and elevation, with semantic
 names lifted from the Figma ``study-calc/color`` collection and the design
 frames (see ``docs/design-tokens.md``). This module loads that JSON and emits it
-as **CSS custom properties** (``study_calc/web/tokens.css``) for the PyWebView
-frontend chosen in ADR 0001.
+as **CSS custom properties** (``study_calc/web/frontend/tokens.css``) for the
+PyWebView frontend chosen in ADR 0001. The CSS lives *inside* ``frontend/`` so it
+is a sibling of the other stylesheets: PyWebView serves that directory as the web
+root, and a stylesheet above it would 404 and leave the UI unstyled.
 
 The CSS file is committed and kept in sync with the JSON; regenerate it with::
 
@@ -23,7 +25,7 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 TOKENS_PATH = _HERE / "tokens.json"
-CSS_PATH = _HERE / "tokens.css"
+CSS_PATH = _HERE / "frontend" / "tokens.css"
 
 # Token groups, in the order they appear in the generated CSS. Every group is a
 # flat ``{name: value}`` map; ``$meta`` is documentation only and never emitted.

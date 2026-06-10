@@ -1,6 +1,6 @@
 /* App shell: dark nav rail + content header (issue #4).
    All colors/spacing/radii/typography come from the design tokens
-   (../tokens.css). No hardcoded palette values. */
+   (tokens.css). No hardcoded palette values. */
 
 * { box-sizing: border-box; }
 

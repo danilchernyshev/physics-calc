@@ -13,7 +13,7 @@ components, issue #5) consume as CSS custom properties.
 | --- | --- |
 | [`study_calc/web/tokens.json`](../study_calc/web/tokens.json) | **Canonical** source of truth. Framework-agnostic JSON; edit this. |
 | [`study_calc/web/tokens.py`](../study_calc/web/tokens.py) | Loader (`load_tokens()`) + CSS generator (`css_variables()`, `write_css()`). |
-| [`study_calc/web/tokens.css`](../study_calc/web/tokens.css) | **Generated** `:root` custom properties for the frontend. Do not hand-edit. |
+| [`study_calc/web/frontend/tokens.css`](../study_calc/web/frontend/tokens.css) | **Generated** `:root` custom properties, beside the other stylesheets the frontend serves. Do not hand-edit. |
 
 Regenerate the CSS after changing the JSON:
 

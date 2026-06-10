@@ -19,8 +19,12 @@ _HEX = re.compile(r"#[0-9a-fA-F]{3,8}\b")
 
 
 def test_frontend_css_has_no_hardcoded_hex_colors():
+    # tokens.css is the generated palette — the single home of hex literals; the
+    # hand-written stylesheets must reference its variables instead.
     offenders = {}
     for css in FRONTEND.glob("*.css"):
+        if css.name == "tokens.css":
+            continue
         hits = _HEX.findall(css.read_text(encoding="utf-8"))
         if hits:
             offenders[css.name] = hits
