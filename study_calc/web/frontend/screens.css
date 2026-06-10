@@ -114,6 +114,117 @@
    collapsing between conversions — mirrors the Tk ResultArea visual weight. */
 .converter__result { min-height: var(--space-2xl); }
 
+/* ---- Periodic-table screen ------------------------------------------ */
+
+/* Full-width single-column layout: tools card on top, grid card below.
+   Matches the Tk PeriodicTablePanel vertical order (tools above grid). */
+.screen--periodic {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+}
+
+/* Two stacked tool rows (molar mass + balancer). */
+.periodic__tools { display: flex; flex-direction: column; gap: var(--space-md); }
+
+/* Each tool row: label+input on the left, action buttons in the middle,
+   result/error strip on the right. Wraps on small viewports. */
+.periodic__tool-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+/* Give the text input a fixed-ish width so it doesn't stretch to fill the row. */
+.periodic__tool-row .field { flex: 0 0 220px; min-width: 0; }
+
+/* Button group — stays together, aligned with the input bottom. */
+.periodic__tool-actions { flex-shrink: 0; align-items: center; }
+
+/* Result/error slot grows to fill remaining row width. */
+.periodic__tool-result { flex: 1; min-width: 0; min-height: var(--space-2xl); }
+
+/* 18-column element grid; overflows + scrolls horizontally on narrow viewports
+   so the cells stay square and readable at any window width. */
+.periodic__grid {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(0, 1fr));
+  gap: var(--space-2xs);
+  overflow-x: auto;
+}
+
+/* One element cell: compact square, atomic number at top, symbol below.
+   Default background is the fallback series colour; per-series classes
+   (below) override it. Position is set by inline grid-column/grid-row. */
+.periodic__cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  background: var(--series-default);
+  cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-family-sans);
+  line-height: var(--line-height-tight);
+}
+
+.periodic__cell:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--elevation-sm);
+}
+
+/* Atomic number (small, muted) sits above the symbol. */
+.periodic__num {
+  font-size: var(--font-size-eyebrow);
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+/* Element symbol (bold, readable). */
+.periodic__sym {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+  line-height: 1;
+}
+
+/* Selected-element detail line below the grid: name, atomic number/mass,
+   group, period, category — rendered client-side from the pre-baked model. */
+.periodic__detail {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  min-height: var(--space-2xl);
+}
+
+.periodic__detail-text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-body);
+}
+
+/* Series-colour overrides — one rule per slug; each maps to the matching
+   --series-* token emitted from the tokens.json `series` group. The slugs
+   are baked into the element model by screens.periodic_screen(), mirroring
+   the Tk PeriodicTablePanel._COLORS palette exactly. */
+.periodic__cell--alkali-metal          { background: var(--series-alkali-metal); }
+.periodic__cell--alkaline-earth-metal  { background: var(--series-alkaline-earth-metal); }
+.periodic__cell--transition-metal      { background: var(--series-transition-metal); }
+.periodic__cell--post-transition-metal { background: var(--series-post-transition-metal); }
+.periodic__cell--metalloid             { background: var(--series-metalloid); }
+.periodic__cell--diatomic-nonmetal     { background: var(--series-diatomic-nonmetal); }
+.periodic__cell--polyatomic-nonmetal   { background: var(--series-polyatomic-nonmetal); }
+.periodic__cell--noble-gas             { background: var(--series-noble-gas); }
+.periodic__cell--lanthanide            { background: var(--series-lanthanide); }
+.periodic__cell--actinide              { background: var(--series-actinide); }
+.periodic__cell--default               { background: var(--series-default); }
+
 /* ---- Guide overlay (issue #40) -------------------------------------- */
 
 /* The guide card sits inside the shared .modal backdrop.  It is wider than

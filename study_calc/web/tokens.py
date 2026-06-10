@@ -38,6 +38,10 @@ GROUPS: tuple[str, ...] = (
     "space",
     "radius",
     "elevation",
+    # Element-series backgrounds for the periodic-table screen (issue #10).
+    # Each slug maps to var(--series-<slug>) and is baked into the element
+    # model by screens.periodic_screen(); values mirror gui.app._COLORS exactly.
+    "series",
 )
 
 # How each group's values become CSS: numeric groups that carry a pixel unit,

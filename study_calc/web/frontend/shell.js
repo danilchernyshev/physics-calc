@@ -168,6 +168,20 @@ async function mountScreen() {
       return;
     }
   }
+  // The periodic-table tool has its own dedicated renderer (issue #10): a
+  // 118-element CSS grid coloured by series tokens, with molar-mass and
+  // equation-balancer tools. core.periodic is always importable (no fallback).
+  if (item && item.kind === 'tool' && item.id === 'tool:periodic_table') {
+    const model = await callApi('periodic_screen');
+    if (document.getElementById('screen-mount') !== mount) return;
+    if (model) {
+      mount.replaceChildren(Screens.periodic(model, {
+        molarMass: (formula) => callApi('molar_mass_run', formula),
+        balance: (equation) => callApi('balance_run', equation),
+      }));
+      return;
+    }
+  }
   mount.replaceChildren(placeholderNode(data, subject));
 }
 

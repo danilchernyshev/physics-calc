@@ -66,4 +66,16 @@
   --elevation-sm: 0 1px 2px rgba(26, 41, 77, 0.06);
   --elevation-card: 0 8px 24px rgba(26, 41, 77, 0.08);
   --elevation-raised: 0 12px 32px rgba(26, 41, 77, 0.12);
+  /* series */
+  --series-alkali-metal: #ff8a80;
+  --series-alkaline-earth-metal: #ffd180;
+  --series-transition-metal: #ffe0b2;
+  --series-post-transition-metal: #c5e1a5;
+  --series-metalloid: #80cbc4;
+  --series-diatomic-nonmetal: #a5d6a7;
+  --series-polyatomic-nonmetal: #a5d6a7;
+  --series-noble-gas: #b39ddb;
+  --series-lanthanide: #f48fb1;
+  --series-actinide: #ce93d8;
+  --series-default: #e0e0e0;
 }
