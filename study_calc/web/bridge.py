@@ -100,3 +100,11 @@ class Bridge:
     def vector_run(self, op: str, values: dict | None = None) -> dict:
         """Run a vector operation; localized step-by-step (green answers) or error."""
         return screens.vector_run(op, values)
+
+    def converter_screen(self) -> dict:
+        """The unit-converter screen: all categories with their unit lists."""
+        return screens.converter_screen()
+
+    def convert_run(self, category: str, value: str, from_unit: str, to_unit: str) -> dict:
+        """Convert a value between units; localized result string or error."""
+        return screens.convert_run(category, value, from_unit, to_unit)

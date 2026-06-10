@@ -149,6 +149,19 @@ async function mountScreen() {
       return;
     }
   }
+  // The unit converter has its own dedicated renderer (issue #9): it is
+  // category+units shaped, not operation+fields shaped like CAS/vectors.
+  if (item && item.kind === 'tool' && item.id === 'tool:converter') {
+    const model = await callApi('converter_screen');
+    if (document.getElementById('screen-mount') !== mount) return;
+    if (model) {
+      mount.replaceChildren(Screens.converter(model, {
+        run: (category, value, fromUnit, toUnit) =>
+          callApi('convert_run', category, value, fromUnit, toUnit),
+      }));
+      return;
+    }
+  }
   mount.replaceChildren(placeholderNode(data, subject));
 }
 

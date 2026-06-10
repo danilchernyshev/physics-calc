@@ -229,6 +229,130 @@ const Screens = {
       h('div', { class: 'screen__col screen__col--aside' }, [solutionCard]),
     ]);
   },
+  // Unit converter screen (issue #9). `model` is bridge's converter_screen();
+  // `ctx.run(category, value, fromUnit, toUnit)` -> Promise of convert_run()
+  // (or null when the backend is absent, e.g. the browser preview).
+  // All category unit lists are baked into the model so swapping categories only
+  // updates the DOM — no round-trip to the backend.
+  converter(model, ctx) {
+    const L = model.labels;
+    const cats = model.categories;
+
+    // Generation token: prevents a stale async result from clobbering the panel
+    // if the user presses Convert twice or changes category mid-flight.
+    const st = { cat: 0, fromUnit: null, toUnit: null, value: '', result: null, run: 0 };
+
+    const current = () => cats[st.cat];
+
+    // Seed from/to with the first two units of the first category — mirrors the
+    // Tk ConverterPanel which calls _refresh_units() on construction.
+    const initUnits = current().units;
+    st.fromUnit = initUnits[0].id;
+    st.toUnit = initUnits[Math.min(1, initUnits.length - 1)].id;
+
+    // Mutable islands updated in place.
+    const chipsWrap  = h('div', { class: 'converter__chips' }, []);
+    const fromWrap   = h('div', {}, []);
+    const toWrap     = h('div', {}, []);
+    const resultWrap = h('div', { class: 'converter__result' }, []);
+
+    // The value input node persists across category changes; value is tracked
+    // via the input event so compute() can read it without querying the DOM.
+    const valueInput = h('input', { class: 'field__control', type: 'text' });
+    valueInput.addEventListener('input', (e) => { st.value = e.target.value; });
+    // Enter converts (parity with the Tk <Return> binding).
+    valueInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); compute(); }
+    });
+    const valueField = UI.field(L.value, valueInput);
+
+    function renderUnitSelects() {
+      const units = current().units;
+      fromWrap.replaceChildren(UI.select({
+        label: L.from,
+        value: st.fromUnit,
+        options: units.map((u) => ({ value: u.id, label: u.label })),
+        onchange: (id) => { st.fromUnit = id; },
+      }));
+      toWrap.replaceChildren(UI.select({
+        label: L.to,
+        value: st.toUnit,
+        options: units.map((u) => ({ value: u.id, label: u.label })),
+        onchange: (id) => { st.toUnit = id; },
+      }));
+    }
+
+    function renderResult() {
+      const r = st.result;
+      if (!r) {
+        resultWrap.replaceChildren();
+      } else if (r.ok) {
+        resultWrap.replaceChildren(UI.result({ label: L.result, value: r.result }));
+      } else {
+        resultWrap.replaceChildren(UI.errorStrip(r.error));
+      }
+    }
+
+    function selectCat(index) {
+      // Re-clicking the active chip is a no-op — only an actual category change
+      // resets the unit selectors and clears the result (parity with the Tk
+      // ConverterPanel, which refreshes only on a real <<ComboboxSelected>>).
+      if (index === st.cat) return;
+      st.run++;
+      st.cat = index;
+      const units = current().units;
+      st.fromUnit = units[0].id;
+      st.toUnit = units[Math.min(1, units.length - 1)].id;
+      st.result = null;
+      chipsWrap.replaceChildren(catChips());
+      renderUnitSelects();
+      renderResult();
+    }
+
+    async function compute() {
+      // Drop the result if category changed, Clear was pressed, or a newer
+      // compute started before this one resolved — same discipline as formula/ops.
+      const run = ++st.run;
+      const res = await ctx.run(current().id, st.value, st.fromUnit, st.toUnit);
+      if (run !== st.run) return;
+      if (!res) return; // no backend (static preview)
+      st.result = res;
+      renderResult();
+    }
+
+    function clear() {
+      st.run++;
+      st.value = '';
+      valueInput.value = '';
+      st.result = null;
+      renderResult();
+    }
+
+    const catChips = () => UI.chips({
+      items: cats.map((c) => ({ id: c.id, label: c.label })),
+      active: current().id,
+      onselect: (id) => selectCat(cats.findIndex((c) => c.id === id)),
+    });
+
+    // Initialise all mutable islands before the node is returned.
+    chipsWrap.replaceChildren(catChips());
+    renderUnitSelects();
+
+    const converterCard = UI.card({
+      title: model.title,
+      body: [
+        chipsWrap,
+        h('div', { class: 'converter__fields' }, [valueField, fromWrap, toWrap]),
+        h('div', { class: 'chips' }, [
+          UI.button({ label: L.convert, variant: 'primary', onclick: compute }),
+          UI.button({ label: L.clear, variant: 'ghost', onclick: clear }),
+        ]),
+        resultWrap,
+      ],
+    });
+
+    return h('div', { class: 'screen screen--converter' }, [converterCard]);
+  },
 };
 
 // Render the learning-card blocks (the model produced by screens.py mirrors the

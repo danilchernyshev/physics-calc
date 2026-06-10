@@ -456,6 +456,86 @@ def _operation_labels(operation_key: str, hint_key: str, steps_title_key: str) -
     }
 
 
+# --- Unit converter screen ---
+
+
+def converter_screen() -> dict:
+    """The unit-converter screen model: all categories with their unit lists.
+
+    Unlike CAS/vectors the converter is always available (standard-library only).
+    Every category's unit list is baked into the model so the frontend can swap
+    the from/to selectors on a chip change without a round-trip — mirroring how
+    the Tk ``ConverterPanel`` pre-populates unit lists per category.
+    """
+    from ..core.units import categories, units_of
+
+    cats = [
+        {
+            "id": cat_id,
+            "label": t(f"category.{cat_id}"),
+            "units": [
+                {"id": uid, "label": t(f"unit.{uid}")}
+                for uid in units_of(cat_id)
+            ],
+        }
+        for cat_id in categories()
+    ]
+    return {
+        "available": True,
+        "title": t("tab.converter"),
+        "labels": {
+            "category": t("ui.category"),
+            "value": t("ui.value"),
+            "from": t("ui.from"),
+            "to": t("ui.to"),
+            "convert": t("ui.convert"),
+            "clear": t("ui.clear"),
+            "result": t("ui.result"),
+        },
+        "categories": cats,
+    }
+
+
+def convert_run(category: str, value: str, from_unit: str, to_unit: str) -> dict:
+    """Convert ``value`` between units; mirror of ``ConverterPanel._convert``.
+
+    Returns ``{"ok": True, "result": <formatted>}`` or ``{"ok": False, "error":
+    <localized>}``. The result string mirrors the Tk panel exactly:
+    ``"{value} {from_unit_label}  =  {result} {to_unit_label}"``
+    (whole numbers are rendered bare; otherwise 6 significant digits).
+
+    Handles comma decimal separators and maps every ``ConversionError`` code to a
+    localized message, the same way as the Tk panel.
+    """
+    from ..core.units import ConversionError
+    from ..core.units import convert as _convert
+
+    text = str(value or "").strip().replace(",", ".")
+    try:
+        num = float(text)
+    except ValueError:
+        return {"ok": False, "error": t("error.not_a_number", value=text, field=t("ui.value"))}
+
+    try:
+        result = _convert(num, from_unit, to_unit, category)
+    except ConversionError as exc:
+        return {"ok": False, "error": t(f"error.{exc.code}", **exc.params)}
+
+    if not math.isfinite(result):
+        return {"ok": False, "error": t("error.not_finite")}
+
+    from_label = t(f"unit.{from_unit}")
+    to_label = t(f"unit.{to_unit}")
+    return {
+        "ok": True,
+        "result": (
+            f"{_format_number(num)} {from_label}"
+            f"  =  "
+            f"{_format_number(result)} {to_label}"
+        ),
+    }
+
+
 def solve_formula(formula_key: str, values: Mapping[str, str]) -> dict:
     """Solve ``formula_key`` from string ``values`` (symbol -> text field).
 
