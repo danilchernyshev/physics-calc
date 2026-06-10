@@ -1,0 +1,7 @@
+{
+  "title": "Domain",
+  "short": "The set of all input values for which a function is defined.",
+  "full": "The domain of a function is every x-value you are allowed to put in. Most expressions accept all real numbers, but two situations carve out exclusions: you cannot divide by zero, and you cannot take an even root (or a logarithm) of a negative number.\n\nSo the domain of 1/(x − 2) is every real number except x = 2, and the domain of √(x) is x ≥ 0. The matching set of outputs is called the range.",
+  "formulas": ["1/(x − 2): x ≠ 2", "√x: x ≥ 0", "log x: x > 0"],
+  "see_also": ["function", "asymptote"]
+}

@@ -1,0 +1,27 @@
+{
+  "summary": "Two functions can be combined into a new one. You can add, subtract, multiply or divide them point by point, or compose them — feeding the output of one into the other. Composition f(g(x)) is usually not the same as g(f(x)), so order matters.",
+  "terms": ["composition", "function", "domain"],
+  "formulas": [
+    "(f + g)(x) = f(x) + g(x)",
+    "(f · g)(x) = f(x)·g(x)",
+    "(f / g)(x) = f(x)/g(x),  g(x) ≠ 0",
+    "(f ∘ g)(x) = f(g(x))"
+  ],
+  "method": [
+    "For a sum, difference, product or quotient, just apply the operation to f(x) and g(x).",
+    "For a composition f ∘ g, replace every variable in f by the whole expression g(x).",
+    "Simplify the result.",
+    "Remember the domain: a composition only accepts inputs that g accepts and that land in the domain of f."
+  ],
+  "example": {
+    "title": "Compose two functions",
+    "given": ["f(x) = x²", "g(x) = x + 1"],
+    "find": "f ∘ g and g ∘ f",
+    "steps": [
+      "f(g(x)) = (x + 1)²  — substitute g into f.",
+      "g(f(x)) = x² + 1  — substitute f into g.",
+      "They are different, so order matters."
+    ],
+    "answer": "f∘g = (x + 1)²,  g∘f = x² + 1"
+  }
+}

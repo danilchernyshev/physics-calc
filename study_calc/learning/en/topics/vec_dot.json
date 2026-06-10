@@ -1,0 +1,17 @@
+{
+  "summary": "The dot product multiplies matching components and adds them, giving a single number (a scalar). It measures how much two vectors point the same way: positive when the angle is acute, zero when they are perpendicular, negative when obtuse.",
+  "terms": ["dot_product", "vector"],
+  "formulas": ["u·v = u₁v₁ + u₂v₂ + u₃v₃", "u·v = |u||v|cos θ", "u·v = 0  ⇔  u ⊥ v"],
+  "method": [
+    "Multiply the first components, the second components, and the third components.",
+    "Add those products together — the answer is a single number.",
+    "A result of 0 means the vectors are perpendicular."
+  ],
+  "example": {
+    "title": "Dot product in 3-D",
+    "given": ["u = (1, 2, 3)", "v = (4, 5, 6)"],
+    "find": "u·v",
+    "steps": ["u·v = 1·4 + 2·5 + 3·6 = 4 + 10 + 18."],
+    "answer": "u·v = 32"
+  }
+}

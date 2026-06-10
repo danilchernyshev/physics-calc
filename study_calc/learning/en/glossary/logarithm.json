@@ -1,0 +1,7 @@
+{
+  "title": "Logarithm",
+  "short": "The inverse of an exponent: log_b(x) is the power b must be raised to in order to get x.",
+  "full": "A logarithm answers 'what exponent?'. If b^y = x, then log_b(x) = y. So log₂(8) = 3 because 2³ = 8. The base b is a positive number other than 1; the natural log ln uses base e, and 'log' on its own usually means base 10.\n\nBecause logarithms are the inverse of exponentials, they turn multiplication into addition: the laws of logarithms split a log of a product, quotient or power into sums, differences and multiples. That is what makes them the standard tool for solving exponential equations.\n\nThe domain of log_b(x) is x > 0 — you can never take the log of zero or a negative number.",
+  "formulas": ["b^(log_b x) = x", "log_b(M·N) = log_b M + log_b N", "log_b(M^k) = k·log_b M"],
+  "see_also": ["exponent", "function"]
+}

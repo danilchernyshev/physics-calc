@@ -1,0 +1,30 @@
+{
+  "summary": "Analyzing a function gathers the key features you need to sketch its graph: the domain, the x- and y-intercepts, any asymptotes or holes (for rational functions), the end behaviour, and the turning points. Together they tell the whole shape of the curve.",
+  "terms": ["function", "asymptote", "domain", "root"],
+  "formulas": [
+    "x-intercepts: solve f(x) = 0",
+    "y-intercept: f(0)",
+    "vertical asymptote: a zero of the denominator that is NOT cancelled",
+    "hole: a zero of both numerator and denominator (a cancelled factor)",
+    "turning points: solve f '(x) = 0"
+  ],
+  "method": [
+    "State the domain — exclude any x that makes a denominator zero.",
+    "Find the y-intercept by evaluating f(0), and the x-intercepts by solving f(x) = 0.",
+    "For a rational function, factor top and bottom: a shared factor gives a hole, an un-shared denominator zero gives a vertical asymptote.",
+    "Find the horizontal/oblique asymptote from the behaviour as x → ±∞.",
+    "Find turning points where the derivative f '(x) = 0.",
+    "Plot the features and join them, respecting the asymptotes."
+  ],
+  "example": {
+    "title": "Analyze a rational function",
+    "given": ["the function (x² − 1)/(x − 1)"],
+    "find": "its key features",
+    "steps": [
+      "Factor the top: x² − 1 = (x − 1)(x + 1).",
+      "The (x − 1) cancels, so x = 1 is a hole, not an asymptote.",
+      "Away from x = 1 the function equals x + 1: a line with x-intercept −1 and y-intercept 1."
+    ],
+    "answer": "Line y = x + 1 with a hole at x = 1"
+  }
+}

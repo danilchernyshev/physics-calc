@@ -1,0 +1,7 @@
+{
+  "title": "Composition of functions",
+  "short": "Feeding one function's output into another: (f ∘ g)(x) = f(g(x)).",
+  "full": "Composing two functions means applying one after the other: (f ∘ g)(x) = f(g(x)) reads 'do g first, then f'. The output of g becomes the input of f.\n\nOrder matters — f ∘ g is usually different from g ∘ f. The domain of f ∘ g is restricted to inputs that g can accept and whose g-values lie in the domain of f. Composition is how complicated functions are built from simple ones, and recognising a composition is the first step of the chain rule in calculus.",
+  "formulas": ["(f ∘ g)(x) = f(g(x))", "(g ∘ f)(x) = g(f(x))"],
+  "see_also": ["function", "domain"]
+}

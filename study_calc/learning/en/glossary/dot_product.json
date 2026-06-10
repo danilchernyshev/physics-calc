@@ -1,0 +1,7 @@
+{
+  "title": "Dot product",
+  "short": "Multiply matching components and add: u·v = u₁v₁ + u₂v₂ + u₃v₃ — a single number.",
+  "full": "The dot product (or scalar product) of two vectors multiplies their matching components and sums the results, giving a scalar. It also equals |u||v|cos θ, which ties it to the angle between the vectors: the dot product is positive for an acute angle, zero for a right angle, and negative for an obtuse angle.\n\nThat zero case is the everyday test for perpendicularity, and rearranging the formula gives the angle between any two vectors. The dot product is the engine behind projections too.",
+  "formulas": ["u·v = u₁v₁ + u₂v₂ + u₃v₃", "u·v = |u||v|cos θ", "u·v = 0 ⇔ u ⊥ v"],
+  "see_also": ["vector", "cross_product"]
+}

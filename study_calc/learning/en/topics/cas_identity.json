@@ -1,0 +1,25 @@
+{
+  "summary": "An identity is an equation that is true for every allowed value of the variable, not just for a few solutions. To prove one, you show the two sides are the same expression — here, by simplifying left − right and checking it reduces to 0.",
+  "terms": ["identity", "function"],
+  "formulas": [
+    "sin²θ + cos²θ = 1",
+    "sin 2θ = 2 sin θ cos θ",
+    "cos 2θ = cos²θ − sin²θ"
+  ],
+  "method": [
+    "Write the difference (left side) − (right side).",
+    "Simplify it using algebra and known identities.",
+    "If the difference simplifies to 0, the identity holds for all values.",
+    "If it simplifies to something non-zero, it is not an identity (it may still be an equation with isolated solutions — use Solve for those)."
+  ],
+  "example": {
+    "title": "Prove a Pythagorean identity",
+    "given": ["the claim sin²(x) + cos²(x) = 1"],
+    "find": "whether it is an identity",
+    "steps": [
+      "Form the difference: (sin²x + cos²x) − 1.",
+      "By the Pythagorean identity sin²x + cos²x = 1, so the difference is 1 − 1 = 0."
+    ],
+    "answer": "True — it is an identity"
+  }
+}

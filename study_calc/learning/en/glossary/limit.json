@@ -1,0 +1,7 @@
+{
+  "title": "Limit",
+  "short": "The value a function approaches as its input approaches a point.",
+  "full": "The limit of f(x) as x approaches a, written lim_(x→a) f(x), is the single value the outputs close in on as x gets near a — regardless of what happens exactly at a. A function can have a limit at a point where it is undefined; that is precisely the case that makes limits powerful.\n\nLimits underpin all of calculus: the derivative is a limit of average rates of change, and limits at infinity describe the horizontal asymptotes and end behaviour of a graph. When direct substitution gives the indeterminate form 0/0, factoring and cancelling usually reveals the limit.",
+  "formulas": ["lim_(x→a) f(x) = L", "lim_(x→0) sin x / x = 1", "lim_(x→∞) 1/x = 0"],
+  "see_also": ["derivative", "rate_of_change", "asymptote"]
+}

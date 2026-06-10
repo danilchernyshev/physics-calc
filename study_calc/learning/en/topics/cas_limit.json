@@ -1,0 +1,27 @@
+{
+  "summary": "A limit describes the value a function approaches as its input approaches some point — even if the function is undefined exactly there. Limits are the foundation of calculus: they define both the derivative and the behaviour of a graph near asymptotes and at infinity.",
+  "terms": ["limit", "function", "asymptote"],
+  "formulas": [
+    "lim_(x→a) f(x) = L",
+    "lim_(x→0) sin(x)/x = 1",
+    "lim_(x→∞) 1/x = 0",
+    "f '(a) = lim_(h→0) (f(a+h) − f(a)) / h"
+  ],
+  "method": [
+    "Try direct substitution first: if f(a) is defined and finite, that is the limit.",
+    "If you get 0/0, factor and cancel the common factor, then substitute again.",
+    "For a limit at infinity, compare the growth of the numerator and denominator (divide by the highest power).",
+    "A one-sided limit (from the left or right) can differ from the two-sided limit near an asymptote."
+  ],
+  "example": {
+    "title": "A limit that needs cancelling",
+    "given": ["the function (x² − 1)/(x − 1) as x → 1"],
+    "find": "the limit",
+    "steps": [
+      "Direct substitution gives 0/0 — indeterminate.",
+      "Factor: (x² − 1)/(x − 1) = (x − 1)(x + 1)/(x − 1) = x + 1.",
+      "Now substitute x = 1: the limit is 1 + 1."
+    ],
+    "answer": "2"
+  }
+}

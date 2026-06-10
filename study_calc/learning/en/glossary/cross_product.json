@@ -1,0 +1,7 @@
+{
+  "title": "Cross product",
+  "short": "For 3-D vectors, a new vector perpendicular to both, with length |u||v|sin θ.",
+  "full": "The cross product u×v of two three-dimensional vectors produces a third vector that is perpendicular to both of them. Its direction follows the right-hand rule, and its length, |u||v|sin θ, equals the area of the parallelogram the two vectors span — so a cross product of zero means the vectors are parallel.\n\nUnlike the dot product, the cross product is only defined in 3-D (in 2-D it reduces to the single scalar u₁v₂ − u₂v₁), and it is anti-commutative: v×u = −(u×v).",
+  "formulas": ["u×v = (u₂v₃ − u₃v₂, u₃v₁ − u₁v₃, u₁v₂ − u₂v₁)", "|u×v| = |u||v|sin θ"],
+  "see_also": ["vector", "dot_product"]
+}

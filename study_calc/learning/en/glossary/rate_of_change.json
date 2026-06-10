@@ -1,0 +1,7 @@
+{
+  "title": "Rate of change",
+  "short": "How fast a function's output changes — a slope.",
+  "full": "The rate of change of a function measures how quickly its output rises or falls. The average rate of change over an interval [a, b] is the slope of the secant line joining the two endpoints: (f(b) − f(a))/(b − a). The instantaneous rate of change at a single point is the slope of the tangent line there — the value of the derivative f '(a).\n\nThe instantaneous rate is the limit of the average rate as the interval shrinks to a point, which is exactly how the derivative is defined.",
+  "formulas": ["average: (f(b) − f(a)) / (b − a)", "instantaneous: f '(a)"],
+  "see_also": ["derivative", "limit", "function"]
+}

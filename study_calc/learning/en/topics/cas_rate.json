@@ -1,0 +1,25 @@
+{
+  "summary": "The rate of change measures how fast a function's output changes. The average rate of change over an interval is the slope of the secant line between two points; the instantaneous rate of change at a single point is the slope of the tangent line — the derivative evaluated there.",
+  "terms": ["rate_of_change", "derivative", "function"],
+  "formulas": [
+    "average rate of change on [a, b]:  (f(b) − f(a)) / (b − a)",
+    "instantaneous rate of change at a:  f '(a)",
+    "f '(a) = lim_(h→0) (f(a+h) − f(a)) / h"
+  ],
+  "method": [
+    "For an average rate, evaluate f at both endpoints a and b.",
+    "Divide the change in output, f(b) − f(a), by the change in input, b − a.",
+    "For an instantaneous rate, differentiate to get f '(x).",
+    "Substitute the point a into f '(x)."
+  ],
+  "example": {
+    "title": "Average vs instantaneous rate",
+    "given": ["the function f(x) = x²"],
+    "find": "the average rate on [1, 3] and the instantaneous rate at x = 2",
+    "steps": [
+      "Average: (f(3) − f(1)) / (3 − 1) = (9 − 1)/2 = 4.",
+      "Instantaneous: f '(x) = 2x, so f '(2) = 4."
+    ],
+    "answer": "Average rate = 4; instantaneous rate at x = 2 is 4"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "summary": "The angle between two vectors comes from the dot product: rearranging u·v = |u||v|cos θ gives cos θ, and the inverse cosine gives the angle itself (between 0° and 180°).",
+  "terms": ["dot_product", "vector"],
+  "formulas": ["cos θ = (u·v)/(|u||v|)", "θ = arccos((u·v)/(|u||v|))"],
+  "method": [
+    "Compute the dot product u·v.",
+    "Compute the magnitudes |u| and |v|.",
+    "Divide: cos θ = (u·v)/(|u||v|).",
+    "Take the inverse cosine to get θ (it lies between 0° and 180°)."
+  ],
+  "example": {
+    "title": "Angle between perpendicular vectors",
+    "given": ["u = (1, 0)", "v = (0, 1)"],
+    "find": "the angle θ",
+    "steps": ["u·v = 0, so cos θ = 0.", "arccos(0) = 90°."],
+    "answer": "θ = 90°"
+  }
+}

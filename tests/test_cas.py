@@ -187,6 +187,100 @@ def test_user_input_is_not_evaluated_as_python():
     assert result.output_text == "__import__"
 
 
+# --- MHF4U / MCV4U operations ---------------------------------------------
+
+
+def test_inequality_quadratic_returns_union_of_intervals():
+    result = cas.run("inequality", "x^2 - 4 > 0")
+    assert result.output_text == "(-∞, -2) ∪ (2, ∞)"
+
+
+def test_inequality_rejects_a_plain_expression():
+    with pytest.raises(cas.CasError) as info:
+        cas.run("inequality", "x^2 - 4")
+    assert info.value.code == "cas_not_inequality"
+
+
+def test_logarithm_applies_the_product_and_power_laws():
+    result = cas.run("logarithm", "log(x^2*y)")
+    assert result.output_text == "2*log(x) + log(y)"
+
+
+def test_trig_simplify_uses_the_pythagorean_identity():
+    result = cas.run("trig_simplify", "sin(x)^2 + cos(x)^2")
+    assert result.output_text == "1"
+
+
+def test_identity_confirms_a_true_identity():
+    result = cas.run("identity", "sin(x)^2 + cos(x)^2 = 1")
+    assert result.output_text == "True"
+
+
+def test_identity_rejects_a_false_one():
+    result = cas.run("identity", "sin(x) = cos(x)")
+    assert result.output_text == "False"
+
+
+def test_limit_of_sinx_over_x():
+    result = cas.run("limit", "sin(x)/x", "x", at="0")
+    assert result.output_text == "1"
+
+
+def test_limit_at_infinity():
+    result = cas.run("limit", "1/x", "x", at="oo")
+    assert result.output_text == "0"
+
+
+def test_limit_needs_a_point():
+    with pytest.raises(cas.CasError) as info:
+        cas.run("limit", "1/x", "x")
+    assert info.value.code == "cas_needs_point"
+
+
+def test_rate_average_over_an_interval():
+    result = cas.run("rate", "x^2", "x", a="1", b="3")
+    assert result.output_text == "4"
+
+
+def test_rate_instant_when_only_a_is_given():
+    result = cas.run("rate", "x^3", "x", a="2")  # f'(x)=3x^2, f'(2)=12
+    assert result.output_text == "12"
+
+
+def test_combine_composition():
+    result = cas.run("combine", "x^2", "x", g="x+1")
+    assert "(x + 1)**2" in result.output_text
+
+
+def test_combine_needs_a_second_function():
+    with pytest.raises(cas.CasError) as info:
+        cas.run("combine", "x^2", "x")
+    assert info.value.code == "cas_needs_second_function"
+
+
+def _card_values(result, suffix):
+    key = f"cas.step.card.{suffix}"
+    return [s.params.get("value") for s in result.steps if s.key == key]
+
+
+def test_function_detects_a_hole():
+    result = cas.run("function", "(x^2-1)/(x-1)", "x")
+    holes = _card_values(result, "hole")
+    assert holes and "x = 1" in holes[0]
+
+
+def test_function_detects_vertical_and_horizontal_asymptotes():
+    result = cas.run("function", "1/(x-2)", "x")
+    assert any("x = 2" in v for v in _card_values(result, "vertical_asymptote"))
+    assert any("y = 0" in v for v in _card_values(result, "horizontal_asymptote"))
+
+
+def test_sample_returns_arrays_and_finds_asymptote():
+    xs, ys, asymptotes = cas.sample("1/(x-2)", "x")
+    assert len(xs) == len(ys) > 0
+    assert any(abs(a - 2.0) < 1e-9 for a in asymptotes)
+
+
 # --- i18n completeness for the CAS-specific keys (not covered by SECTIONS walk). ---
 
 _CAS_STEP_KEYS = [

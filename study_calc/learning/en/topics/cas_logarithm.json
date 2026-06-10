@@ -1,0 +1,27 @@
+{
+  "summary": "A logarithm answers the question 'what exponent?': log_b(x) is the power you raise b to in order to get x. The laws of logarithms turn products, quotients and powers inside a log into sums, differences and multiples — the key to simplifying and to solving exponential equations.",
+  "terms": ["logarithm", "exponent", "function"],
+  "formulas": [
+    "log_b(M·N) = log_b M + log_b N",
+    "log_b(M/N) = log_b M − log_b N",
+    "log_b(M^k) = k·log_b M",
+    "change of base: log_b x = ln x / ln b"
+  ],
+  "method": [
+    "Identify products, quotients and powers inside the logarithm.",
+    "Use the product law to split a product into a sum of logs.",
+    "Use the quotient law to split a quotient into a difference of logs.",
+    "Use the power law to bring an exponent out in front as a coefficient.",
+    "To go the other way (condense), read each law from right to left."
+  ],
+  "example": {
+    "title": "Expand a logarithm",
+    "given": ["the expression log(x²·y)"],
+    "find": "the expanded form",
+    "steps": [
+      "Product law: log(x²·y) = log(x²) + log(y).",
+      "Power law on the first term: log(x²) = 2·log(x)."
+    ],
+    "answer": "2·log(x) + log(y)"
+  }
+}

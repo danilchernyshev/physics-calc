@@ -1,0 +1,16 @@
+{
+  "summary": "Adding two vectors places them tip to tail; the sum is the single vector from the start of the first to the end of the second. Algebraically you just add matching components.",
+  "terms": ["vector"],
+  "formulas": ["u + v = (u₁ + v₁, u₂ + v₂, u₃ + v₃)"],
+  "method": [
+    "Make sure both vectors have the same dimension.",
+    "Add the first components, then the second, then the third."
+  ],
+  "example": {
+    "title": "Add two 3-D vectors",
+    "given": ["u = (1, 2, 3)", "v = (4, 5, 6)"],
+    "find": "u + v",
+    "steps": ["Add componentwise: (1+4, 2+5, 3+6)."],
+    "answer": "(5, 7, 9)"
+  }
+}

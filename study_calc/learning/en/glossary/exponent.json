@@ -1,0 +1,7 @@
+{
+  "title": "Exponent",
+  "short": "The power a base is raised to: in b^n, the exponent is n.",
+  "full": "An exponent records repeated multiplication: b^n means b multiplied by itself n times. The laws of exponents mirror the laws of logarithms — multiplying powers adds exponents, raising a power to a power multiplies them.\n\nAn exponential function b^x (with base b > 0, b ≠ 1) grows or decays at a rate proportional to its own value, which is why it models compound interest, populations and radioactive decay. Its inverse is the logarithm.",
+  "formulas": ["b^m · b^n = b^(m+n)", "(b^m)^n = b^(m·n)", "b^0 = 1"],
+  "see_also": ["logarithm", "function"]
+}

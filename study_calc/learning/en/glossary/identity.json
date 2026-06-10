@@ -1,0 +1,7 @@
+{
+  "title": "Identity",
+  "short": "An equation that is true for every allowed value of the variable.",
+  "full": "An identity is an equation that holds for all values of the variable (within the domain), not just for a special few. For example sin²θ + cos²θ = 1 is true for every angle θ, so it is an identity; by contrast sin θ = 1/2 is only true for particular angles, so it is an ordinary equation.\n\nTo prove an identity you transform one side until it matches the other, or show that the difference of the two sides simplifies to 0. You may not 'move terms across the equals sign' as if solving — instead you rewrite using known identities and algebra.",
+  "formulas": ["sin²θ + cos²θ = 1", "tan θ = sin θ / cos θ", "1 + tan²θ = sec²θ"],
+  "see_also": ["equation", "function"]
+}

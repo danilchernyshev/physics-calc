@@ -1,0 +1,17 @@
+{
+  "summary": "The magnitude (or norm) of a vector is its length — the distance from its tail to its tip. It comes straight from the Pythagorean theorem applied to the components.",
+  "terms": ["vector"],
+  "formulas": ["|u| = √(u₁² + u₂²)", "|u| = √(u₁² + u₂² + u₃²)"],
+  "method": [
+    "Square each component.",
+    "Add the squares together.",
+    "Take the square root of the sum."
+  ],
+  "example": {
+    "title": "Length of a 2-D vector",
+    "given": ["u = (3, 4)"],
+    "find": "|u|",
+    "steps": ["|u| = √(3² + 4²) = √(9 + 16) = √25."],
+    "answer": "|u| = 5"
+  }
+}

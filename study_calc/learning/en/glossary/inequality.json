@@ -1,0 +1,7 @@
+{
+  "title": "Inequality",
+  "short": "A statement that one expression is less than or greater than another.",
+  "full": "An inequality compares two expressions with <, ≤, > or ≥ instead of =. Its solution is usually not a few isolated values but a whole range of them, written in interval notation — a round bracket for a strict < or > (endpoint excluded) and a square bracket for ≤ or ≥ (endpoint included).\n\nTo solve a polynomial or rational inequality, move everything to one side, find the boundary values (zeros of the numerator and denominator), and test a sample point in each interval they create. A value that makes a denominator zero is always excluded.",
+  "formulas": ["x² − 4 > 0  ⇒  (−∞, −2) ∪ (2, ∞)", "interval: (a, b) excludes ends, [a, b] includes them"],
+  "see_also": ["root", "polynomial"]
+}

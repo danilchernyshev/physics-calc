@@ -99,7 +99,11 @@ _ERROR_KEYS = [
     "error.cas_empty", "error.cas_parse", "error.cas_needs_variable",
     "error.cas_bad_variable", "error.cas_no_solution",
     "error.cas_unknown_operation", "error.cas_failed",
-    "error.cas_ambiguous_variable",
+    "error.cas_ambiguous_variable", "error.cas_not_inequality",
+    "error.cas_needs_point", "error.cas_needs_second_function",
+    "error.vec_empty", "error.vec_parse", "error.vec_dim_mismatch",
+    "error.vec_cross_dim", "error.vec_zero", "error.vec_bad_scalar",
+    "error.vec_unknown_operation",
 ]
 
 

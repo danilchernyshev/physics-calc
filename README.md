@@ -1,11 +1,17 @@
 # Study Calculator
 
 A desktop study calculator for solving problems in **mechanics,
-thermodynamics, electromagnetism and waves**, for **symbolic math (CAS)**, and
-for **converting units of measurement** — with **built-in learning materials**
-(key terms, useful formulas, a step-by-step method and a worked example) shown
-alongside every problem. A simple, clear Tkinter interface: pick a formula,
-fill in every field but one — the program computes the missing quantity.
+thermodynamics, electromagnetism and waves**, for **symbolic math (CAS)**,
+**function analysis and graphing**, **vector algebra**, and for **converting
+units of measurement** — with **built-in learning materials** (key terms,
+useful formulas, a step-by-step method and a worked example) shown alongside
+every problem. A simple, clear Tkinter interface: pick a formula, fill in every
+field but one — the program computes the missing quantity.
+
+The symbolic-math, graphing and vector tabs are aligned with the Ontario Grade 12
+**Advanced Functions (MHF4U)** and **Calculus and Vectors (MCV4U)** courses:
+logarithms, trigonometric identities, polynomial and rational functions and
+inequalities, rates of change, limits, and 2-D/3-D vectors.
 
 The interface is **localized** (English, Spanish, French, Russian, Ukrainian)
 and the language can be switched at runtime.
@@ -22,8 +28,8 @@ and the language can be switched at runtime.
     resistance;
   - Waves & optics — wave speed, period/frequency, photon energy, light
     wavelength, Snell's law.
-- **Unit converter**: length, mass, time, speed, energy, pressure, force and
-  temperature.
+- **Unit converter**: length, mass, time, speed, energy, pressure, force,
+  temperature and **angle** (degrees ↔ radians ↔ gradians).
 - **Symbolic math (CAS)** powered by [SymPy](https://www.sympy.org/): an
   *Analyze* overview (simplified, factored, derivative, integral, real roots and
   Taylor series at once, à la Wolfram Alpha), plus standalone simplify, expand,
@@ -32,10 +38,25 @@ and the language can be switched at runtime.
   every answer comes with a step-by-step explanation. Type math naturally — `^`
   means a power and `2x` means `2·x`. Input is parsed in a sandbox, never
   executed as Python.
+- **Advanced Functions (MHF4U) tools** in the same tab: solve polynomial and
+  rational **inequalities**, apply the **laws of logarithms**, simplify
+  trigonometric expressions and **prove trig identities**, analyze a function's
+  key features for curve sketching (domain, intercepts, vertical/horizontal/
+  oblique **asymptotes**, **holes**, end behaviour, turning points), find
+  **average and instantaneous rates of change**, evaluate **limits**, and
+  **combine or compose** two functions.
+- **Graphing**: a *Plot* button draws any expression with
+  [matplotlib](https://matplotlib.org/), marking the axes and vertical
+  asymptotes — connecting the algebra to the picture.
+- **Vectors (MCV4U)**: a dedicated tab for 2-D and 3-D vectors — magnitude,
+  addition/subtraction, scalar multiplication, the **dot** and **cross**
+  products, the **angle** between vectors, **projections** and **unit vectors**,
+  each with worked steps.
 - **Runtime language switching** across English, Spanish, French, Russian and
   Ukrainian.
-- **One lightweight dependency** — SymPy (for the CAS tab); everything else uses
-  only the Python standard library.
+- **Two lightweight dependencies** — SymPy (symbolic math) and matplotlib
+  (graphing); everything else, including the vector tab, uses only the Python
+  standard library.
 
 ## Getting started on Windows (step by step)
 

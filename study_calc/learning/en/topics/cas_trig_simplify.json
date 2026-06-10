@@ -1,0 +1,26 @@
+{
+  "summary": "Trigonometric simplification rewrites an expression built from sin, cos, tan and their reciprocals into the shortest equivalent form, using the standard identities. It is the everyday tool behind proving identities and solving trig equations.",
+  "terms": ["identity", "radian", "function"],
+  "formulas": [
+    "sin²θ + cos²θ = 1",
+    "tan θ = sin θ / cos θ",
+    "1 + tan²θ = sec²θ",
+    "sin 2θ = 2 sin θ cos θ"
+  ],
+  "method": [
+    "Rewrite everything in terms of sine and cosine when in doubt.",
+    "Look for the Pythagorean identity sin²θ + cos²θ = 1 hiding in the expression.",
+    "Combine fractions over a common denominator.",
+    "Cancel common factors and collect like terms."
+  ],
+  "example": {
+    "title": "Simplify a trig expression",
+    "given": ["the expression sin²(x) + cos²(x)"],
+    "find": "the simplest form",
+    "steps": [
+      "This is exactly the Pythagorean identity.",
+      "It equals 1 for every value of x."
+    ],
+    "answer": "1"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Radian",
+  "short": "The natural unit of angle: the angle that cuts off an arc equal to the radius.",
+  "full": "One radian is the angle subtended at the centre of a circle by an arc whose length equals the radius. Because a full circle has circumference 2πr, a full turn is 2π radians = 360°, so π radians = 180°.\n\nRadians are the 'natural' angle unit in calculus: the derivative of sin x is cos x only when x is in radians. To convert, multiply degrees by π/180 to get radians, or radians by 180/π to get degrees.",
+  "formulas": ["2π rad = 360°", "radians = degrees × π/180", "arc length s = r·θ"],
+  "see_also": ["function"]
+}

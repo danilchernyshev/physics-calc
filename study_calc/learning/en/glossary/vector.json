@@ -1,0 +1,7 @@
+{
+  "title": "Vector",
+  "short": "A quantity with both magnitude and direction, written as components like (3, 4).",
+  "full": "A vector has both a size (magnitude) and a direction — unlike a scalar, which is just a number. It is written as an ordered list of components, (3, 4) in two dimensions or (1, 2, 3) in three, measured along the coordinate axes.\n\nVectors model displacement, velocity, force and many other directed quantities. They can be added tip to tail, scaled by a number, and combined through the dot and cross products. Geometrically, the components are the steps you take along each axis to get from the tail to the tip.",
+  "formulas": ["u = (u₁, u₂, u₃)", "|u| = √(u₁² + u₂² + u₃²)"],
+  "see_also": ["dot_product", "unit_vector"]
+}

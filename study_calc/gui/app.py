@@ -202,6 +202,46 @@ class AboutWindow(tk.Toplevel):
         text.end()
 
 
+class GraphWindow(tk.Toplevel):
+    """A pop-up that plots the current CAS expression with matplotlib.
+
+    Embeds a Matplotlib figure in a Tk canvas. Vertical asymptotes are drawn as
+    dashed red guide lines, and the axes are marked. The sampling (and all SymPy
+    use) lives in :func:`study_calc.core.cas.sample`; this class only draws.
+    """
+
+    def __init__(self, master: tk.Misc, cas, expression: str, variable: str) -> None:
+        super().__init__(master)
+        self.title(t("graph.title"))
+        self.minsize(560, 460)
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+        from matplotlib.figure import Figure
+
+        try:
+            xs, ys, asymptotes = cas.sample(expression, variable)
+        except cas.CasError as exc:
+            ttk.Label(self, text="⚠ " + t(f"error.{exc.code}", **exc.params),
+                      foreground=_ERROR_COLOR, wraplength=520, padding=18).pack()
+            return
+
+        figure = Figure(figsize=(6, 4.6), dpi=100)
+        axes = figure.add_subplot(111)
+        axes.axhline(0, color="#888", linewidth=0.8)
+        axes.axvline(0, color="#888", linewidth=0.8)
+        axes.plot(xs, ys, color=_LINK_COLOR, linewidth=1.8)
+        for position in asymptotes:
+            axes.axvline(position, color=_ERROR_COLOR, linestyle="--", linewidth=0.9)
+        axes.set_title(expression)
+        axes.set_xlabel(variable or "x")
+        axes.set_ylabel("y")
+        axes.grid(True, alpha=0.3)
+        figure.tight_layout()
+
+        canvas = FigureCanvasTkAgg(figure, master=self)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True)
+
+
 class ExplanationPanel(ttk.Frame):
     """The learning area on the right of a tab: theory, formulas, terms, an
     example, worked steps, and study links.
@@ -641,35 +681,62 @@ class CasPanel(ttk.Frame):
         self._var.grid(row=1, column=1, sticky="w", pady=3)
         self._var.bind("<Return>", lambda _e: self._compute())
 
+        # Extra per-operation inputs (e.g. interval endpoints for "rate", the
+        # second function for "combine"), rebuilt by _on_op_change from OP_FIELDS.
+        self._extra = ttk.Frame(left)
+        self._extra.pack(fill="x")
+        self._extra_entries: dict[str, ttk.Entry] = {}
+
         # --- Buttons. ---
         buttons = ttk.Frame(left)
         buttons.pack(fill="x", pady=(12, 0))
         ttk.Button(buttons, text=t("ui.compute"), command=self._compute).pack(side="left")
-        ttk.Button(buttons, text=t("ui.clear"), command=self._clear).pack(side="left", padx=6)
+        ttk.Button(buttons, text=t("ui.plot"), command=self._plot).pack(side="left", padx=6)
+        ttk.Button(buttons, text=t("ui.clear"), command=self._clear).pack(side="left")
 
         self._combo.current(0)
         self._on_op_change()
 
     # Step keys whose line is the actual answer (highlighted), vs. reasoning.
-    # Every "analyze" card line counts as an answer (see ``_is_answer``).
-    _ANSWER_KEYS = {"cas.step.result", "cas.step.solve_root"}
+    # Every "analyze"/"function"/"combine" card line counts as an answer too
+    # (see ``_is_answer``).
+    _ANSWER_KEYS = {
+        "cas.step.result", "cas.step.solve_root", "cas.step.inequality_solution",
+        "cas.step.identity_true", "cas.step.identity_false",
+    }
 
     @classmethod
     def _is_answer(cls, key: str) -> bool:
         return key in cls._ANSWER_KEYS or key.startswith("cas.step.card.")
 
     def _on_op_change(self) -> None:
-        """Enable the variable field only for operations that need one."""
+        """Enable the variable field, and build any extra inputs, for the op."""
         op = self._op_ids[self._combo.current()]
         needs_var = op in self._cas.USES_VARIABLE
         state = "normal" if needs_var else "disabled"
         self._var.config(state=state)
         self._var_label.config(foreground="" if needs_var else _HINT_COLOR)
+        self._build_extra_fields(op)
         self._show_topic_or_hint(op)
+
+    def _build_extra_fields(self, op: str) -> None:
+        """Rebuild the per-operation extra input rows from ``cas.OP_FIELDS``."""
+        for child in self._extra.winfo_children():
+            child.destroy()
+        self._extra_entries.clear()
+        for row, field_id in enumerate(self._cas.OP_FIELDS.get(op, ())):
+            ttk.Label(self._extra, text=t(f"cas.field.{field_id}"), width=24,
+                      anchor="w").grid(row=row, column=0, sticky="w", pady=3)
+            entry = ttk.Entry(self._extra, width=20)
+            entry.grid(row=row, column=1, sticky="w", pady=3)
+            entry.bind("<Return>", lambda _e: self._compute())
+            self._extra_entries[field_id] = entry
 
     def _clear(self) -> None:
         self._expr.delete(0, "end")
         self._var.delete(0, "end")
+        for entry in self._extra_entries.values():
+            entry.delete(0, "end")
         self._show_topic_or_hint(self._op_ids[self._combo.current()])
 
     def _show_topic_or_hint(self, op: str) -> None:
@@ -689,8 +756,9 @@ class CasPanel(ttk.Frame):
         op = self._op_ids[self._combo.current()]
         expression = self._expr.get().strip()
         variable = self._var.get().strip()
+        extra = {fid: entry.get().strip() for fid, entry in self._extra_entries.items()}
         try:
-            result = self._cas.run(op, expression, variable)
+            result = self._cas.run(op, expression, variable, **extra)
         except self._cas.CasError as exc:
             self._explain.show_error(t(f"error.{exc.code}", **exc.params))
             return
@@ -703,6 +771,126 @@ class CasPanel(ttk.Frame):
         if not segments:  # defensive: an op without steps still shows an answer
             segments = [(f"{result.input_text}  →  {result.output_text}\n", "answer")]
         self._explain.show_steps("cas.steps_title", segments)
+
+    def _plot(self) -> None:
+        """Open a graph of the current expression (matplotlib, lazily imported)."""
+        try:
+            import matplotlib  # noqa: F401  (presence check only)
+        except ImportError:
+            self._explain.show_hint("graph.title", "graph.unavailable")
+            return
+        expression = self._expr.get().strip()
+        if not expression:
+            self._explain.show_error(t("error.cas_empty"))
+            return
+        GraphWindow(self, self._cas, expression, self._var.get().strip())
+
+
+class VectorPanel(ttk.Frame):
+    """Vectors tab (MCV4U0): pick an operation and type 2-D or 3-D vectors.
+
+    Backed by :mod:`study_calc.core.vectors` (standard library only, so unlike
+    the CAS tab it is always available). Mirrors :class:`CasPanel`: an operation
+    picker on the left, a worked step-by-step solution in the learning area on
+    the right, and the operation's learning material shown before computing.
+    """
+
+    def __init__(self, master: tk.Misc) -> None:
+        super().__init__(master, padding=12)
+        from study_calc.core import vectors
+
+        self._vectors = vectors
+        self._op_ids = vectors.OPERATIONS
+
+        paned = ttk.PanedWindow(self, orient="horizontal")
+        paned.pack(fill="both", expand=True)
+        left = ttk.Frame(paned)
+        self._explain = ExplanationPanel(paned)
+        paned.add(left, weight=3)
+        paned.add(self._explain, weight=2)
+
+        top = ttk.Frame(left)
+        top.pack(fill="x")
+        ttk.Label(top, text=t("vector.operation")).pack(side="left")
+        self._combo = ttk.Combobox(
+            top, state="readonly", width=26,
+            values=[t(f"vector.op.{oid}") for oid in self._op_ids],
+        )
+        self._combo.pack(side="left", padx=(6, 0))
+        self._combo.bind("<<ComboboxSelected>>", lambda _e: self._on_op_change())
+
+        ttk.Label(left, text=t("vector.hint"), foreground=_HINT_COLOR, wraplength=420,
+                  justify="left").pack(anchor="w", pady=(10, 8))
+
+        fields = ttk.Frame(left)
+        fields.pack(fill="x")
+        ttk.Label(fields, text=t("vector.u"), width=14, anchor="w").grid(
+            row=0, column=0, sticky="w", pady=3)
+        self._u = ttk.Entry(fields, width=30)
+        self._u.grid(row=0, column=1, sticky="w", pady=3)
+        self._u.bind("<Return>", lambda _e: self._compute())
+
+        self._v_label = ttk.Label(fields, text=t("vector.v"), width=14, anchor="w")
+        self._v_label.grid(row=1, column=0, sticky="w", pady=3)
+        self._v = ttk.Entry(fields, width=30)
+        self._v.grid(row=1, column=1, sticky="w", pady=3)
+        self._v.bind("<Return>", lambda _e: self._compute())
+
+        self._k_label = ttk.Label(fields, text=t("vector.scalar"), width=14, anchor="w")
+        self._k_label.grid(row=2, column=0, sticky="w", pady=3)
+        self._k = ttk.Entry(fields, width=12)
+        self._k.grid(row=2, column=1, sticky="w", pady=3)
+        self._k.bind("<Return>", lambda _e: self._compute())
+
+        buttons = ttk.Frame(left)
+        buttons.pack(fill="x", pady=(12, 0))
+        ttk.Button(buttons, text=t("ui.compute"), command=self._compute).pack(side="left")
+        ttk.Button(buttons, text=t("ui.clear"), command=self._clear).pack(side="left", padx=6)
+
+        self._combo.current(0)
+        self._on_op_change()
+
+    # Step keys whose line is the actual answer (highlighted), vs. reasoning.
+    _ANSWER_KEYS = {"vector.step.result", "vector.step.angle_result", "vector.step.proj_vector"}
+
+    def _on_op_change(self) -> None:
+        """Enable the v / scalar fields only for operations that use them."""
+        op = self._op_ids[self._combo.current()]
+        needs_v = op in self._vectors.NEEDS_SECOND
+        needs_k = op in self._vectors.NEEDS_SCALAR
+        self._v.config(state="normal" if needs_v else "disabled")
+        self._v_label.config(foreground="" if needs_v else _HINT_COLOR)
+        self._k.config(state="normal" if needs_k else "disabled")
+        self._k_label.config(foreground="" if needs_k else _HINT_COLOR)
+        self._show_topic_or_hint(op)
+
+    def _show_topic_or_hint(self, op: str) -> None:
+        topic = load_topic(f"vec_{op}", i18n.language)
+        if topic is not None:
+            self._explain.show_topic(f"vector.op.{op}", topic)
+        else:
+            self._explain.show_hint("vector.steps_title", "vector.steps_placeholder")
+
+    def _clear(self) -> None:
+        for entry in (self._u, self._v, self._k):
+            entry.delete(0, "end")
+        self._show_topic_or_hint(self._op_ids[self._combo.current()])
+
+    def _compute(self) -> None:
+        op = self._op_ids[self._combo.current()]
+        try:
+            result = self._vectors.run(
+                op, self._u.get().strip(), self._v.get().strip(), self._k.get().strip()
+            )
+        except self._vectors.VectorError as exc:
+            self._explain.show_error(t(f"error.{exc.code}", **exc.params))
+            return
+        segments = [
+            (t(step.key, **step.params) + "\n",
+             "answer" if step.key in self._ANSWER_KEYS else "step")
+            for step in result.steps
+        ]
+        self._explain.show_steps("vector.steps_title", segments)
 
 
 def _build_cas_tab(notebook: ttk.Notebook) -> None:
@@ -756,6 +944,7 @@ class App:
             self._notebook.add(FormulaPanel(self._notebook, formulas), text=t(f"section.{section_id}"))
         self._notebook.add(ConverterPanel(self._notebook), text=t("tab.converter"))
         _build_cas_tab(self._notebook)
+        self._notebook.add(VectorPanel(self._notebook), text=t("tab.vectors"))
 
     def _on_language_change(self) -> None:
         """Switch language and rebuild the UI, keeping the selected tab."""

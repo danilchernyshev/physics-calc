@@ -12,6 +12,7 @@ to/from-kelvin functions instead.
 
 from __future__ import annotations
 
+import math
 from typing import Callable, Dict
 
 
@@ -76,6 +77,13 @@ _LINEAR: Dict[str, Dict[str, float]] = {
         "kilonewton": 1000.0,
         "dyne": 1e-5,
         "kgf": 9.80665,
+    },
+    # Angle (MHF4U: radian measure). Base unit is the radian; a full turn is
+    # 2π rad = 360° = 400 gradians.
+    "angle": {
+        "radian": 1.0,
+        "degree": math.pi / 180.0,
+        "gradian": math.pi / 200.0,
     },
 }
 

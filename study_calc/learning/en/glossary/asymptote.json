@@ -1,0 +1,7 @@
+{
+  "title": "Asymptote",
+  "short": "A line the graph approaches but never quite reaches.",
+  "full": "An asymptote is a straight line that a curve gets arbitrarily close to as you move far along the graph. Rational functions have three kinds.\n\nA vertical asymptote occurs where the denominator is zero but the numerator is not — the graph shoots off to ±∞ there. A horizontal asymptote describes the height the graph levels off to as x → ±∞. An oblique (slant) asymptote is a tilted line the graph follows when the numerator's degree is exactly one more than the denominator's.\n\nA cancelled factor gives a hole instead of a vertical asymptote: a single missing point rather than an infinite break.",
+  "formulas": ["vertical: x = a (denominator 0, numerator ≠ 0)", "horizontal: y = lim_(x→∞) f(x)"],
+  "see_also": ["function", "root"]
+}

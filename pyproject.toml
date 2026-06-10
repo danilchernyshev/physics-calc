@@ -1,13 +1,13 @@
 [project]
 name = "study-calc"
-version = "0.4.0"
-description = "Study calculator: physics (mechanics, thermodynamics, electromagnetism, waves), a unit converter, a SymPy-backed symbolic math (CAS) tab and built-in learning materials, with a Tkinter GUI (English/Spanish/French/Russian/Ukrainian)"
+version = "0.5.0"
+description = "Study calculator: physics (mechanics, thermodynamics, electromagnetism, waves), a unit converter, a SymPy-backed symbolic math (CAS) tab with MHF4U Advanced Functions tools and graphing, an MCV4U vectors tab, and built-in learning materials, with a Tkinter GUI (English/Spanish/French/Russian/Ukrainian)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Danil Chernyshev", email = "danil.chernyshev@gmail.com" }]
 keywords = ["learning", "education", "physics", "math", "calculator", "units", "tkinter", "gui", "cas", "sympy"]
-dependencies = ["sympy>=1.12"]
+dependencies = ["sympy>=1.12", "matplotlib>=3.7"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

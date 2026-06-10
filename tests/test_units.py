@@ -1,5 +1,7 @@
 """Tests for the unit converter."""
 
+import math
+
 import pytest
 
 from study_calc.core.units import convert, categories, units_of, ConversionError
@@ -31,6 +33,18 @@ def test_temperature_f_to_c():
 
 def test_temperature_c_to_k():
     assert convert(0, "celsius", "kelvin", "temperature") == pytest.approx(273.15)
+
+
+def test_angle_degree_to_radian():
+    assert convert(180, "degree", "radian", "angle") == pytest.approx(math.pi)
+
+
+def test_angle_radian_to_degree():
+    assert convert(math.pi / 2, "radian", "degree", "angle") == pytest.approx(90)
+
+
+def test_angle_gradian_to_degree():
+    assert convert(100, "gradian", "degree", "angle") == pytest.approx(90)
 
 
 def test_roundtrip_identity():

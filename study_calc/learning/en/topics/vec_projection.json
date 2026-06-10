@@ -1,0 +1,20 @@
+{
+  "summary": "Projecting u onto v finds the 'shadow' of u in the direction of v. The scalar projection is the length of that shadow; the vector projection is the shadow itself, pointing along v.",
+  "terms": ["dot_product", "vector"],
+  "formulas": [
+    "scalar projection = (u·v)/|v|",
+    "vector projection = ((u·v)/|v|²)·v"
+  ],
+  "method": [
+    "Compute the dot product u·v and the magnitude |v|.",
+    "Divide u·v by |v| for the scalar projection (a single number).",
+    "Multiply v by (u·v)/|v|² for the vector projection (a vector along v)."
+  ],
+  "example": {
+    "title": "Project onto a horizontal vector",
+    "given": ["u = (3, 4)", "v = (1, 0)"],
+    "find": "the vector projection of u onto v",
+    "steps": ["u·v = 3, |v|² = 1.", "Vector projection = (3/1)·(1, 0)."],
+    "answer": "(3, 0)"
+  }
+}

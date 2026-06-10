@@ -1,0 +1,24 @@
+{
+  "summary": "A polynomial or rational inequality asks for the set of x-values that make one side larger (or smaller) than the other. The answer is a range — or a union of ranges — written with intervals.",
+  "terms": ["inequality", "root", "polynomial", "asymptote"],
+  "formulas": ["x² − 4 > 0", "(x − 1)/(x + 2) ≤ 0", "interval notation: (a, b), [a, b]"],
+  "method": [
+    "Move everything to one side so the other side is 0.",
+    "Find the boundary values: the zeros of the numerator and the zeros of the denominator.",
+    "These boundaries split the number line into intervals.",
+    "Test one point from each interval to see whether the inequality is true there.",
+    "Combine the intervals that work, using a round bracket for a strict < or > and a square bracket for ≤ or ≥ (a value that makes a denominator zero is always excluded)."
+  ],
+  "example": {
+    "title": "Solve a quadratic inequality",
+    "given": ["the inequality x² − 4 > 0"],
+    "find": "all x that satisfy it",
+    "steps": [
+      "The boundaries are the roots of x² − 4 = 0, namely x = −2 and x = 2.",
+      "They split the line into (−∞, −2), (−2, 2) and (2, ∞).",
+      "Test x = −3: 9 − 4 = 5 > 0 ✓. Test x = 0: −4 > 0 ✗. Test x = 3: 5 > 0 ✓.",
+      "The strict > excludes the boundaries themselves."
+    ],
+    "answer": "(−∞, −2) ∪ (2, ∞)"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Unit vector",
+  "short": "A vector of length 1 that records only direction: û = u/|u|.",
+  "full": "A unit vector has magnitude exactly 1, so it carries direction without any size. You build one by dividing a vector by its own magnitude — a step called normalizing. Multiplying a unit vector by a length then rebuilds a vector of any size pointing the same way.\n\nThe standard basis unit vectors i = (1,0,0), j = (0,1,0) and k = (0,0,1) point along the coordinate axes, and every vector is a combination of them.",
+  "formulas": ["û = u / |u|", "|û| = 1"],
+  "see_also": ["vector", "dot_product"]
+}
