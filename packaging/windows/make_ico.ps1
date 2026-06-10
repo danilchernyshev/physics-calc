@@ -37,7 +37,11 @@ try {
         [pscustomobject]@{ Size = $size; Bytes = $ms.ToArray() }
     }
 
-    $out = [System.IO.File]::Open((Join-Path (Get-Location) $Destination), "Create")
+    # Resolve $Destination against the current directory. [Path]::Combine (unlike
+    # Join-Path) returns it unchanged when it is already absolute — which it is when
+    # build_installer.ps1 passes a full path — and joins it to the cwd when relative.
+    $destPath = [System.IO.Path]::Combine((Get-Location).Path, $Destination)
+    $out = [System.IO.File]::Open($destPath, "Create")
     try {
         $w = New-Object System.IO.BinaryWriter $out
         # ICONDIR: reserved(0), type(1 = icon), image count.
