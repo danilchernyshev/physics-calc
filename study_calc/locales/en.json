@@ -440,6 +440,7 @@
   "ui.correct": "Correct!",
   "ui.incorrect": "Not quite — try again",
   "ui.general": "General",
+  "ui.periodic.click_hint": "Click an element to see its details",
   "ui.periodic.molar_hint": "Type a formula — parentheses and subscripts supported",
   "ui.periodic.balance_hint": "Enter reactants → products; coefficients are solved exactly",
   "series.alkali-metal": "Alkali metal",

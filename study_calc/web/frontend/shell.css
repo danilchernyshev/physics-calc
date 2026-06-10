@@ -159,12 +159,23 @@ body {
   padding: var(--space-2xl);
 }
 
+/* Title row: page title + an optional compact curriculum chip (e.g. "SCH4U")
+   that per-screen renderers drop into #header-badge (Figma node 23:2). */
+.header__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .header__title {
   margin: 0;
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-strong);
 }
+
+/* Empty until a screen fills it; no reserved space when blank. */
+.header__badge-slot:empty { display: none; }
 
 .header__subtitle {
   margin: var(--space-2xs) 0 var(--space-lg);

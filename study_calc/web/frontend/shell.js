@@ -106,8 +106,15 @@ function renderContent(data, subject) {
   // The per-screen content is mounted asynchronously (it may need a bridge call).
   const screenMount = h('div', { class: 'screen-mount', id: 'screen-mount' }, []);
 
+  // The title row carries an empty curriculum-chip slot (#header-badge) that
+  // per-screen renderers may fill — e.g. the periodic table sets "SCH4U" beside
+  // the "Chemistry" title (Figma node 23:2). It is recreated empty on every
+  // render(), so non-curriculum screens simply leave it blank.
   return h('main', { class: 'content' }, [
-    h('h1', { class: 'header__title', text: subject.label }),
+    h('div', { class: 'header__title-row' }, [
+      h('h1', { class: 'header__title', text: subject.label }),
+      h('span', { class: 'header__badge-slot', id: 'header-badge' }, []),
+    ]),
     h('p', { class: 'header__subtitle', text: subject.tagline }),
     tabs,
     screenMount,
@@ -179,6 +186,9 @@ async function mountScreen() {
         molarMass: (formula) => callApi('molar_mass_run', formula),
         balance: (equation) => callApi('balance_run', equation),
       }));
+      // Curriculum chip beside the "Chemistry" page title (Figma node 23:2).
+      const badge = document.getElementById('header-badge');
+      if (badge && model.curriculumCode) badge.replaceChildren(UI.badge(model.curriculumCode));
       return;
     }
   }

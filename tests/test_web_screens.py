@@ -431,6 +431,11 @@ def test_periodic_screen_lists_all_elements_with_positions_and_series():
     # Curriculum badge is present and non-empty (SCH4U is the Chemistry course).
     assert screen.get("curriculum"), "periodic_screen must carry a curriculum badge"
     assert "SCH4U" in screen["curriculum"]
+    # Compact course code for the shell-header chip (Figma node 23:2).
+    assert screen.get("curriculumCode") == "SCH4U"
+    # Grid card header labels: title + click hint, resolved (not raw keys).
+    assert L["title"] and not L["title"].startswith("tab.")
+    assert L["clickHint"] and not L["clickHint"].startswith("ui.")
     # Series legend: 11 entries, each with a slug and a resolved label.
     legend = screen.get("seriesLegend", [])
     assert len(legend) == 11, f"expected 11 series legend entries, got {len(legend)}"
@@ -489,6 +494,22 @@ def test_periodic_screen_has_dedicated_frontend_renderer():
     assert "periodic_screen" in shell
     assert "molar_mass_run" in shell
     assert "balance_run" in shell
+
+
+def test_periodic_card_header_and_shell_curriculum_chip():
+    # Figma node 23:2 QA: the grid card carries a real header (title + subtitle),
+    # the element detail sits in that header row, and the curriculum is a compact
+    # chip in the shell header — not a full-width pill inside the card.
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    assert "periodic__card-header" in js
+    assert "periodic__card-subtitle" in js
+    assert "periodic__detail--header" in js
+    # The old in-card curriculum pill is gone (model.curriculum no longer used here).
+    assert "UI.badge(model.curriculum)" not in js
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    # Shell header has a slot filled from the screen's compact course code.
+    assert "header-badge" in shell
+    assert "curriculumCode" in shell
 
 
 # --- Problems (practice) screen ---
