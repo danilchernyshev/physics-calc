@@ -407,5 +407,18 @@
   "ui.backed_by_topic": "Lié au sujet :",
   "ui.correct": "Correct !",
   "ui.incorrect": "Pas tout à fait — réessayez",
-  "ui.general": "Général"
+  "ui.general": "Général",
+  "ui.periodic.molar_hint": "Entrez une formule — parenthèses et indices pris en charge",
+  "ui.periodic.balance_hint": "Entrez les réactifs → produits ; les coefficients sont calculés exactement",
+  "series.alkali-metal": "Métal alcalin",
+  "series.alkaline-earth-metal": "Métal alcalino-terreux",
+  "series.transition-metal": "Métal de transition",
+  "series.post-transition-metal": "Métal post-transition",
+  "series.metalloid": "Métalloïde",
+  "series.diatomic-nonmetal": "Non-métal diatomique",
+  "series.polyatomic-nonmetal": "Non-métal polyatomique",
+  "series.noble-gas": "Gaz noble",
+  "series.lanthanide": "Lanthanide",
+  "series.actinide": "Actinide",
+  "series.unknown": "Inconnu"
 }

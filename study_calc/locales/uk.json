@@ -407,5 +407,18 @@
   "ui.backed_by_topic": "За темою:",
   "ui.correct": "Правильно!",
   "ui.incorrect": "Не зовсім — спробуйте ще",
-  "ui.general": "Загальні"
+  "ui.general": "Загальні",
+  "ui.periodic.molar_hint": "Введіть формулу — підтримуються дужки та нижні індекси",
+  "ui.periodic.balance_hint": "Введіть реагенти → продукти; коефіцієнти вираховуються точно",
+  "series.alkali-metal": "Лужний метал",
+  "series.alkaline-earth-metal": "Лужноземельний метал",
+  "series.transition-metal": "Перехідний метал",
+  "series.post-transition-metal": "Постперехідний метал",
+  "series.metalloid": "Металоїд",
+  "series.diatomic-nonmetal": "Двохатомний неметал",
+  "series.polyatomic-nonmetal": "Поліатомний неметал",
+  "series.noble-gas": "Благородний газ",
+  "series.lanthanide": "Лантаноїд",
+  "series.actinide": "Актиноїд",
+  "series.unknown": "Невідомий"
 }

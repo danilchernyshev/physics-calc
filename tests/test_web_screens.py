@@ -425,6 +425,21 @@ def test_periodic_screen_lists_all_elements_with_positions_and_series():
     assert not L["molarMass"].startswith("ui.")
     assert not L["equation"].startswith("ui.")
     assert not L["balance"].startswith("ui.")
+    # Subtitle hints are present and resolved (Figma card-subtitle requirement).
+    assert "mmHint" in L and L["mmHint"] and not L["mmHint"].startswith("ui.")
+    assert "balHint" in L and L["balHint"] and not L["balHint"].startswith("ui.")
+    # Curriculum badge is present and non-empty (SCH4U is the Chemistry course).
+    assert screen.get("curriculum"), "periodic_screen must carry a curriculum badge"
+    assert "SCH4U" in screen["curriculum"]
+    # Series legend: 11 entries, each with a slug and a resolved label.
+    legend = screen.get("seriesLegend", [])
+    assert len(legend) == 11, f"expected 11 series legend entries, got {len(legend)}"
+    slugs = {entry["slug"] for entry in legend}
+    assert "alkali-metal" in slugs and "noble-gas" in slugs and "unknown" in slugs
+    for entry in legend:
+        assert entry["label"] and not entry["label"].startswith("series."), (
+            f"legend entry {entry['slug']!r} has unresolved label"
+        )
 
 
 def test_molar_mass_run_happy_path():
@@ -436,6 +451,12 @@ def test_molar_mass_run_happy_path():
     assert "18." in res["result"]
     assert "g/mol" in res["result"]       # unit label (English default)
     assert "H:2" in res["result"] and "O:1" in res["result"]
+    # Figma requirement: percentage composition shown below the result chip.
+    assert "composition" in res, "molar_mass_run must return a 'composition' field"
+    comp = res["composition"]
+    assert comp, "composition must not be empty"
+    # H and O should both appear with a % sign.
+    assert "H" in comp and "O" in comp and "%" in comp
 
 
 def test_molar_mass_run_unknown_element_returns_localized_error():

@@ -118,19 +118,21 @@
 
 /* ---- Periodic-table screen ------------------------------------------ */
 
-/* Full-width single-column layout: tools card on top, grid card below.
-   Matches the Tk PeriodicTablePanel vertical order (tools above grid). */
+/* Two-column layout: grid card on the left (wider), two tool cards stacked on
+   the right. Matches the Figma "Chemistry — Periodic table" frame. Collapses
+   to one column on narrow viewports (same breakpoint as the formula screen). */
 .screen--periodic {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: var(--space-2xl);
+  align-items: start;
 }
 
-/* Two stacked tool rows (molar mass + balancer). */
-.periodic__tools { display: flex; flex-direction: column; gap: var(--space-md); }
+@media (max-width: 1100px) {
+  .screen--periodic { grid-template-columns: 1fr; }
+}
 
-/* Each tool row: label+input on the left, action buttons in the middle,
-   result/error strip on the right. Wraps on small viewports. */
+/* Tool rows: input + action buttons side by side; wraps on narrow viewports. */
 .periodic__tool-row {
   display: flex;
   flex-wrap: wrap;
@@ -138,20 +140,29 @@
   gap: var(--space-md);
 }
 
-/* Give the text input a fixed-ish width so it doesn't stretch to fill the row. */
-.periodic__tool-row .field { flex: 0 0 220px; min-width: 0; }
-
-/* Button group — stays together, aligned with the input bottom. */
+/* Keep the input a reasonable width; the button group stays compact. */
+.periodic__tool-row .field { flex: 1 1 180px; min-width: 0; }
 .periodic__tool-actions { flex-shrink: 0; align-items: center; }
 
-/* Result/error slot grows to fill remaining row width. */
-.periodic__tool-result { flex: 1; min-width: 0; min-height: var(--space-2xl); }
+/* Result/error slot below the tool row. */
+.periodic__tool-result { min-height: var(--space-2xl); }
+
+/* Percentage-composition line rendered below the molar-mass result chip. */
+.periodic__composition {
+  margin: var(--space-2xs) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
 
 /* 18-column element grid; overflows + scrolls horizontally on narrow viewports
-   so the cells stay square and readable at any window width. */
+   so the cells stay square and readable at any window width.
+   grid-template-rows: rows 1–7 hold the main table (auto-sized by aspect-ratio
+   cells); row 8 is an explicit gap that visually detaches the f-block; rows 9–10
+   hold the lanthanide/actinide rows placed at their natural ypos positions. */
 .periodic__grid {
   display: grid;
   grid-template-columns: repeat(18, minmax(0, 1fr));
+  grid-template-rows: repeat(7, auto) var(--space-2xl) auto auto;
   gap: var(--space-2xs);
   overflow-x: auto;
 }
@@ -196,16 +207,86 @@
   line-height: 1;
 }
 
-/* Selected-element detail line below the grid: name, atomic number/mass,
-   group, period, category — rendered client-side from the pre-baked model. */
+/* Series legend: a wrapped row of colored-dot + label pairs rendered below the
+   grid. Matches the Figma "Series legend" component. */
+.periodic__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.periodic__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+/* The coloured dot reuses the series background token via the same
+   .periodic__cell--<slug> classes already applied to the grid cells. */
+.periodic__legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.periodic__legend-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-body);
+  white-space: nowrap;
+}
+
+/* Element detail: rich inline header below the legend — coloured symbol tile
+   on the left (mirrors the grid cell), element name + meta on the right.
+   Replaces the previous single-line text approach. */
 .periodic__detail {
+  margin-top: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
   background: var(--color-bg-subtle);
-  min-height: var(--space-2xl);
+  min-height: 56px;
 }
 
-.periodic__detail-text {
+/* Flex row: tile on the left, info (name + meta) on the right. */
+.periodic__detail-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* Symbol tile: a mini version of the grid cell (coloured by series). */
+.periodic__detail-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+  padding: var(--space-2xs);
+}
+
+.periodic__detail-mass-small {
+  font-size: var(--font-size-eyebrow);
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.periodic__detail-info { display: flex; flex-direction: column; gap: var(--space-3xs); }
+
+.periodic__detail-name {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+}
+
+.periodic__detail-meta {
   margin: 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-body);
