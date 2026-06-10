@@ -17,7 +17,8 @@ Components are plain factory functions returning DOM nodes.
 | --- | --- |
 | `dom.js` | `h(tag, attrs, children)` hyperscript helper → `window.h`. Loaded first. |
 | `components.js` | The shared component factories → `window.UI`. |
-| `components.css` | Component styles, **entirely on the design tokens** (`../tokens.css`). |
+| `components.css` | Component styles, **entirely on the design tokens** (`tokens.css`). |
+| `tokens.css` | Generated design-token custom properties (`:root`). From `tokens.json` via `tokens.py`; do not hand-edit. |
 | `screens.js` / `screens.css` | Per-screen renderers → `window.Screens` (formula screen #6, CAS screen #7). |
 | `shell.js` / `shell.css` | The app shell (nav rail + header, issue #4) and the screen dispatcher. |
 | `index.html` | The window: loads tokens → components → screens → shell, in order. |

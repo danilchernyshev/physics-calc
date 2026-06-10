@@ -81,7 +81,8 @@ language-agnostic:
   Tkinter; see `docs/adr/0001-ui-framework.md`). It reuses `core`/`domains`/
   `navigation`/i18n unchanged and is built incrementally beside the Tkinter app.
   `tokens.json` is the framework-agnostic design-token source of truth (`tokens.py`
-  emits `tokens.css`; `docs/design-tokens.md`). `bridge.py` is the **JS↔Python
+  emits `frontend/tokens.css` — beside the other stylesheets, since PyWebView serves
+  `frontend/` as the web root; `docs/design-tokens.md`). `bridge.py` is the **JS↔Python
   `js_api`** — pure Python, no PyWebView import, so it's unit-tested headlessly: it
   builds the localized shell model (subjects/items + chrome labels) entirely from
   `navigation.SUBJECTS`, and `set_language` relabels without restructuring. `app.py`
