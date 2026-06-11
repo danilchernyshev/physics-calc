@@ -8,6 +8,7 @@ import json
 
 import pytest
 
+from study_calc.core.installer import ApplyResult
 from study_calc.core.settings import Settings
 from study_calc.core.updates import UpdateError
 from study_calc.i18n import _LOCALES_DIR, i18n
@@ -22,7 +23,7 @@ def _english():
     i18n.set_language("en")
 
 
-def _bridge(tmp_path, *, tag="v9.9.9", version="0.7.0", auto=True, fmt="source"):
+def _bridge(tmp_path, *, tag="v9.9.9", version="0.7.0", auto=True, fmt="source", apply_fn=None):
     settings = Settings(path=tmp_path / "settings.json")
     settings.set_auto_update_check(auto)
     return Bridge(
@@ -30,6 +31,7 @@ def _bridge(tmp_path, *, tag="v9.9.9", version="0.7.0", auto=True, fmt="source")
         settings=settings,
         update_fetcher=lambda: {"tag_name": tag, "body": "Notes", "html_url": "https://rel"},
         package_format=fmt,
+        apply_update_fn=apply_fn,
     )
 
 
@@ -113,6 +115,52 @@ def test_up_to_date_has_no_apply_block(tmp_path):
     assert "apply" not in model
 
 
+# --- automated apply (#94) -----------------------------------------------
+
+def test_self_update_formats_offer_an_update_button(tmp_path):
+    for fmt in ("windows", "appimage"):
+        apply = _bridge(tmp_path, fmt=fmt).check_updates()["apply"]
+        assert apply["autoApply"] is True
+        assert apply["button"]   # "Update now"
+        assert apply["progress"]
+
+
+def test_non_self_update_formats_have_no_update_button(tmp_path):
+    for fmt in ("flatpak", "source", "macos"):
+        apply = _bridge(tmp_path, fmt=fmt).check_updates()["apply"]
+        assert "autoApply" not in apply
+
+
+def test_apply_update_success_is_localized(tmp_path):
+    ok = ApplyResult("launched", "updates.apply.success", path="/tmp/x", ok=True)
+    bridge = _bridge(tmp_path, fmt="windows", apply_fn=lambda fmt, version: ok)
+    model = bridge.apply_update("9.9.9")
+    assert model["ok"] is True
+    assert model["message"]
+    assert "manualUrl" not in model  # success needs no fallback link
+
+
+def test_apply_update_failure_offers_manual_link(tmp_path):
+    bad = ApplyResult("verify_failed", "updates.apply.error.integrity", path="/tmp/x")
+    bridge = _bridge(tmp_path, fmt="appimage", apply_fn=lambda fmt, version: bad)
+    model = bridge.apply_update("9.9.9")
+    assert model["ok"] is False
+    assert model["message"]
+    assert model["manualUrl"].startswith("https://github.com/")
+    assert model["viewRelease"]
+
+
+def test_apply_update_passes_format_and_version_to_fn(tmp_path):
+    seen = {}
+
+    def fake(fmt, version):
+        seen["fmt"], seen["version"] = fmt, version
+        return ApplyResult("launched", "updates.apply.success", ok=True)
+
+    _bridge(tmp_path, fmt="windows", apply_fn=fake).apply_update("1.2.3")
+    assert seen == {"fmt": "windows", "version": "1.2.3"}
+
+
 # --- the auto-check toggle persists --------------------------------------
 
 def test_set_auto_update_check_persists(tmp_path):
@@ -155,6 +203,13 @@ _UPDATE_KEYS = [
     "updates.apply.flatpak",
     "updates.apply.appimage",
     "updates.apply.source",
+    "updates.apply.button",
+    "updates.apply.progress",
+    "updates.apply.success",
+    "updates.apply.error.integrity",
+    "updates.apply.error.download",
+    "updates.apply.error.launch",
+    "updates.apply.error.unsupported",
     "updates.error.offline",
     "updates.error.http",
     "updates.error.bad_version",

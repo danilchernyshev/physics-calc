@@ -6,8 +6,10 @@
 'use strict';
 
 // Per-format apply guidance (#75): how to install on this packaging format,
-// plus the exact command where one applies (Flatpak/source). Returns nodes.
-function _updatesApplyNodes(apply) {
+// plus the exact command where one applies (Flatpak/source). When the format can
+// self-update (Windows/AppImage, #94) and `ctx.onApply` is given, an "Update now"
+// button is appended that triggers the automated apply. Returns nodes.
+function _updatesApplyNodes(apply, ctx) {
   const out = [
     h('h3', { class: 'learn__heading', text: apply.heading }),
     h('p', { class: 'rich__body', text: apply.instructions }),
@@ -18,12 +20,17 @@ function _updatesApplyNodes(apply) {
     }
     out.push(h('pre', { class: 'updates__command', text: apply.command }));
   }
+  if (apply.autoApply && ctx && ctx.onApply) {
+    out.push(h('div', { class: 'updates__actions' }, [
+      UI.button({ label: apply.button, onclick: ctx.onApply }),
+    ]));
+  }
   return out;
 }
 
 // The "an update is available" body: message, optional bump note, release notes,
 // release link, and the per-format apply guidance.
-function _updatesAvailableNodes(m) {
+function _updatesAvailableNodes(m, ctx) {
   const out = [h('p', { class: 'result result--answer', text: m.message })];
   if (m.bumpNote) out.push(h('p', { class: 'rich__body', text: m.bumpNote }));
   if (m.notes) {
@@ -38,7 +45,7 @@ function _updatesAvailableNodes(m) {
       target: '_blank', rel: 'noopener noreferrer',
     }, [m.viewRelease]));
   }
-  if (m.apply) out.push(..._updatesApplyNodes(m.apply));
+  if (m.apply) out.push(..._updatesApplyNodes(m.apply, ctx));
   return out;
 }
 
@@ -1076,10 +1083,32 @@ const Screens = {
     // checking -> up_to_date/available/error) without rebuilding the dialog.
     const status = h('div', { class: 'updates__status', id: 'updates-status' }, []);
 
+    // Run the automated apply (#94): show progress, then the success/failure
+    // result (failure keeps a manual download link). `api.applyUpdate` is absent
+    // in the static preview, so guard on it.
+    async function applyNow(m) {
+      if (!api || !api.applyUpdate) return;
+      status.replaceChildren(h('p', { class: 'updates__checking', text: m.apply.progress }));
+      const res = await api.applyUpdate(m.newVersion);
+      if (!res) { fillStatus(m); return; }
+      if (res.ok) {
+        status.replaceChildren(h('p', { class: 'updates__ok', text: res.message }));
+      } else {
+        const nodes = [UI.errorStrip(res.message)];
+        if (res.manualUrl) {
+          nodes.push(h('a', {
+            class: 'updates__link', href: res.manualUrl,
+            target: '_blank', rel: 'noopener noreferrer',
+          }, [res.viewRelease]));
+        }
+        status.replaceChildren(...nodes);
+      }
+    }
+
     function fillStatus(m) {
       let nodes;
       if (m.status === 'available') {
-        nodes = _updatesAvailableNodes(m);
+        nodes = _updatesAvailableNodes(m, { onApply: () => applyNow(m) });
       } else if (m.status === 'up_to_date') {
         nodes = [h('p', { class: 'updates__ok', text: m.message })];
       } else if (m.status === 'error') {
