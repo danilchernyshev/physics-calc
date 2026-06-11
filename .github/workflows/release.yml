@@ -96,7 +96,12 @@ jobs:
         run: |
           ./dist/study-calc-${VERSION}-linux.AppImage --appimage-extract
           uv run --extra dev python packaging/smoke_test.py --bundle squashfs-root/usr/bin
-          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
+          # The --gui smoke initialises PyWebView's GTK backend, which needs gi
+          # (PyGObject) importable. The isolated `--extra dev` venv does not carry
+          # apt's python3-gi, so run this in the same `--extra packaging --with
+          # pygobject<3.52` env the freeze uses (its gi stack is proven on this
+          # runner). Bundle integrity itself is covered by the --bundle step above.
+          xvfb-run -a uv run --extra packaging --with "pygobject<3.52" python packaging/smoke_test.py --gui
       - name: Upload the AppImage artifact
         uses: actions/upload-artifact@v4
         with:
@@ -241,7 +246,12 @@ jobs:
           test -f /usr/share/icons/hicolor/32x32/apps/study-calc.png || \
           test -f /usr/share/icons/hicolor/256x256/apps/study-calc.png
           uv run --extra dev python packaging/smoke_test.py --bundle /opt/study-calc
-          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
+          # The --gui smoke initialises PyWebView's GTK backend, which needs gi
+          # (PyGObject) importable. The isolated `--extra dev` venv does not carry
+          # apt's python3-gi, so run this in the same `--extra packaging --with
+          # pygobject<3.52` env the freeze uses (its gi stack is proven on this
+          # runner). Bundle integrity itself is covered by the --bundle step above.
+          xvfb-run -a uv run --extra packaging --with "pygobject<3.52" python packaging/smoke_test.py --gui
           sudo apt-get remove -y study-calc
           test ! -e /opt/study-calc
       - name: Upload the .deb artifact
