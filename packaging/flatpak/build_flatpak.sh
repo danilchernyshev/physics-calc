@@ -52,9 +52,11 @@ flatpak build-bundle "${REPO}" "${OUTPUT}" "${APP_ID}"
 echo ">> Done: ${OUTPUT}"
 ls -lh "${OUTPUT}"
 
-# Smoke-test the engines inside the freshly built sandbox (no GUI). The manifest
-# installs smoke_test.py as /app/bin/study-calc-smoke, so run that in the sandbox.
-echo ">> Smoke test inside the Flatpak sandbox"
-flatpak-builder --user --disable-rofiles-fuse --state-dir "${STATE_DIR}" \
-    --run "${BUILD_DIR}/build" "${MANIFEST}" study-calc-smoke
+# Smoke-test the bundled app. Install the exported bundle and run the smoke test
+# command. This tests the actual artifact users will install, and avoids the strict
+# --run option parsing of flatpak-builder 1.4.x (which rejects options before positional
+# args in --run mode). The manifest installs smoke_test.py as /app/bin/study-calc-smoke.
+echo ">> Smoke test: installing and running bundled app"
+flatpak install --user --noninteractive "${OUTPUT}"
+flatpak run --command=study-calc-smoke "${APP_ID}"
 echo ">> Smoke OK"
