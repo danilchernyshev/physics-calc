@@ -1,6 +1,6 @@
 [project]
 name = "study-calc"
-version = "0.8.0"
+version = "0.8.1"
 description = "Study calculator: physics (mechanics, thermodynamics, electromagnetism, waves), chemistry (periodic table, molar mass, equation balancing, solution & acid-base formulas), a unit converter, a SymPy-backed symbolic math (CAS) tab with MHF4U Advanced Functions tools, an MCV4U vectors tab, and built-in learning materials, in a PyWebView desktop app (English/Spanish/French/Russian/Ukrainian)"
 readme = "README.md"
 requires-python = ">=3.10"
