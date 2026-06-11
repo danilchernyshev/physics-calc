@@ -46,20 +46,42 @@ datas = [
 # frozen bundle, surfacing the version in the window title.
 datas += copy_metadata("study-calc")
 
-# Collect gi (PyGObject) and cairo so PyWebView's GTK backend can access
-# GObject-Introspection typelibs (WebKit2, Gtk, Gdk, GObject, GLib) on Linux.
-# On Windows/macOS, collect_all finds and discards nothing — they use native
-# backends, not GTK.
-try:
-    gi_all = collect_all("gi")
-    datas += gi_all[0]  # gi datas
-    binaries = gi_all[1]  # gi binaries
-    cairo_all = collect_all("cairo")
-    datas += cairo_all[0]  # cairo datas
-    binaries += cairo_all[1]  # cairo binaries
-except Exception:
-    # If gi/cairo collection fails (e.g. on non-Linux), proceed without them.
-    binaries = []
+# PyWebView's Linux backend reaches WebKit2GTK through PyGObject (gi), which it
+# imports *dynamically* (by platform) — invisible to PyInstaller's static
+# analysis, so nothing pulls gi in and the bundle crashes with "No module named
+# 'gi'" on a clean host (#158). Fix it on Linux only (Windows/macOS use native
+# backends, never GTK):
+#   * name `gi` AND the gi.repository namespaces the GTK backend imports, so
+#     PyInstaller's bundled GObject hooks fire and collect the matching
+#     introspection typelibs (Gtk-3.0, WebKit2-4.1, …) plus the girepository
+#     glue. Listing only `gi` is NOT enough — the per-namespace hooks (and thus
+#     the .typelib files) only run when gi.repository.<Name> is in the graph, so
+#     `from gi.repository import Gtk` would still fail at runtime;
+#   * collect_all('gi'/'cairo') adds the Python packages and their shared libs.
+# The heavy GTK/WebKit .so's stay on the host (see packaging/linux/README.md);
+# only the Python + typelib glue is bundled.
+binaries = []
+hiddenimports = ["sympy"]
+if sys.platform.startswith("linux"):
+    hiddenimports += [
+        "gi",
+        "gi.repository.Gtk",
+        "gi.repository.Gdk",
+        "gi.repository.GLib",
+        "gi.repository.Gio",
+        "gi.repository.GObject",
+        "gi.repository.WebKit2",
+    ]
+    for _gi_pkg in ("gi", "cairo"):
+        try:
+            _pkg_datas, _pkg_binaries, _pkg_hidden = collect_all(_gi_pkg)
+            datas += _pkg_datas
+            binaries += _pkg_binaries
+            hiddenimports += _pkg_hidden
+        except Exception:
+            # A package may be unavailable in the build env; the hiddenimports
+            # above still drive the GObject hooks for whatever is installed.
+            pass
 
 a = Analysis(
     [str(_PKG / "__main__.py")],
@@ -67,11 +89,15 @@ a = Analysis(
     binaries=binaries,
     datas=datas,
     # SymPy and PyWebView pull modules dynamically; let PyInstaller's hooks find
-    # them and add the few it may miss. gi (PyGObject) is needed for PyWebView's
-    # GTK backend on Linux to access WebKit2GTK via GObject-Introspection.
-    hiddenimports=["sympy", "gi"],
+    # them and add the few it may miss. The gi/gi.repository entries above are
+    # what make PyWebView's GTK backend importable in the frozen bundle on Linux.
+    hiddenimports=hiddenimports,
     hookspath=[],
-    runtime_hooks=[str(Path(SPECPATH).resolve().parent / "hooks" / "runtime_gi_typelib_path.py")],
+    # The hook lives at packaging/hooks/. _ROOT is the project root (SPECPATH's
+    # parent), so join through "packaging". The earlier `Path(SPECPATH).parent /
+    # "hooks"` resolved to <root>/hooks — a path that does not exist — and broke
+    # the freeze with FileNotFoundError before any artifact was produced (#158).
+    runtime_hooks=[str(_ROOT / "packaging" / "hooks" / "runtime_gi_typelib_path.py")],
     # The graphing surface (matplotlib/numpy/Pillow — the `graph` extra) is not
     # wired into the web UI yet and no shipping code path imports it, so keep it
     # out of the frozen bundle. Excluding here makes the build lean regardless of
