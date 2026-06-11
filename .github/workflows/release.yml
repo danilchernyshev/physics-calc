@@ -4,14 +4,13 @@
 # builds every available platform artifact, smoke-tests each one, and publishes
 # them to a GitHub Release. The version is single-sourced from `pyproject.toml`.
 #
-# Per the epic, this lands incrementally as each platform builder becomes ready.
-# Wired today: the test gate, the Linux AppImage (#66), the Windows installer
-# (#63), the macOS DMG (#64), and the Release publish.
-# Pending their builder tickets (uncomment the job once the builder is merged):
-#   - linux-flatpak      → flatpak-builder         (#65)
-# Each new job follows the same shape: `needs: test`, build, run packaging/
+# All five platform artifacts are wired: the test gate, the Linux AppImage (#66)
+# and Flatpak (#65), the Windows installer (#63), the macOS DMG (#64), and the
+# Release publish — which also attaches a SHA256SUMS manifest of every asset
+# (consumed by the in-app self-update, #94).
+# Each job follows the same shape: `needs: test`, build, run packaging/
 # smoke_test.py, then upload-artifact with the canonical asset name. The release
-# job globs every uploaded artifact, so adding a builder needs no change here.
+# job globs every uploaded artifact, so adding a builder needs no change there.
 
 name: Release
 
@@ -148,11 +147,46 @@ jobs:
           path: dist/study-calc-${{ env.VERSION }}-macos-${{ matrix.arch }}.dmg
           if-no-files-found: error
 
+  linux-flatpak:
+    needs: [test, resolve-version]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Flatpak + flatpak-builder and the Flathub remote
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists --user \
+            flathub https://flathub.org/repo/flathub.flatpakrepo
+      - name: Fetch flatpak-pip-generator (vendors the pinned Python deps)
+        run: |
+          curl -fsSLO https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator
+          chmod +x flatpak-pip-generator
+          # The generator needs requirements-parser to resolve the deps.
+          pip install --user requirements-parser
+      - name: Build the Flatpak bundle
+        # build_flatpak.sh generates python3-deps.yaml, installs the GNOME
+        # runtime/SDK, builds with flatpak-builder, exports the .flatpak, and
+        # runs the headless smoke test inside the freshly built sandbox.
+        env:
+          FLATPAK_PIP_GENERATOR: ${{ github.workspace }}/flatpak-pip-generator
+        run: bash packaging/flatpak/build_flatpak.sh
+      - name: Upload the Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-calc-${{ env.VERSION }}-linux.flatpak
+          path: dist/study-calc-${{ env.VERSION }}-linux.flatpak
+          if-no-files-found: error
+
   # Collect every built artifact and attach them to the GitHub Release. New
   # platform jobs just add themselves to `needs` and upload an artifact — the glob
   # below picks them up automatically.
   release:
-    needs: [linux-appimage, windows-installer, macos-dmg]
+    needs: [linux-appimage, windows-installer, macos-dmg, linux-flatpak]
     runs-on: ubuntu-22.04
     permissions:
       contents: write # publish the Release and upload assets
@@ -161,9 +195,22 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: Flatten artifacts and generate SHA256SUMS
+        # download-artifact nests each upload in its own directory; flatten to a
+        # single assets/ dir, then checksum every file by basename so the manifest
+        # matches the flat Release asset names (the in-app self-update verifies
+        # against this, #94).
+        run: |
+          mkdir -p assets
+          find artifacts -type f -exec cp -t assets {} +
+          cd assets
+          # Checksum every asset by basename, excluding the manifest itself.
+          find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%P\n' | sort \
+            | xargs sha256sum > SHA256SUMS
+          echo "Published assets:" && ls -1 && echo "---" && cat SHA256SUMS
       - name: Publish the GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
-          files: artifacts/**/*
+          files: assets/*
           fail_on_unmatched_files: true
           generate_release_notes: true
