@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import urllib.request
@@ -217,9 +218,7 @@ class Bridge:
         user at the manual download link). Never raises.
         """
         result = self._apply_update_fn(self._format, str(version))
-        return screens.apply_result_model(
-            result, fmt=self._format, version=str(version)
-        )
+        return screens.apply_result_model(result)
 
     def _default_apply_update(self, fmt: str, version: str) -> installer.ApplyResult:
         """Real apply seams: GitHub download + SHA256SUMS verify + launch.
@@ -299,7 +298,10 @@ def _run_artifact(fmt: str, path: Path) -> None:
         target = os.environ.get("APPIMAGE")
         if not target:
             raise RuntimeError("APPIMAGE is not set; not running inside an AppImage")
-        os.chmod(path, 0o755)
+        # Make the freshly-downloaded image owner-executable only; never widen
+        # group/other write or open it up world-writable (the file lives in a
+        # private mkdtemp dir). Add the owner-execute bit to its current mode.
+        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR)
         shutil.move(str(path), target)  # swap the running image (cross-device safe)
         os.execv(target, [target, *sys.argv[1:]])  # relaunch on the new version
     raise RuntimeError(f"no automated apply for format {fmt!r}")

@@ -132,7 +132,9 @@ def test_non_self_update_formats_have_no_update_button(tmp_path):
 
 
 def test_apply_update_success_is_localized(tmp_path):
-    ok = ApplyResult("launched", "updates.apply.success", path="/tmp/x", ok=True)
+    ok = ApplyResult(
+        "launched", "updates.apply.success", path=str(tmp_path / "x"), ok=True
+    )
     bridge = _bridge(tmp_path, fmt="windows", apply_fn=lambda fmt, version: ok)
     model = bridge.apply_update("9.9.9")
     assert model["ok"] is True
@@ -141,7 +143,9 @@ def test_apply_update_success_is_localized(tmp_path):
 
 
 def test_apply_update_failure_offers_manual_link(tmp_path):
-    bad = ApplyResult("verify_failed", "updates.apply.error.integrity", path="/tmp/x")
+    bad = ApplyResult(
+        "verify_failed", "updates.apply.error.integrity", path=str(tmp_path / "x")
+    )
     bridge = _bridge(tmp_path, fmt="appimage", apply_fn=lambda fmt, version: bad)
     model = bridge.apply_update("9.9.9")
     assert model["ok"] is False

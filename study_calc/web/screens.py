@@ -992,7 +992,7 @@ def updates_screen(
     return model
 
 
-def apply_result_model(result, *, fmt: str, version: str) -> dict:
+def apply_result_model(result) -> dict:
     """Localize an :class:`installer.ApplyResult` for the frontend (#94).
 
     Returns ``{ok, status, message}`` plus, on failure, a ``manualUrl`` /

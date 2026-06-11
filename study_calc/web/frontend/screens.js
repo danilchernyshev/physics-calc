@@ -20,7 +20,7 @@ function _updatesApplyNodes(apply, ctx) {
     }
     out.push(h('pre', { class: 'updates__command', text: apply.command }));
   }
-  if (apply.autoApply && ctx && ctx.onApply) {
+  if (apply.autoApply && ctx?.onApply) {
     out.push(h('div', { class: 'updates__actions' }, [
       UI.button({ label: apply.button, onclick: ctx.onApply }),
     ]));
@@ -1087,7 +1087,7 @@ const Screens = {
     // result (failure keeps a manual download link). `api.applyUpdate` is absent
     // in the static preview, so guard on it.
     async function applyNow(m) {
-      if (!api || !api.applyUpdate) return;
+      if (!api?.applyUpdate) return;
       status.replaceChildren(h('p', { class: 'updates__checking', text: m.apply.progress }));
       const res = await api.applyUpdate(m.newVersion);
       if (!res) { fillStatus(m); return; }
