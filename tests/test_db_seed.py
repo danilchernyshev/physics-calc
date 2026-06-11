@@ -161,6 +161,40 @@ class TestStableKeys:
 
 
 # ---------------------------------------------------------------------------
+# Foreign-key integrity: a problem's backing topic must exist
+# ---------------------------------------------------------------------------
+
+class TestForeignKeys:
+    """``problems.topic_id`` carries no DB-level FK constraint (it is an optional
+    TEXT column defaulting to ''), so seeding could silently link a problem to a
+    topic that was never authored.  Guard that every *non-empty* topic_id
+    resolves to a real English topic row."""
+
+    def test_problem_topic_ids_resolve_to_english_topics(
+        self, seeded_db: sqlite3.Connection
+    ) -> None:
+        dangling = {
+            row["problem_id"]: row["topic_id"]
+            for row in seeded_db.execute(
+                "SELECT problem_id, topic_id FROM problems "
+                "WHERE topic_id != '' AND topic_id NOT IN "
+                "(SELECT topic_id FROM topics WHERE language = 'en')"
+            ).fetchall()
+        }
+        assert not dangling, (
+            "problems link to topic_ids with no matching English topic row: "
+            f"{dangling}. Add the missing learning/en/topics/<id>.json (then "
+            "re-seed), or clear the problem's topic field."
+        )
+        # Sanity: some problems must actually carry a topic, so the check above
+        # exercises real links rather than passing vacuously.
+        (linked,) = seeded_db.execute(
+            "SELECT COUNT(*) FROM problems WHERE topic_id != ''"
+        ).fetchone()
+        assert linked > 0, "no problem carries a topic_id — FK check is vacuous"
+
+
+# ---------------------------------------------------------------------------
 # Schema correctness
 # ---------------------------------------------------------------------------
 
