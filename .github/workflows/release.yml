@@ -19,6 +19,14 @@ on:
     tags:
       - "v*"
 
+# Re-pushing / force-moving a release tag supersedes the previous run: cancel the
+# in-flight one so dead runs don't pile up in the (scarce macOS Intel) runner
+# queue and delay the current release (#149). Keyed on the tag ref, so distinct
+# version tags never cancel each other.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 # Least privilege: permissions are scoped per job (no workflow-level grant).
 # Only the `release` job that publishes assets gets `contents: write`; every
 # other job is read-only.
