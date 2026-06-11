@@ -46,16 +46,25 @@ fi
 test -x "${BUNDLE}/study-calc" || { echo "frozen bundle missing"; exit 1; }
 
 # 3. Gate on the headless smoke test against the freshly built bundle.
-echo ">> [2/5] Smoke test against the frozen bundle"
+echo ">> [2/5] Smoke test (engine mode) against the frozen bundle"
 uv run --extra dev python packaging/smoke_test.py --bundle "${BUNDLE}"
 
-# 4. Lay out the package root mirroring where the files land on the target system.
-echo ">> [3/5] Assembling the package tree"
+# 4. Generate icons in multiple hicolor sizes (16, 24, 32, 48, 64, 128, 256).
+#    Desktop environments request small sizes and don't downscale a lone 256px icon,
+#    so the app menu entry would show no icon. Use Pillow to resize from the source.
+echo ">> [3/5] Generating multi-sized hicolor icons"
+ICON_BUILD_DIR="${BUILD_DIR}/icons"
+rm -rf "${ICON_BUILD_DIR}"
+uv run --with pillow python "${HERE}/generate_icon_sizes.py" \
+    "${ROOT}/study_calc/web/frontend/icon.png" "${ICON_BUILD_DIR}" \
+    --name "study-calc.png"
+
+# 5. Lay out the package root mirroring where the files land on the target system.
+echo ">> [4/5] Assembling the package tree"
 rm -rf "${PKGROOT}"
 mkdir -p "${PKGROOT}/opt/study-calc" \
          "${PKGROOT}/usr/bin" \
          "${PKGROOT}/usr/share/applications" \
-         "${PKGROOT}/usr/share/icons/hicolor/256x256/apps" \
          "${PKGROOT}/usr/share/doc/study-calc" \
          "${PKGROOT}/usr/share/lintian/overrides" \
          "${PKGROOT}/DEBIAN"
@@ -67,12 +76,12 @@ cp -a "${BUNDLE}/." "${PKGROOT}/opt/study-calc/"
 # /usr/bin launcher so `study-calc` is on PATH and the .desktop Exec resolves.
 ln -s /opt/study-calc/study-calc "${PKGROOT}/usr/bin/study-calc"
 
-# Desktop entry + icon (reuse the AppImage's .desktop — its Exec=study-calc and
-# Icon=study-calc match the launcher symlink and the hicolor icon name).
+# Desktop entry + icons (reuse the AppImage's .desktop — its Exec=study-calc and
+# Icon=study-calc match the launcher symlink and the hicolor icon name). Install
+# all generated icon sizes so the desktop environment can pick the best fit.
 install -m 0644 "${HERE}/study-calc.desktop" \
     "${PKGROOT}/usr/share/applications/study-calc.desktop"
-install -m 0644 "${ROOT}/study_calc/web/frontend/icon.png" \
-    "${PKGROOT}/usr/share/icons/hicolor/256x256/apps/study-calc.png"
+cp -r "${ICON_BUILD_DIR}"/* "${PKGROOT}/usr/share/icons/hicolor/"
 
 # Machine-readable copyright (lintian errors without it).
 install -m 0644 "${HERE}/deb/copyright" \
@@ -120,7 +129,7 @@ Description: Study calculator for physics, chemistry and math
 EOF
 
 # 6. Build the archive (root:root ownership without needing fakeroot/sudo).
-echo ">> [4/5] dpkg-deb --build"
+echo ">> [5/6] dpkg-deb --build"
 OUTPUT="${OUTPUT_DIR}/study-calc_${VERSION}_${ARCH}.deb"
 mkdir -p "${OUTPUT_DIR}"
 dpkg-deb --root-owner-group --build "${PKGROOT}" "${OUTPUT}"
@@ -132,7 +141,7 @@ dpkg-deb --root-owner-group --build "${PKGROOT}" "${OUTPUT}"
 #    reading this output, which now shows no E: lines. Warnings (the expected
 #    embedded-library / statically-linked tags of a frozen Python app) still
 #    print for the record. If lintian is absent (local dev), skip.
-echo ">> [5/5] lintian"
+echo ">> [6/6] lintian"
 if command -v lintian >/dev/null 2>&1; then
     lintian --no-tag-display-limit "${OUTPUT}" || true
 else

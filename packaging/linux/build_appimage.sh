@@ -39,15 +39,22 @@ BUNDLE="${OUTPUT_DIR}/study-calc"
 test -x "${BUNDLE}/study-calc" || { echo "frozen bundle missing"; exit 1; }
 
 # 3. Gate on the headless smoke test against the freshly built bundle.
-echo ">> [2/5] Smoke test against the frozen bundle"
+echo ">> [2/5] Smoke test (engine mode) against the frozen bundle"
 uv run --extra dev python packaging/smoke_test.py --bundle "${BUNDLE}"
 
-# 4. Assemble the AppDir around the bundle.
-echo ">> [3/5] Assembling AppDir"
+# 4. Generate icons in multiple hicolor sizes (16, 24, 32, 48, 64, 128, 256).
+echo ">> [3/5] Generating multi-sized hicolor icons"
+ICON_BUILD_DIR="${BUILD_DIR}/icons"
+rm -rf "${ICON_BUILD_DIR}"
+uv run --with pillow python "${HERE}/generate_icon_sizes.py" \
+    "${ROOT}/study_calc/web/frontend/icon.png" "${ICON_BUILD_DIR}" \
+    --name "study-calc.png"
+
+# 5. Assemble the AppDir around the bundle.
+echo ">> [4/5] Assembling AppDir"
 rm -rf "${APPDIR}"
 mkdir -p "${APPDIR}/usr/bin" \
-         "${APPDIR}/usr/share/applications" \
-         "${APPDIR}/usr/share/icons/hicolor/256x256/apps"
+         "${APPDIR}/usr/share/applications"
 cp -a "${BUNDLE}/." "${APPDIR}/usr/bin/"
 install -m 0755 "${HERE}/AppRun" "${APPDIR}/AppRun"
 # appimagetool expects the .desktop and icon at the AppDir root, with a matching
@@ -55,12 +62,13 @@ install -m 0755 "${HERE}/AppRun" "${APPDIR}/AppRun"
 install -m 0644 "${HERE}/study-calc.desktop" "${APPDIR}/study-calc.desktop"
 install -m 0644 "${HERE}/study-calc.desktop" \
     "${APPDIR}/usr/share/applications/study-calc.desktop"
-install -m 0644 "${ROOT}/study_calc/web/frontend/icon.png" "${APPDIR}/study-calc.png"
-install -m 0644 "${ROOT}/study_calc/web/frontend/icon.png" \
-    "${APPDIR}/usr/share/icons/hicolor/256x256/apps/study-calc.png"
+# Install the largest icon size as the root icon for appimagetool, and all sizes
+# to the hicolor tree for desktop integration.
+install -m 0644 "${ICON_BUILD_DIR}/256x256/apps/study-calc.png" "${APPDIR}/study-calc.png"
+cp -r "${ICON_BUILD_DIR}"/* "${APPDIR}/usr/share/icons/hicolor/"
 
-# 5. Seal the AppDir into a single AppImage.
-echo ">> [4/5] Locating appimagetool"
+# 6. Seal the AppDir into a single AppImage.
+echo ">> [5/6] Locating appimagetool"
 APPIMAGETOOL="$(command -v appimagetool || true)"
 if [ -z "${APPIMAGETOOL}" ]; then
     TOOL="${BUILD_DIR}/appimagetool-${ARCH}.AppImage"
@@ -74,7 +82,7 @@ if [ -z "${APPIMAGETOOL}" ]; then
 fi
 
 OUTPUT="${OUTPUT_DIR}/study-calc-${VERSION}-linux.AppImage"
-echo ">> [5/5] Building ${OUTPUT}"
+echo ">> [6/6] Building ${OUTPUT}"
 # --appimage-extract-and-run lets appimagetool run on hosts without FUSE (CI).
 ARCH="${ARCH}" "${APPIMAGETOOL}" --appimage-extract-and-run \
     --no-appstream "${APPDIR}" "${OUTPUT}"

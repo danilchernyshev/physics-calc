@@ -20,7 +20,7 @@
 import sys
 from pathlib import Path
 
-from PyInstaller.utils.hooks import copy_metadata
+from PyInstaller.utils.hooks import collect_all, copy_metadata
 
 # The spec file's directory is ``packaging/``; the project root is its parent.
 _ROOT = Path(SPECPATH).resolve().parent
@@ -46,16 +46,32 @@ datas = [
 # frozen bundle, surfacing the version in the window title.
 datas += copy_metadata("study-calc")
 
+# Collect gi (PyGObject) and cairo so PyWebView's GTK backend can access
+# GObject-Introspection typelibs (WebKit2, Gtk, Gdk, GObject, GLib) on Linux.
+# On Windows/macOS, collect_all finds and discards nothing — they use native
+# backends, not GTK.
+try:
+    gi_all = collect_all("gi")
+    datas += gi_all[0]  # gi datas
+    binaries = gi_all[1]  # gi binaries
+    cairo_all = collect_all("cairo")
+    datas += cairo_all[0]  # cairo datas
+    binaries += cairo_all[1]  # cairo binaries
+except Exception:
+    # If gi/cairo collection fails (e.g. on non-Linux), proceed without them.
+    binaries = []
+
 a = Analysis(
     [str(_PKG / "__main__.py")],
     pathex=[str(_ROOT)],
-    binaries=[],
+    binaries=binaries,
     datas=datas,
     # SymPy and PyWebView pull modules dynamically; let PyInstaller's hooks find
-    # them and add the few it may miss.
-    hiddenimports=["sympy"],
+    # them and add the few it may miss. gi (PyGObject) is needed for PyWebView's
+    # GTK backend on Linux to access WebKit2GTK via GObject-Introspection.
+    hiddenimports=["sympy", "gi"],
     hookspath=[],
-    runtime_hooks=[],
+    runtime_hooks=[str(Path(SPECPATH).resolve().parent / "hooks" / "runtime_gi_typelib_path.py")],
     # The graphing surface (matplotlib/numpy/Pillow — the `graph` extra) is not
     # wired into the web UI yet and no shipping code path imports it, so keep it
     # out of the frozen bundle. Excluding here makes the build lean regardless of
