@@ -151,13 +151,7 @@ jobs:
 
   linux-flatpak:
     needs: [test, resolve-version]
-    runs-on: ubuntu-22.04
-    # Temporarily non-blocking and excluded from `release.needs` below: the build
-    # is green through the study-calc module but the old flatpak-builder on this
-    # runner calls the legacy `appstream-compose`, which GNOME SDK 47 dropped for
-    # `appstreamcli compose` (#140). Keep the job running so the fix is verified
-    # in CI; re-add it to `release.needs` and drop continue-on-error once #140 lands.
-    continue-on-error: true
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     env:
@@ -198,13 +192,8 @@ jobs:
   # Collect every built artifact and attach them to the GitHub Release. New
   # platform jobs just add themselves to `needs` and upload an artifact — the glob
   # below picks them up automatically.
-  #
-  # linux-flatpak is temporarily omitted here while #140 (appstream-compose on
-  # GNOME SDK 47) is fixed, so v0.8.0 can ship the 4 working platforms; re-add it
-  # once #140 lands. The artifact glob still picks up the .flatpak automatically
-  # if/when the job succeeds.
   release:
-    needs: [linux-appimage, windows-installer, macos-dmg]
+    needs: [linux-appimage, windows-installer, macos-dmg, linux-flatpak]
     runs-on: ubuntu-22.04
     permissions:
       contents: write # publish the Release and upload assets
