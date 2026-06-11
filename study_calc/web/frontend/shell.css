@@ -244,3 +244,67 @@ body {
 }
 
 .placeholder__note { margin: 0; color: var(--color-text-muted); }
+
+/* ---- Curriculum filter controls in the content header (epic 102) ---- */
+
+/* Inline row: grade select + course select + optional clear button.
+   Sits between the page title and the subject subtitle. */
+.header__filter-row {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+/* Shrink each .field wrapper so the two selects sit compactly side-by-side. */
+.header__filter-row .field {
+  flex: 0 1 160px;
+  min-width: 110px;
+}
+
+/* "Clear filter" link-style affordance. Only rendered when a grade is active. */
+.filter__clear {
+  align-self: flex-end;
+  padding: var(--space-xs) var(--space-sm);
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-link);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  line-height: var(--line-height-normal);
+}
+
+.filter__clear:hover {
+  color: var(--color-brand-hover);
+  text-decoration: underline;
+}
+
+.filter__clear:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* ---- No-results empty state (epic 102) ------------------------------- */
+
+/* Shown in place of the normal content when the active filter hides
+   every subject — same surface pattern as .placeholder. */
+.filter-empty {
+  margin-top: var(--space-2xl);
+  padding: var(--space-2xl);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-card);
+}
+
+.filter-empty__title {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+}
+
+.filter-empty__detail { margin: 0; color: var(--color-text-muted); }

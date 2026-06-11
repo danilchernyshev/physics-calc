@@ -716,3 +716,35 @@
   cursor: pointer;
 }
 .modal__close:hover { color: var(--color-text-strong); }
+
+/* ---- Curriculum-filter section inside the Settings overlay (epic 102) ---- */
+
+/* Separator section appended at the foot of the updates dialog body. */
+.updates__filter-section {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Empty until fillFilterArea() populates it; avoids a dangling separator line. */
+.updates__filter-section:empty { display: none; }
+
+.updates__filter-heading {
+  margin: 0 0 var(--space-2xs);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-strong);
+}
+
+/* Inline row for the two selects (matches the header filter-row layout). */
+.updates__filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.updates__filter-controls .field {
+  flex: 0 1 160px;
+  min-width: 110px;
+}

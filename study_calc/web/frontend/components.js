@@ -5,6 +5,10 @@
 // no per-screen re-implementation.
 'use strict';
 
+// Counter for auto-generated label↔control id associations (a11y fix, #123 review).
+// Each UI.field call that needs an id gets a unique suffix; resets on page reload.
+let _fieldIdSeq = 0;
+
 const UI = {
   // Rounded surface card. opts: {title, badge, body, class}. `body` is a node or
   // array of nodes; when `title`/`badge` is given a header row is added.
@@ -49,10 +53,17 @@ const UI = {
     return UI.field(label, el);
   },
 
-  // Wrap a control with an optional label.
-  field(label, control) {
+  // Wrap a control with an optional label. When a label is present a unique id
+  // is generated (or a caller-supplied `id` is used) and written to both the
+  // control's `id` and the label's `for`, giving assistive tech a programmatic
+  // label association (a11y fix, issue #123 review). The `id` param lets callers
+  // that already assign their own id (e.g. the auto-check checkbox) opt out of
+  // the auto-generated one by passing the id they set themselves.
+  field(label, control, id = null) {
+    const lid = id != null ? id : (label != null ? 'field-' + (++_fieldIdSeq) : null);
+    if (lid && control) control.id = lid;
     return h('div', { class: 'field' }, [
-      label != null ? h('label', { class: 'field__label', text: label }) : null,
+      label != null ? h('label', { class: 'field__label', for: lid, text: label }) : null,
       control,
     ]);
   },

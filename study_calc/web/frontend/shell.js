@@ -22,10 +22,15 @@ const OP_TOOLS = {
 };
 
 // The bridge calls the updates overlay drives (#74 check / #75 guide / #94 apply).
+// setGrade / setCourse delegate to setActiveGrade/setActiveCourse (defined below)
+// which handle the in-flight guard, the keepOverlays render, and the filter-return
+// contract that lets the Settings overlay update its course list in-place (fix #123).
 const updatesApi = {
   check: () => callApi('check_updates'),
   setAuto: (enabled) => callApi('set_auto_update_check', enabled),
   applyUpdate: (version) => callApi('apply_update', version),
+  setGrade: (grade) => setActiveGrade(grade),
+  setCourse: (course) => setActiveCourse(course),
 };
 
 async function loadState() {
@@ -41,6 +46,105 @@ async function callApi(method, ...args) {
   const preview = window.__STUDY_CALC_API__;
   if (preview && typeof preview[method] === 'function') return preview[method](...args);
   return null;
+}
+
+// --- Curriculum filter (epic #102, issue #123) ------------------------------
+// One shared pair of helpers used from both the header controls and the
+// Settings overlay (consolidates the previously duplicated overlay helpers).
+//
+// In-flight guard (fix #123 review): each helper owns a sequence counter that
+// increments on every call; a response that arrives after a newer one has already
+// resolved is discarded, preventing out-of-order clobbers on rapid changes.
+//
+// render({ keepOverlays: true }) is used so the Settings overlay stays alive when
+// grade/course changes inside it — the overlay is attached to document.body
+// outside #app, so the DOM rebuild inside render() leaves it intact; only the
+// closeOverlays() step (skipped via keepOverlays) would remove it.
+// The fresh filter descriptor is returned so the overlay's fillFilterArea() can
+// update the course <select> in-place (fix #123 review, major).
+
+let _gradeSeq = 0;
+let _courseSeq = 0;
+
+async function setActiveGrade(grade) {
+  const seq = ++_gradeSeq;
+  const newState = await callApi('set_active_grade', grade);
+  if (!newState || seq !== _gradeSeq) return null;
+  state.data = newState;
+  render({ keepOverlays: true });
+  return newState.filter;
+}
+
+async function setActiveCourse(course) {
+  const seq = ++_courseSeq;
+  const newState = await callApi('set_active_course', course);
+  if (!newState || seq !== _courseSeq) return null;
+  state.data = newState;
+  render({ keepOverlays: true });
+  return newState.filter;
+}
+
+// Build the grade + course select row that sits in the content header (shown on
+// every screen, below the page title). Returns null when the model has no filter
+// descriptor (preview / first load before bridge responds).
+function renderFilterControls(data) {
+  const filter = data.filter;
+  if (!filter) return null;
+  const labels = filter.labels;
+
+  // Grade options: "all" maps to the translated label; each numeric grade
+  // becomes e.g. "Grade 11" by combining labels.grade with the level number.
+  const gradeOptions = filter.grades.map((g) => ({
+    value: g,
+    label: g === 'all' ? labels.all : `${labels.grade} ${g}`,
+  }));
+
+  // Course options are restricted to the grade currently selected; when grade
+  // is "all" the course select only shows "All" (forced to all).
+  const courseOptions = [{ value: 'all', label: labels.all }];
+  if (filter.activeGrade !== 'all') {
+    const courses = filter.gradeMap[filter.activeGrade] || [];
+    courses.forEach((c) => courseOptions.push({ value: c, label: c }));
+  }
+
+  const gradeSelect = UI.select({
+    label: labels.grade,
+    options: gradeOptions,
+    value: filter.activeGrade,
+    onchange: (value) => setActiveGrade(value),
+  });
+  const courseSelect = UI.select({
+    label: labels.course,
+    options: courseOptions,
+    value: filter.activeCourse,
+    onchange: (value) => setActiveCourse(value),
+  });
+  // "Clear filter" affordance — only shown when a grade (and possibly a course)
+  // is active; grade="all" means filter is off.
+  const clearBtn = filter.activeGrade !== 'all'
+    ? h('button', {
+        class: 'filter__clear',
+        type: 'button',
+        'aria-label': labels.clear,
+        onclick: () => setActiveGrade('all'),
+      }, [labels.clear])
+    : null;
+
+  return h('div', { class: 'header__filter-row' }, [gradeSelect, courseSelect, clearBtn]);
+}
+
+// Render the "no content matches this filter" empty state that replaces the
+// normal content area when the filtered nav is completely empty.
+function renderNoResults(data) {
+  const filter = data.filter || {};
+  const labels = filter.labels || {};
+  return h('main', { class: 'content' }, [
+    renderFilterControls(data),
+    h('div', { class: 'filter-empty' }, [
+      h('p', { class: 'filter-empty__title', text: labels.noResults || '' }),
+      h('p', { class: 'filter-empty__detail', text: labels.noResultsDetail || '' }),
+    ]),
+  ]);
 }
 
 async function setLanguage(code) {
@@ -141,11 +245,14 @@ function renderContent(data, subject) {
   // per-screen renderers may fill — e.g. the periodic table sets "SCH4U" beside
   // the "Chemistry" title (Figma node 23:2). It is recreated empty on every
   // render(), so non-curriculum screens simply leave it blank.
+  // The filter row (#123) sits between the title and the subtitle so the selects
+  // are always in view without scrolling, regardless of which screen is active.
   return h('main', { class: 'content' }, [
     h('div', { class: 'header__title-row' }, [
       h('h1', { class: 'header__title', text: subject.label }),
       h('span', { class: 'header__badge-slot', id: 'header-badge' }, []),
     ]),
+    renderFilterControls(data),
     h('p', { class: 'header__subtitle', id: 'header-subtitle', text: subject.tagline }),
     tabs,
     screenMount,
@@ -246,16 +353,34 @@ async function mountScreen() {
   mount.replaceChildren(placeholderNode(data, subject));
 }
 
-function render() {
+function render({ keepOverlays = false } = {}) {
   // Close any open body-level overlay (guide or key-term pop-up) before
   // rebuilding #app: these overlays are appended to document.body, not inside
   // #app, so the DOM rebuild below would otherwise orphan them over the page
   // in the previous language / subject / item (issue #51).
-  Screens.closeOverlays();
+  // keepOverlays:true is passed by grade/course-filter helpers so the Settings
+  // overlay is not destroyed when the user changes grade/course inside it — the
+  // overlay lives on document.body outside #app and is untouched by the DOM
+  // rebuild below; only Screens.closeOverlays() would remove it (fix #123 review).
+  if (!keepOverlays) Screens.closeOverlays();
   const data = state.data;
-  const subject = data.subjects[state.subject];
   document.documentElement.lang = data.lang;
   const app = document.getElementById('app');
+
+  // When the active filter hides every subject, skip the normal content area
+  // and render the no-results empty state instead (issue #123).
+  if (!data.subjects || data.subjects.length === 0) {
+    app.replaceChildren(renderNav(data), renderNoResults(data));
+    app.removeAttribute('aria-busy');
+    return;
+  }
+
+  // Clamp subject and item indices after a filter change may have shortened
+  // the subject or item lists (prevents an out-of-bounds access).
+  if (state.subject >= data.subjects.length) state.subject = 0;
+  const subject = data.subjects[state.subject];
+  if (state.item >= subject.items.length) state.item = 0;
+
   app.replaceChildren(renderNav(data), renderContent(data, subject));
   app.removeAttribute('aria-busy');
   mountScreen();

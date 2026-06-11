@@ -1125,12 +1125,61 @@ const Screens = {
     const autoRow = h('label', { class: 'updates__auto', for: autoId },
       [autoBox, h('span', { text: model.autoLabel })]);
 
+    // Curriculum-filter section (epic #102, issue #123): mirrors the header
+    // grade + course selects so the user can change their active course while
+    // in the Settings overlay. The filter area updates in-place (like `status`)
+    // when the grade changes so the course list refreshes without closing the
+    // dialog. `api.setGrade` / `api.setCourse` are provided by shell.js's
+    // `updatesApi`; they persist, re-render the shell nav, and return the fresh
+    // filter descriptor. Guard on their presence so the static preview (which
+    // uses __STUDY_CALC_API__ stubs) degrades gracefully to a read-only display.
+    const filterSection = h('div', { class: 'updates__filter-section' }, []);
+    const fillFilterArea = (fm) => {
+      if (!fm) { filterSection.replaceChildren(); return; }
+      const lbl = fm.labels;
+      const gradeOptions = fm.grades.map((g) => ({
+        value: g,
+        label: g === 'all' ? lbl.all : `${lbl.grade} ${g}`,
+      }));
+      const courseOptions = [{ value: 'all', label: lbl.all }];
+      if (fm.activeGrade !== 'all') {
+        (fm.gradeMap[fm.activeGrade] || []).forEach((c) =>
+          courseOptions.push({ value: c, label: c })
+        );
+      }
+      const gradeSelect = UI.select({
+        label: lbl.grade,
+        options: gradeOptions,
+        value: fm.activeGrade,
+        onchange: async (v) => {
+          const nf = api.setGrade ? await api.setGrade(v) : null;
+          if (nf) fillFilterArea(nf);
+        },
+      });
+      const courseSelect = UI.select({
+        label: lbl.course,
+        options: courseOptions,
+        value: fm.activeCourse,
+        onchange: async (v) => {
+          const nf = api.setCourse ? await api.setCourse(v) : null;
+          if (nf) fillFilterArea(nf);
+        },
+      });
+      filterSection.replaceChildren(
+        h('h3', { class: 'updates__filter-heading', text: lbl.settingsHeading }),
+        h('p', { class: 'rich__body', text: lbl.settingsHint }),
+        h('div', { class: 'updates__filter-controls' }, [gradeSelect, courseSelect]),
+      );
+    };
+    if (model.filter) fillFilterArea(model.filter);
+
     const bodyNodes = [
       h('p', { class: 'rich__body', text: model.intro }),
       h('p', { class: 'updates__current', text: model.currentLine }),
       h('div', { class: 'updates__actions' }, [checkBtn]),
       status,
       autoRow,
+      filterSection,
     ];
 
     const card = UI.card({ title: model.title, body: bodyNodes, class: 'guide__card' });
