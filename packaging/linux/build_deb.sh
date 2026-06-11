@@ -65,6 +65,7 @@ rm -rf "${PKGROOT}"
 mkdir -p "${PKGROOT}/opt/study-calc" \
          "${PKGROOT}/usr/bin" \
          "${PKGROOT}/usr/share/applications" \
+         "${PKGROOT}/usr/share/icons/hicolor" \
          "${PKGROOT}/usr/share/doc/study-calc" \
          "${PKGROOT}/usr/share/lintian/overrides" \
          "${PKGROOT}/DEBIAN"
