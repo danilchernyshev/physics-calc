@@ -67,6 +67,10 @@ and the language can be switched at runtime.
   underlying theory.
 - **Runtime language switching** across English, Spanish, French, Russian and
   Ukrainian.
+- **Keyboard navigation & screen-reader support** — the shell is fully operable
+  from the keyboard, with ARIA roles throughout.
+- **In-app update check** — checks GitHub Releases on startup (opt-out) and on
+  demand, and never updates silently. See [Updating](#updating).
 - **Lean dependencies** — SymPy powers the symbolic-math tab and PyWebView draws
   the window; everything else, including the converter, vectors and chemistry
   tabs, uses only the Python standard library.
@@ -77,6 +81,10 @@ The easiest way to use Study Calculator: download one file and open it — **no
 Python, no terminal**. Grab the file for your system from the
 [**Releases page**](https://github.com/danilchernyshev/study-calc/releases) — open
 the latest release and download from its **Assets**.
+
+Each release also ships a `SHA256SUMS` file. To check a download is intact, run
+`sha256sum -c SHA256SUMS` (Linux) or `shasum -a 256 -c SHA256SUMS` (macOS) in the
+folder you downloaded into.
 
 ### Windows
 
@@ -95,13 +103,12 @@ Windows 10).
 
 ### macOS
 
-1. Download: `study-calc-<version>-macos-arm64.dmg` (Apple Silicon / M1/M2/M3…).
+1. Download `study-calc-<version>-macos-arm64.dmg` (**Apple Silicon** — M1/M2/M3…).
 2. Open the DMG and drag **Study Calculator** into **Applications**.
 3. Launch it from Launchpad or Applications.
 
-> **Intel Macs?** The app no longer ships pre-built for Intel macOS. Build from
-> source (`uv run python -m study_calc` with Python ≥ 3.10 + PyGObject + WebKit2GTK),
-> or reach out on [GitHub Issues](https://github.com/danilchernyshev/study-calc/issues).
+> **Intel Mac?** The prebuilt DMG is Apple-Silicon only. On an Intel Mac, [run
+> from source](#run-from-source-developers) instead.
 
 > **"Apple cannot check it for malicious software"?** These builds aren't
 > notarized yet. **Right-click** (or Control-click) the app → **Open** → **Open**
@@ -161,7 +168,7 @@ can keep your current version. How you apply an update depends on how you
 installed the app:
 
 - **Windows** — download and run the latest installer; it upgrades in place.
-- **macOS** — download the matching DMG and drag-replace the app in Applications.
+- **macOS** — download the DMG and drag-replace the app in Applications.
 - **Flatpak** — update through your software centre or `flatpak update
   io.github.danilchernyshev.StudyCalc` (the app never self-updates here).
 - **`.deb`** — download the newer `.deb` and install it over the current one
