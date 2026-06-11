@@ -54,20 +54,23 @@ jobs:
             xvfb
       - name: Install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
-      - name: Freeze the one-folder bundle
-        # Same pygobject<3.52 pin as the release jobs: from 3.52 PyGObject builds
-        # against girepository-2.0 (glib 2.80+), which ubuntu-22.04 lacks.
+      - name: Build via the real release scripts (AppImage + .deb)
+        # Run the ACTUAL build scripts the release uses — not a bare `pyinstaller`
+        # — so a regression in their freeze env or package tree fails the PR, not
+        # the release. (A bare freeze here missed the v0.8.1 break: the scripts'
+        # inner `uv run` froze without pygobject → gi-less bundle, and AppImage's
+        # hicolor mkdir was absent.) build_appimage.sh freezes (bundling gi via its
+        # own PYGOBJECT pin) and seals the AppImage; REUSE_BUNDLE=1 build_deb.sh
+        # reuses that freeze and runs dpkg-deb — exercising both scripts end to end.
         run: |
-          uv run --extra packaging --with "pygobject<3.52" \
-            pyinstaller packaging/study-calc.spec --noconfirm
+          bash packaging/linux/build_appimage.sh
+          REUSE_BUNDLE=1 bash packaging/linux/build_deb.sh
           test -x dist/study-calc/study-calc
-      - name: Smoke-test the frozen bundle (engine + GUI)
-        # The GUI check must run through the frozen launcher itself so it loads
-        # the bundle's *own* gi + typelibs; running it via `python smoke_test.py`
-        # would test this venv (no bundled gi) and validate nothing (#158).
+      - name: GUI-smoke the frozen bundle via the launcher
+        # The GUI check runs through the frozen launcher so it loads the bundle's
+        # OWN gi + typelibs; running smoke_test.py here would test this venv (no
+        # bundled gi) and validate nothing (#158). timeout guards a pre-exit hang;
+        # --smoke-gui exits 0 only on a healthy backend.
         run: |
           uv run --extra dev python packaging/smoke_test.py --bundle dist/study-calc
-          # timeout guards against any pre-exit hang; --smoke-gui exits 0 cleanly
-          # on a healthy backend (os._exit after the backend is up), so only exit
-          # 0 passes — a crash (missing gi/typelib) or a hang fails the step.
           xvfb-run -a timeout 90 dist/study-calc/study-calc --smoke-gui
