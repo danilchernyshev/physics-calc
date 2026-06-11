@@ -95,11 +95,13 @@ Windows 10).
 
 ### macOS
 
-1. Download the DMG that matches your Mac:
-   - Apple Silicon (M1/M2/M3…): `study-calc-<version>-macos-arm64.dmg`
-   - Intel: `study-calc-<version>-macos-intel.dmg`
+1. Download: `study-calc-<version>-macos-arm64.dmg` (Apple Silicon / M1/M2/M3…).
 2. Open the DMG and drag **Study Calculator** into **Applications**.
 3. Launch it from Launchpad or Applications.
+
+> **Intel Macs?** The app no longer ships pre-built for Intel macOS. Build from
+> source (`uv run python -m study_calc` with Python ≥ 3.10 + PyGObject + WebKit2GTK),
+> or reach out on [GitHub Issues](https://github.com/danilchernyshev/study-calc/issues).
 
 > **"Apple cannot check it for malicious software"?** These builds aren't
 > notarized yet. **Right-click** (or Control-click) the app → **Open** → **Open**
