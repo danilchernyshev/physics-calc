@@ -39,6 +39,62 @@ def subject_tagline_key(subject_id: str) -> str:
     return f"subject.{subject_id}.tagline"
 
 
+def item_courses(item: object, language: str = "en") -> frozenset[str]:
+    """The set of Ontario course codes carried by everything under a nav *item*.
+
+    For a :class:`~study_calc.navigation.Section` it is the union of the
+    ``courses`` on each formula's topic; for
+    :class:`~study_calc.navigation.Problems` the union across that subject's
+    practice problems. Tools and placeholders carry no curriculum tag and return
+    an empty set (they are never hidden by the filter).
+
+    This lives in the bridge rather than ``navigation`` so that module stays
+    stdlib-only and content-layer-free (enforced by ``tests/test_navigation``);
+    the bridge is already the layer that joins navigation with the content store.
+    The content layer is imported lazily; any failure yields an empty set so an
+    item reads as untagged (universally visible) — fail-soft.
+    """
+    try:
+        if isinstance(item, navigation.Section):
+            from ..core.learning import load_topic
+            from ..domains import SECTIONS
+
+            codes: set[str] = set()
+            for formula in SECTIONS.get(item.section_id, ()):
+                topic = load_topic(formula.key, language)
+                if topic is not None:
+                    codes.update(topic.courses)
+            return frozenset(codes)
+        if isinstance(item, navigation.Problems):
+            from ..core.learning import problems_for_subject
+
+            codes = set()
+            for problem in problems_for_subject(item.subject_id, language):
+                codes.update(problem.courses)
+            return frozenset(codes)
+    except Exception:  # pragma: no cover - defensive; content layer is normally fine
+        return frozenset()
+    return frozenset()
+
+
+def item_visible(item: object, active_course: str, language: str = "en") -> bool:
+    """Whether a nav *item* survives the active-course filter.
+
+    ``active_course == "all"`` shows everything. Otherwise a tool or placeholder
+    is always shown, an **untagged** item (no courses) is always shown (universal
+    content), and a tagged item is shown only when the active course is among its
+    codes.
+    """
+    if active_course == "all":
+        return True
+    if isinstance(item, (navigation.Tool, navigation.Placeholder)):
+        return True
+    courses = item_courses(item, language)
+    if not courses:
+        return True
+    return active_course in courses
+
+
 def _item_model(item: object) -> dict:
     return {
         "id": navigation.item_id(item),
@@ -58,9 +114,20 @@ def _subject_model(subject_id: str, items: tuple) -> dict:
     }
 
 
-def navigation_model() -> list[dict]:
-    """The localized subject/item tree, in :data:`navigation.SUBJECTS` order."""
-    return [_subject_model(sid, items) for sid, items in navigation.SUBJECTS]
+def navigation_model(active_course: str = "all", language: str = "en") -> list[dict]:
+    """The localized subject/item tree, in :data:`navigation.SUBJECTS` order.
+
+    When *active_course* is a specific code (not ``"all"``), items whose
+    curriculum tags don't include it are dropped (tools, placeholders and
+    untagged items always survive — see :func:`navigation.item_visible`). A
+    subject left with no visible items is omitted entirely.
+    """
+    model: list[dict] = []
+    for sid, items in navigation.SUBJECTS:
+        visible = tuple(it for it in items if item_visible(it, active_course, language))
+        if visible:
+            model.append(_subject_model(sid, visible))
+    return model
 
 
 class Bridge:
@@ -113,12 +180,49 @@ class Bridge:
                 "language": t("menu.language"),
                 "placeholder": t("shell.placeholder"),
             },
-            "subjects": navigation_model(),
+            # The persisted curriculum filter (epic #102). The header bar and the
+            # Settings overlay both read these; ``filter`` carries the localized
+            # labels + the CURRICULUM_GRADES-derived grade→course map (#126).
+            "activeGrade": self._settings.active_grade,
+            "activeCourse": self._settings.active_course,
+            "filter": self._filter_model(),
+            "subjects": navigation_model(self._settings.active_course, i18n.language),
         }
 
+    def _filter_model(self) -> dict:
+        """The curriculum-filter descriptor for the current persisted selection."""
+        return screens.curriculum_filter_model(
+            self._settings.active_grade, self._settings.active_course
+        )
+
     def set_language(self, code: str) -> dict:
-        """Switch the active language and return the freshly localized state."""
+        """Switch the active language and return the freshly localized state.
+
+        Only the display language changes — the persisted curriculum filter is
+        untouched, so the filtered subject tree and selection survive (#126).
+        """
         i18n.set_language(code)
+        return self.get_state()
+
+    # --- curriculum filter (epic #102, issue #125) ---
+
+    def set_active_grade(self, grade: str | None) -> dict:
+        """Set the active grade (resets the course) and return refreshed state.
+
+        ``None`` or ``"all"`` clears the grade. The persisted value is validated
+        by :class:`~study_calc.core.settings.Settings`; the refreshed shell model
+        already reflects the new (un)filtered subject tree.
+        """
+        self._settings.set_active_grade("all" if grade is None else str(grade))
+        return self.get_state()
+
+    def set_active_course(self, course: str | None) -> dict:
+        """Set the active course (within the chosen grade) and return refreshed state.
+
+        ``None`` or ``"all"`` clears the course. An unknown code, or one outside
+        the active grade, falls back to ``"all"`` (handled by ``Settings``).
+        """
+        self._settings.set_active_course("all" if course is None else str(course))
         return self.get_state()
 
     # --- per-screen content (issue #6 onward) ---
@@ -184,6 +288,7 @@ class Bridge:
             current=self._version,
             auto_check=self._settings.auto_update_check,
             fmt=self._format,
+            curriculum=self._filter_model(),
         )
 
     def check_updates(self) -> dict:
@@ -198,6 +303,7 @@ class Bridge:
             current=self._version,
             auto_check=self._settings.auto_update_check,
             fmt=self._format,
+            curriculum=self._filter_model(),
         )
 
     def set_auto_update_check(self, enabled: bool) -> dict:
@@ -208,6 +314,7 @@ class Bridge:
             current=self._version,
             auto_check=self._settings.auto_update_check,
             fmt=self._format,
+            curriculum=self._filter_model(),
         )
 
     def apply_update(self, version: str) -> dict:

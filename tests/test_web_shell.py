@@ -12,10 +12,15 @@ from pathlib import Path
 
 import pytest
 
+import json
+
 from study_calc import navigation
-from study_calc.i18n import i18n
+from study_calc.core.learning import CURRICULUM_GRADES
+from study_calc.core.settings import Settings
+from study_calc.i18n import _LOCALES_DIR, i18n
 from study_calc.web import app as web_app
-from study_calc.web.bridge import Bridge
+from study_calc.web import screens
+from study_calc.web.bridge import Bridge, item_courses, item_visible, navigation_model
 
 _FRONTEND = Path(__file__).resolve().parent.parent / "study_calc" / "web" / "frontend"
 
@@ -89,6 +94,176 @@ def test_set_language_relabels_without_restructuring():
 def test_set_language_rejects_unknown():
     with pytest.raises(ValueError):
         Bridge().set_language("zz")
+
+
+# --- curriculum filter (epic #102, issue #125) -------------------------------
+
+def _filtered_bridge(tmp_path, grade, course):
+    """A Bridge whose settings store has the given active grade/course."""
+    settings = Settings(path=tmp_path / "settings.json")
+    settings.set_active_grade(grade)
+    settings.set_active_course(course)
+    return Bridge(settings=settings)
+
+
+def _ids(subjects, sid):
+    subject = next((s for s in subjects if s["id"] == sid), None)
+    return [it["id"] for it in subject["items"]] if subject else None
+
+
+def test_item_courses_unions_topic_and_problem_tags():
+    # A tagged physics section, an untagged one, a multi-course problems item,
+    # and a tool that carries no curriculum tag.
+    assert item_courses(navigation.Section("mechanics")) == frozenset({"SPH4U"})
+    assert item_courses(navigation.Section("thermodynamics")) == frozenset()
+    assert item_courses(navigation.Problems("math")) == frozenset({"MDM4U", "MHF4U"})
+    assert item_courses(navigation.Tool("cas")) == frozenset()
+
+
+def test_item_visible_rules():
+    # all → everything; tools/untagged always shown; tagged gated on the code.
+    assert item_visible(navigation.Section("mechanics"), "all")
+    assert item_visible(navigation.Tool("cas"), "SCH4U")  # tool: never hidden
+    assert item_visible(navigation.Section("thermodynamics"), "SCH4U")  # untagged
+    assert item_visible(navigation.Section("mechanics"), "SPH4U")
+    assert not item_visible(navigation.Section("mechanics"), "SCH4U")
+
+
+def test_filter_all_is_the_full_tree(tmp_path):
+    full = Bridge().get_state()["subjects"]
+    filtered = _filtered_bridge(tmp_path, "all", "all").get_state()["subjects"]
+    assert [s["id"] for s in filtered] == [s["id"] for s in full]
+    for a, b in zip(full, filtered):
+        assert [i["id"] for i in a["items"]] == [i["id"] for i in b["items"]]
+
+
+def test_filter_sph4u_hides_other_courses(tmp_path):
+    subjects = _filtered_bridge(tmp_path, "12", "SPH4U").get_state()["subjects"]
+    # Physics keeps all its items (3 SPH4U sections + the untagged thermo + the
+    # SPH4U problems set).
+    assert _ids(subjects, "physics") == [
+        "section:mechanics", "section:thermodynamics",
+        "section:electromagnetism", "section:waves", "problems:physics",
+    ]
+    # Math drops its MDM4U/MHF4U problems but keeps the two tools.
+    assert _ids(subjects, "math") == ["tool:cas", "tool:vectors"]
+    # Chemistry keeps only the periodic-table tool (its SCH4U content is hidden).
+    assert _ids(subjects, "chemistry") == ["tool:periodic_table"]
+    # Tools are never curriculum-gated.
+    assert _ids(subjects, "tools") == ["tool:converter"]
+
+
+def test_filter_sch4u_keeps_untagged_and_chemistry(tmp_path):
+    subjects = _filtered_bridge(tmp_path, "12", "SCH4U").get_state()["subjects"]
+    # Physics keeps only the untagged thermodynamics section.
+    assert _ids(subjects, "physics") == ["section:thermodynamics"]
+    # Chemistry keeps its full SCH4U-tagged set.
+    assert _ids(subjects, "chemistry") == [
+        "section:chem_solutions", "section:chem_acid_base",
+        "tool:periodic_table", "problems:chemistry",
+    ]
+
+
+def test_navigation_model_drops_subjects_left_empty():
+    # A synthetic course nothing is tagged with hides every tagged item; only
+    # subjects retaining a tool/untagged item survive (physics keeps thermo).
+    model = navigation_model("ZZZ9U", "en")
+    ids = {s["id"] for s in model}
+    assert "tools" in ids  # converter tool always survives
+    physics = next((s for s in model if s["id"] == "physics"), None)
+    assert physics and [i["id"] for i in physics["items"]] == ["section:thermodynamics"]
+
+
+def test_set_active_course_method_filters_and_persists(tmp_path):
+    bridge = _filtered_bridge(tmp_path, "all", "all")
+    bridge.set_active_grade("12")
+    state = bridge.set_active_course("SPH4U")
+    assert _ids(state["subjects"], "chemistry") == ["tool:periodic_table"]
+    # Clearing the grade restores the full tree.
+    cleared = bridge.set_active_grade(None)
+    assert _ids(cleared["subjects"], "chemistry") == [
+        "section:chem_solutions", "section:chem_acid_base",
+        "tool:periodic_table", "problems:chemistry",
+    ]
+
+
+def test_filter_is_stable_across_language_change(tmp_path):
+    bridge = _filtered_bridge(tmp_path, "12", "SPH4U")
+    en = bridge.get_state()
+    ru = bridge.set_language("ru")
+    # Same filtered structure in both languages...
+    assert _ids(ru["subjects"], "chemistry") == _ids(en["subjects"], "chemistry")
+    assert _ids(ru["subjects"], "math") == ["tool:cas", "tool:vectors"]
+    # ...but relabelled.
+    physics_ru = next(s for s in ru["subjects"] if s["id"] == "physics")
+    assert physics_ru["label"] == "Физика"
+
+
+# --- filter state in the shell model (epic #102, issue #126) -----------------
+
+_FILTER_KEYS = (
+    "ui.filter.grade", "ui.filter.course", "ui.filter.all", "ui.filter.badge_aria",
+    "ui.filter.clear", "ui.filter.no_results", "ui.filter.no_results_detail",
+    "ui.filter.settings_heading", "ui.filter.settings_hint",
+)
+
+
+def test_shell_model_carries_filter_state(tmp_path):
+    state = Bridge().get_state()
+    assert state["activeGrade"] == "all"
+    assert state["activeCourse"] == "all"
+    block = state["filter"]
+    # gradeMap is derived from CURRICULUM_GRADES, sorted, keyed by grade level.
+    assert block["grades"][0] == "all"
+    for level in {str(v) for v in CURRICULUM_GRADES.values()}:
+        assert level in block["gradeMap"]
+        assert block["gradeMap"][level] == sorted(block["gradeMap"][level])
+    assert block["activeCourseBadge"] is None  # nothing selected → no badge
+    assert block["labels"]["grade"] and block["labels"]["settingsHeading"]
+
+
+def test_shell_model_reflects_active_selection(tmp_path):
+    state = _filtered_bridge(tmp_path, "12", "SPH4U").get_state()
+    assert state["activeGrade"] == "12"
+    assert state["activeCourse"] == "SPH4U"
+    assert state["filter"]["activeCourseBadge"] == "SPH4U"
+    assert "SPH4U" in state["filter"]["badgeAria"]
+
+
+def test_filter_selection_persists_across_set_language(tmp_path):
+    bridge = _filtered_bridge(tmp_path, "12", "SPH4U")
+    en = bridge.get_state()
+    ru = bridge.set_language("ru")
+    # Selection unchanged by a language switch...
+    assert ru["activeGrade"] == "12"
+    assert ru["activeCourse"] == "SPH4U"
+    # ...labels relocalized.
+    assert ru["filter"]["labels"]["settingsHeading"] != en["filter"]["labels"]["settingsHeading"]
+
+
+def test_curriculum_filter_model_is_pure_and_sorted():
+    model = screens.curriculum_filter_model("all", "all")
+    expected = {str(v) for v in CURRICULUM_GRADES.values()}
+    assert set(model["gradeMap"]) == expected
+    assert model["grades"] == ["all", *sorted(expected)]
+    assert model["activeCourseBadge"] is None
+    # With a selection it carries the badge + a localized descriptor.
+    picked = screens.curriculum_filter_model("12", "SPH4U")
+    assert picked["activeCourseBadge"] == "SPH4U"
+    assert picked["courseDescriptor"]  # "Grade 12 · University"
+
+
+def test_settings_overlay_mirrors_the_filter(tmp_path):
+    overlay = _filtered_bridge(tmp_path, "12", "SPH4U").update_screen()
+    assert overlay["filter"]["activeCourse"] == "SPH4U"
+    assert overlay["filter"]["labels"]["settingsHeading"]
+
+
+@pytest.mark.parametrize("lang", ["en", "es", "fr", "ru", "uk"])
+def test_filter_keys_present_in_every_locale(lang):
+    catalog = json.loads((_LOCALES_DIR / f"{lang}.json").read_text(encoding="utf-8"))
+    missing = [k for k in _FILTER_KEYS if k not in catalog]
+    assert not missing, f"{lang}.json missing filter keys: {missing}"
 
 
 # --- preview rendering (browser/screenshot path, no PyWebView) ---------------

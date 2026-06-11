@@ -460,5 +460,14 @@
   "series.noble-gas": "Gas noble",
   "series.lanthanide": "Lantánido",
   "series.actinide": "Actínido",
-  "series.unknown": "Desconocido"
+  "series.unknown": "Desconocido",
+  "ui.filter.grade": "Grado",
+  "ui.filter.course": "Curso",
+  "ui.filter.all": "Todos",
+  "ui.filter.badge_aria": "Filtro activo: {code}",
+  "ui.filter.clear": "Borrar filtro",
+  "ui.filter.no_results": "Ningún contenido coincide con el filtro actual.",
+  "ui.filter.no_results_detail": "Prueba con otro curso o borra el filtro para verlo todo.",
+  "ui.filter.settings_heading": "Filtro del plan de estudios",
+  "ui.filter.settings_hint": "Mostrar solo el contenido asignado a tu curso activo. Se aplica a todas las materias."
 }
