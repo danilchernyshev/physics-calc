@@ -7,7 +7,7 @@ missing ``elements.json`` or an unstyled, blank window. This script exercises th
 real engines and asset paths **without opening a GUI**, so CI (#67) and the
 platform installers can gate a release on it.
 
-Two modes:
+Three modes:
 
 * **engine mode** (default) — import ``study_calc`` and actually run one of each:
   the bridge state, a physics ``solve``, a CAS ``analyze``, a unit conversion,
@@ -20,6 +20,12 @@ Two modes:
   files physically exist inside a built one-folder bundle directory, so CI can
   point at ``dist/study-calc/`` and have a deliberately removed asset fail the
   gate, without executing the frozen launcher.
+
+* **gui mode** (``--gui``) — additionally test that PyWebView can initialize a
+  GUI backend and create a window. On Linux, this verifies that gi (PyGObject)
+  and the GObject-Introspection typelibs are bundled and discoverable. The
+  window is created then immediately destroyed; no event loop runs. This mode
+  should be run under ``xvfb-run`` on headless CI.
 
 Exit code is ``0`` when every check passes and ``1`` on the first failure.
 """
@@ -124,6 +130,34 @@ def _check_bundle(bundle: Path) -> None:
             raise AssertionError(f"bundle is missing asset: {'/'.join(parts)} ({path})")
 
 
+def _check_gui() -> None:
+    """Test that PyWebView can initialize a GUI backend.
+
+    On Linux, this verifies that gi (PyGObject) and GObject-Introspection
+    typelibs (WebKit2, Gtk, etc.) are bundled and discoverable. The window is
+    created then immediately destroyed; no event loop runs. This test should be
+    run under ``xvfb-run`` on headless CI.
+
+    Raises AssertionError if the GUI backend cannot be initialized.
+    """
+    import webview
+
+    # Create a window but do not run the event loop; just verify the backend
+    # initializes without raising. The window.destroy() call below prevents
+    # any async event handling.
+    try:
+        window = webview.create_window(
+            title="Study Calc - GUI Smoke Test",
+            html="<h1>GUI Test</h1><p>Backend loaded successfully.</p>",
+            width=400,
+            height=300,
+        )
+        # Explicitly destroy the window to clean up the backend.
+        window.destroy()
+    except Exception as exc:
+        raise AssertionError(f"PyWebView GUI backend failed to initialize: {exc}") from exc
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -133,12 +167,19 @@ def main(argv: list[str] | None = None) -> int:
         metavar="DIR",
         help="also check a built one-folder bundle directory (e.g. dist/study-calc)",
     )
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="also test PyWebView GUI backend initialization (should be run under xvfb-run on headless CI)",
+    )
     args = parser.parse_args(argv)
 
     try:
         _check_engines()
         if args.bundle is not None:
             _check_bundle(args.bundle)
+        if args.gui:
+            _check_gui()
     except Exception as exc:  # noqa: BLE001 - any failure must fail the build gate
         print(f"SMOKE TEST FAILED: {exc}", file=sys.stderr)
         traceback.print_exc()

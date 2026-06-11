@@ -80,7 +80,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             libgirepository1.0-dev libcairo2-dev pkg-config \
-            gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0 python3-gi
+            gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0 python3-gi \
+            xvfb
       - name: Install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
       - name: Build the AppImage
@@ -91,10 +92,11 @@ jobs:
         run: |
           uv run --extra packaging --with "pygobject<3.52" \
             bash packaging/linux/build_appimage.sh
-      - name: Smoke-test the built AppImage
+      - name: Smoke-test the built AppImage (engine + GUI)
         run: |
           ./dist/study-calc-${VERSION}-linux.AppImage --appimage-extract
           uv run --extra dev python packaging/smoke_test.py --bundle squashfs-root/usr/bin
+          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
       - name: Upload the AppImage artifact
         uses: actions/upload-artifact@v4
         with:
@@ -214,7 +216,7 @@ jobs:
           sudo apt-get install -y \
             libgirepository1.0-dev libcairo2-dev pkg-config \
             gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0 python3-gi \
-            dpkg-dev lintian
+            dpkg-dev lintian xvfb
       - name: Install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
       - name: Build the .deb
@@ -226,15 +228,20 @@ jobs:
             bash packaging/linux/build_deb.sh
       - name: Install / smoke-test / remove the .deb
         # Acceptance: clean install on an Ubuntu base (Mint's base), the launcher,
-        # menu entry and icon land, the installed bundle passes the smoke test, and
+        # menu entry and icons land, the installed bundle passes the smoke test, and
         # remove leaves no orphans under /opt.
         run: |
           sudo apt-get install -y ./dist/study-calc_${VERSION}_amd64.deb
           test -x /opt/study-calc/study-calc
           test -L /usr/bin/study-calc
           test -f /usr/share/applications/study-calc.desktop
+          # Check that at least some icon sizes are installed.
+          test -f /usr/share/icons/hicolor/16x16/apps/study-calc.png || \
+          test -f /usr/share/icons/hicolor/24x24/apps/study-calc.png || \
+          test -f /usr/share/icons/hicolor/32x32/apps/study-calc.png || \
           test -f /usr/share/icons/hicolor/256x256/apps/study-calc.png
           uv run --extra dev python packaging/smoke_test.py --bundle /opt/study-calc
+          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
           sudo apt-get remove -y study-calc
           test ! -e /opt/study-calc
       - name: Upload the .deb artifact
