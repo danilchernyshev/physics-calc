@@ -180,11 +180,27 @@ class Bridge:
                 "language": t("menu.language"),
                 "placeholder": t("shell.placeholder"),
             },
+            # The persisted curriculum filter (epic #102). The header bar and the
+            # Settings overlay both read these; ``filter`` carries the localized
+            # labels + the CURRICULUM_GRADES-derived grade→course map (#126).
+            "activeGrade": self._settings.active_grade,
+            "activeCourse": self._settings.active_course,
+            "filter": self._filter_model(),
             "subjects": navigation_model(self._settings.active_course, i18n.language),
         }
 
+    def _filter_model(self) -> dict:
+        """The curriculum-filter descriptor for the current persisted selection."""
+        return screens.curriculum_filter_model(
+            self._settings.active_grade, self._settings.active_course
+        )
+
     def set_language(self, code: str) -> dict:
-        """Switch the active language and return the freshly localized state."""
+        """Switch the active language and return the freshly localized state.
+
+        Only the display language changes — the persisted curriculum filter is
+        untouched, so the filtered subject tree and selection survive (#126).
+        """
         i18n.set_language(code)
         return self.get_state()
 
@@ -272,6 +288,7 @@ class Bridge:
             current=self._version,
             auto_check=self._settings.auto_update_check,
             fmt=self._format,
+            curriculum=self._filter_model(),
         )
 
     def check_updates(self) -> dict:
@@ -286,6 +303,7 @@ class Bridge:
             current=self._version,
             auto_check=self._settings.auto_update_check,
             fmt=self._format,
+            curriculum=self._filter_model(),
         )
 
     def set_auto_update_check(self, enabled: bool) -> dict:
@@ -296,6 +314,7 @@ class Bridge:
             current=self._version,
             auto_check=self._settings.auto_update_check,
             fmt=self._format,
+            curriculum=self._filter_model(),
         )
 
     def apply_update(self, version: str) -> dict:

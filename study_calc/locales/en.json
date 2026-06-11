@@ -492,5 +492,14 @@
   "series.noble-gas": "Noble gas",
   "series.lanthanide": "Lanthanide",
   "series.actinide": "Actinide",
-  "series.unknown": "Unknown"
+  "series.unknown": "Unknown",
+  "ui.filter.grade": "Grade",
+  "ui.filter.course": "Course",
+  "ui.filter.all": "All",
+  "ui.filter.badge_aria": "Active filter: {code}",
+  "ui.filter.clear": "Clear filter",
+  "ui.filter.no_results": "No content matches the current filter.",
+  "ui.filter.no_results_detail": "Try a different course, or clear the filter to see everything.",
+  "ui.filter.settings_heading": "Curriculum filter",
+  "ui.filter.settings_hint": "Show only content tagged for your active course. Applies across all subjects."
 }

@@ -921,8 +921,51 @@ _UPDATE_ERROR_KEYS = {
 }
 
 
+def curriculum_filter_model(active_grade: str = "all", active_course: str = "all") -> dict:
+    """The curriculum-filter descriptor block (epic #102), shared by the shell
+    header bar and the mirrored controls in the Settings overlay.
+
+    Pure Python: the grade → course-code map is derived straight from
+    :data:`CURRICULUM_GRADES` (never hardcoded) and sorted for determinism, and
+    every label resolves from the ``ui.filter.*`` i18n keys. ``activeGrade`` /
+    ``activeCourse`` are the persisted ``"all"``-or-value sentinels;
+    ``activeCourseBadge`` is the course code when a specific course is set (else
+    ``None``) so the frontend skips a null-check.
+    """
+    grade_map: dict[str, list[str]] = {}
+    for code, level in CURRICULUM_GRADES.items():
+        grade_map.setdefault(str(level), []).append(code)
+    for codes in grade_map.values():
+        codes.sort()
+    badge = active_course if active_course != "all" else None
+    return {
+        "activeGrade": active_grade,
+        "activeCourse": active_course,
+        "activeCourseBadge": badge,
+        "courseDescriptor": _course_descriptor(active_course) if badge else "",
+        "grades": ["all", *sorted(grade_map)],
+        "gradeMap": grade_map,
+        "badgeAria": t("ui.filter.badge_aria", code=badge) if badge else "",
+        "labels": {
+            "grade": t("ui.filter.grade"),
+            "course": t("ui.filter.course"),
+            "all": t("ui.filter.all"),
+            "clear": t("ui.filter.clear"),
+            "noResults": t("ui.filter.no_results"),
+            "noResultsDetail": t("ui.filter.no_results_detail"),
+            "settingsHeading": t("ui.filter.settings_heading"),
+            "settingsHint": t("ui.filter.settings_hint"),
+        },
+    }
+
+
 def updates_screen(
-    check: dict | None, *, current: str, auto_check: bool, fmt: str = "source"
+    check: dict | None,
+    *,
+    current: str,
+    auto_check: bool,
+    fmt: str = "source",
+    curriculum: dict | None = None,
 ) -> dict:
     """The software-updates overlay model: chrome labels + an optional result.
 
@@ -948,6 +991,10 @@ def updates_screen(
         "currentLine": t("updates.current_version", version=current),
         "status": "idle",
     }
+    # The Settings overlay mirrors the header's curriculum filter (epic #102);
+    # the bridge passes the descriptor block so the same selects render here.
+    if curriculum is not None:
+        model["filter"] = curriculum
     if check is None:
         return model
 

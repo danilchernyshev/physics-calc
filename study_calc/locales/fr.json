@@ -460,5 +460,14 @@
   "series.noble-gas": "Gaz noble",
   "series.lanthanide": "Lanthanide",
   "series.actinide": "Actinide",
-  "series.unknown": "Inconnu"
+  "series.unknown": "Inconnu",
+  "ui.filter.grade": "Année",
+  "ui.filter.course": "Cours",
+  "ui.filter.all": "Tous",
+  "ui.filter.badge_aria": "Filtre actif : {code}",
+  "ui.filter.clear": "Effacer le filtre",
+  "ui.filter.no_results": "Aucun contenu ne correspond au filtre actuel.",
+  "ui.filter.no_results_detail": "Essayez un autre cours ou effacez le filtre pour tout voir.",
+  "ui.filter.settings_heading": "Filtre du programme",
+  "ui.filter.settings_hint": "Afficher uniquement le contenu associé à votre cours actif. S'applique à toutes les matières."
 }

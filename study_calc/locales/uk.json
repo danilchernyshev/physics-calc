@@ -460,5 +460,14 @@
   "series.noble-gas": "Благородний газ",
   "series.lanthanide": "Лантаноїд",
   "series.actinide": "Актиноїд",
-  "series.unknown": "Невідомий"
+  "series.unknown": "Невідомий",
+  "ui.filter.grade": "Клас",
+  "ui.filter.course": "Курс",
+  "ui.filter.all": "Усі",
+  "ui.filter.badge_aria": "Активний фільтр: {code}",
+  "ui.filter.clear": "Скинути фільтр",
+  "ui.filter.no_results": "Немає матеріалів, що відповідають поточному фільтру.",
+  "ui.filter.no_results_detail": "Виберіть інший курс або скиньте фільтр, щоб побачити все.",
+  "ui.filter.settings_heading": "Фільтр програми",
+  "ui.filter.settings_hint": "Показувати лише матеріали вашого активного курсу. Застосовується до всіх предметів."
 }
