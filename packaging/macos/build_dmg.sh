@@ -8,9 +8,9 @@
 #   3. Smoke-tests the frozen bundle headlessly (packaging/smoke_test.py).
 #   4. Packages the .app into a drag-to-Applications DMG.
 #
-# The DMG is named per the host architecture (arm64 / intel), so building on
-# each Mac kind yields study-calc-<version>-macos-arm64.dmg and
-# study-calc-<version>-macos-intel.dmg. Universal builds are a later option.
+# The DMG is named per the host architecture (arm64); Intel builds are no longer
+# supported (#151). Building on Apple Silicon yields study-calc-<version>-macos-arm64.dmg.
+# Universal builds are a later option.
 #
 # Usage (on macOS, with the project installed: pip install -e .[packaging]):
 #   packaging/macos/build_dmg.sh

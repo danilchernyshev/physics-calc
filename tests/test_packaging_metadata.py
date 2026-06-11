@@ -109,6 +109,22 @@ def test_deb_copyright_is_machine_readable() -> None:
     assert "License: MIT" in text
 
 
+def test_deb_ships_a_lintian_override_for_opt_placement() -> None:
+    """The by-design /opt bundle raises dir-or-file-in-opt; a shipped lintian
+    override silences it so `lintian` reports no errors (#146). The override is
+    installed as /usr/share/lintian/overrides/study-calc by the build script."""
+    override = _DEB / "lintian-overrides"
+    assert override.is_file(), "packaging/linux/deb/lintian-overrides is missing"
+    text = override.read_text(encoding="utf-8")
+    assert "dir-or-file-in-opt" in text, "override must cover dir-or-file-in-opt"
+    assert "study-calc:" in text, "override line must name the package"
+    assert "opt/study-calc" in text, "override must scope to the /opt bundle path"
+    script = (_LINUX / "build_deb.sh").read_text(encoding="utf-8")
+    assert "usr/share/lintian/overrides/study-calc" in script, (
+        "build_deb.sh must install the override at the path lintian reads"
+    )
+
+
 def test_release_workflow_builds_and_gates_on_the_deb() -> None:
     """The release pipeline has a linux-deb job, gates the publish on it, and
     uploads the .deb artifact so it lands on the GitHub Release."""

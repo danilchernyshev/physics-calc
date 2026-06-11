@@ -1,0 +1,6 @@
+# study-calc ships a self-contained PyInstaller one-folder bundle under /opt —
+# the conventional location for a vendored, non-FHS application payload, exactly
+# as Google Chrome's and VS Code's .deb packages do. Every file beneath the
+# bundle therefore raises dir-or-file-in-opt; this placement is by design
+# (#146), so the tag is overridden for the whole tree.
+study-calc: dir-or-file-in-opt opt/study-calc*
