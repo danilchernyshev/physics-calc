@@ -87,18 +87,29 @@ def test_focus_indicators_are_token_based_and_visible():
     interactive element drops the outline without a replacement (issue #26)."""
     css = (FRONTEND / "components.css").read_text(encoding="utf-8")
     assert ":focus-visible" in css, "components.css must define a :focus-visible ring"
-    # The ring colour is a token, not a hardcoded value.
-    assert re.search(r":focus-visible[^}]*outline:[^}]*var\(--color-", css), (
+    # The ring colour is a token, not a hardcoded value: the first :focus-visible
+    # rule block declares an outline built on a --color-* variable. (Plain string
+    # scanning, not a regex — avoids any backtracking/ReDoS surface.)
+    fv = css.index(":focus-visible")
+    block = css[fv:css.index("}", fv)]
+    assert "outline:" in block and "var(--color-" in block, (
         "the :focus-visible outline must use a --color-* token"
     )
-    # Any `outline: none` must be guarded by :not(:focus-visible) so keyboard
-    # focus still shows a ring.
-    for match in re.finditer(r"([.#:\w-]+)\s*\{[^}]*outline:\s*none", css):
-        selector = match.group(1)
-        assert ":focus-visible" in css[match.start() - 40:match.start()] or \
-            ":not(:focus-visible)" in css[match.start() - 40:match.start() + 1], (
-            f"`outline: none` on {selector!r} has no :focus-visible replacement"
+    # Any `outline: none` must sit on a :focus-visible-guarded selector so
+    # keyboard focus still shows a ring. Scan the whitespace-stripped text so the
+    # match is independent of formatting.
+    packed = "".join(css.split())
+    start = 0
+    while True:
+        i = packed.find("outline:none", start)
+        if i == -1:
+            break
+        brace = packed.rfind("{", 0, i)
+        selector = packed[packed.rfind("}", 0, brace) + 1:brace]
+        assert ":focus-visible" in selector, (
+            f"`outline: none` on selector {selector!r} has no :focus-visible replacement"
         )
+        start = i + len("outline:none")
 
 
 def test_modal_overlays_carry_dialog_semantics_and_keyboard_trap():
