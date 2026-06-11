@@ -134,26 +134,39 @@ def _check_gui() -> None:
     """Test that PyWebView can initialize a GUI backend.
 
     On Linux, this verifies that gi (PyGObject) and GObject-Introspection
-    typelibs (WebKit2, Gtk, etc.) are bundled and discoverable. The window is
-    created then immediately destroyed; no event loop runs. This test should be
-    run under ``xvfb-run`` on headless CI.
+    typelibs (WebKit2, Gtk, etc.) are bundled and discoverable. Run it under
+    ``xvfb-run`` on headless CI.
+
+    Crucially it must drive ``webview.start()``, not just ``create_window()``:
+    ``create_window`` only registers a Window object — PyWebView imports and
+    initialises the platform backend (on Linux ``import gi`` + loading the
+    WebKit2/Gtk typelibs) lazily inside ``start()``. A test that stops at
+    ``create_window`` never touches gi, so it would pass even on a bundle that is
+    missing gi/typelibs entirely — a false guard for exactly the #158 crash. We
+    therefore start the GUI loop and tear it down from the ``func`` callback,
+    which runs on a worker thread once the backend is up.
 
     Raises AssertionError if the GUI backend cannot be initialized.
     """
     import webview
 
-    # Create a window but do not run the event loop; just verify the backend
-    # initializes without raising. The window.destroy() call below prevents
-    # any async event handling.
+    def _teardown() -> None:
+        # Runs after the backend has initialised; closing every window ends the
+        # event loop so start() returns immediately.
+        for win in list(webview.windows):
+            win.destroy()
+
     try:
-        window = webview.create_window(
+        webview.create_window(
             title="Study Calc - GUI Smoke Test",
             html="<h1>GUI Test</h1><p>Backend loaded successfully.</p>",
             width=400,
             height=300,
         )
-        # Explicitly destroy the window to clean up the backend.
-        window.destroy()
+        # Force the GTK backend on Linux so a missing gi/typelib is a hard error
+        # here rather than a silent fallback; elsewhere let PyWebView auto-pick.
+        gui = "gtk" if sys.platform.startswith("linux") else None
+        webview.start(_teardown, gui=gui)
     except Exception as exc:
         raise AssertionError(f"PyWebView GUI backend failed to initialize: {exc}") from exc
 
