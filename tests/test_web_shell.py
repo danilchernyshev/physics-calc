@@ -12,10 +12,14 @@ from pathlib import Path
 
 import pytest
 
+import json
+
 from study_calc import navigation
+from study_calc.core.learning import CURRICULUM_GRADES
 from study_calc.core.settings import Settings
-from study_calc.i18n import i18n
+from study_calc.i18n import _LOCALES_DIR, i18n
 from study_calc.web import app as web_app
+from study_calc.web import screens
 from study_calc.web.bridge import Bridge, item_courses, item_visible, navigation_model
 
 _FRONTEND = Path(__file__).resolve().parent.parent / "study_calc" / "web" / "frontend"
@@ -193,6 +197,73 @@ def test_filter_is_stable_across_language_change(tmp_path):
     # ...but relabelled.
     physics_ru = next(s for s in ru["subjects"] if s["id"] == "physics")
     assert physics_ru["label"] == "Физика"
+
+
+# --- filter state in the shell model (epic #102, issue #126) -----------------
+
+_FILTER_KEYS = (
+    "ui.filter.grade", "ui.filter.course", "ui.filter.all", "ui.filter.badge_aria",
+    "ui.filter.clear", "ui.filter.no_results", "ui.filter.no_results_detail",
+    "ui.filter.settings_heading", "ui.filter.settings_hint",
+)
+
+
+def test_shell_model_carries_filter_state(tmp_path):
+    state = Bridge().get_state()
+    assert state["activeGrade"] == "all"
+    assert state["activeCourse"] == "all"
+    block = state["filter"]
+    # gradeMap is derived from CURRICULUM_GRADES, sorted, keyed by grade level.
+    assert block["grades"][0] == "all"
+    for level in {str(v) for v in CURRICULUM_GRADES.values()}:
+        assert level in block["gradeMap"]
+        assert block["gradeMap"][level] == sorted(block["gradeMap"][level])
+    assert block["activeCourseBadge"] is None  # nothing selected → no badge
+    assert block["labels"]["grade"] and block["labels"]["settingsHeading"]
+
+
+def test_shell_model_reflects_active_selection(tmp_path):
+    state = _filtered_bridge(tmp_path, "12", "SPH4U").get_state()
+    assert state["activeGrade"] == "12"
+    assert state["activeCourse"] == "SPH4U"
+    assert state["filter"]["activeCourseBadge"] == "SPH4U"
+    assert "SPH4U" in state["filter"]["badgeAria"]
+
+
+def test_filter_selection_persists_across_set_language(tmp_path):
+    bridge = _filtered_bridge(tmp_path, "12", "SPH4U")
+    en = bridge.get_state()
+    ru = bridge.set_language("ru")
+    # Selection unchanged by a language switch...
+    assert ru["activeGrade"] == "12"
+    assert ru["activeCourse"] == "SPH4U"
+    # ...labels relocalized.
+    assert ru["filter"]["labels"]["settingsHeading"] != en["filter"]["labels"]["settingsHeading"]
+
+
+def test_curriculum_filter_model_is_pure_and_sorted():
+    model = screens.curriculum_filter_model("all", "all")
+    expected = {str(v) for v in CURRICULUM_GRADES.values()}
+    assert set(model["gradeMap"]) == expected
+    assert model["grades"] == ["all", *sorted(expected)]
+    assert model["activeCourseBadge"] is None
+    # With a selection it carries the badge + a localized descriptor.
+    picked = screens.curriculum_filter_model("12", "SPH4U")
+    assert picked["activeCourseBadge"] == "SPH4U"
+    assert picked["courseDescriptor"]  # "Grade 12 · University"
+
+
+def test_settings_overlay_mirrors_the_filter(tmp_path):
+    overlay = _filtered_bridge(tmp_path, "12", "SPH4U").update_screen()
+    assert overlay["filter"]["activeCourse"] == "SPH4U"
+    assert overlay["filter"]["labels"]["settingsHeading"]
+
+
+@pytest.mark.parametrize("lang", ["en", "es", "fr", "ru", "uk"])
+def test_filter_keys_present_in_every_locale(lang):
+    catalog = json.loads((_LOCALES_DIR / f"{lang}.json").read_text(encoding="utf-8"))
+    missing = [k for k in _FILTER_KEYS if k not in catalog]
+    assert not missing, f"{lang}.json missing filter keys: {missing}"
 
 
 # --- preview rendering (browser/screenshot path, no PyWebView) ---------------

@@ -492,5 +492,14 @@
   "series.noble-gas": "Благородный газ",
   "series.lanthanide": "Лантаноид",
   "series.actinide": "Актиноид",
-  "series.unknown": "Неизвестный"
+  "series.unknown": "Неизвестный",
+  "ui.filter.grade": "Класс",
+  "ui.filter.course": "Курс",
+  "ui.filter.all": "Все",
+  "ui.filter.badge_aria": "Активный фильтр: {code}",
+  "ui.filter.clear": "Сбросить фильтр",
+  "ui.filter.no_results": "Нет материалов, соответствующих текущему фильтру.",
+  "ui.filter.no_results_detail": "Выберите другой курс или сбросьте фильтр, чтобы увидеть всё.",
+  "ui.filter.settings_heading": "Фильтр программы",
+  "ui.filter.settings_hint": "Показывать только материалы вашего активного курса. Применяется ко всем предметам."
 }
