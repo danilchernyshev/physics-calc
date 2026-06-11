@@ -71,7 +71,9 @@ a = Analysis(
     # GTK backend on Linux to access WebKit2GTK via GObject-Introspection.
     hiddenimports=["sympy", "gi"],
     hookspath=[],
-    runtime_hooks=[str(Path(SPECPATH).resolve().parent / "hooks" / "runtime_gi_typelib_path.py")],
+    # The hook lives beside this spec under ``packaging/hooks/`` — i.e. ``_ROOT``
+    # is the project root, so the hook is at ``_ROOT / "packaging" / "hooks"``.
+    runtime_hooks=[str(_ROOT / "packaging" / "hooks" / "runtime_gi_typelib_path.py")],
     # The graphing surface (matplotlib/numpy/Pillow — the `graph` extra) is not
     # wired into the web UI yet and no shipping code path imports it, so keep it
     # out of the frozen bundle. Excluding here makes the build lean regardless of
