@@ -54,3 +54,62 @@ escalation needed (no contract or Python change); this is contained in the front
 
 **Gate:** no unresolved `blocker` → technically passes; **review status: changes-requested**
 on the open `major`. Re-review after the overlay-close fix.
+
+---
+
+## Re-review (PR #177) — 2026-06-11 · code-reviewer
+
+Second pass over the review-fix commit `27165eb` (delta only; `edd4de5` reviewed
+above). Touched in the delta: `shell.js`, `components.js`, and the two artifacts —
+**no CSS, no Python** changed by the fix. Gate re-run: `uv run --extra dev pytest -q`
+→ **479 passed, 1 skipped**; `test_web_components.py` token-lint → 10 passed.
+
+### First-review findings — disposition
+| Prior finding | Status |
+|---------------|--------|
+| **major** overlay closes on grade/course change; in-place re-populate dead | **Resolved.** `render({ keepOverlays = false })` (shell.js:356) gates `Screens.closeOverlays()` behind `if (!keepOverlays)`; `setActiveGrade`/`setActiveCourse` (shell.js:69-85) call `render({ keepOverlays: true })`. The overlay is appended to `document.body` outside `#app` (screens.js:1197), and `render()` only rebuilds `#app` via `replaceChildren`, so the live `.modal--updates` node is untouched and `fillFilterArea(nf)` (screens.js:1156/1165) now mutates a still-connected `filterSection`. Verified live in-place update path. |
+| **minor** no in-flight guard | **Resolved (common case).** `_gradeSeq`/`_courseSeq` (shell.js:67-68) captured pre-`await`, compared post-`await`; stale responses return `null` → discarded, last-write-wins. Correct. |
+| **minor** header/overlay helper duplication | **Resolved.** `updatesApi.setGrade/setCourse` now delegate (shell.js:32-33). |
+| **minor** a11y label not associated | **Resolved.** `UI.field(label, control, id=null)` (components.js:62) generates a unique `field-N` id, sets `control.id` + label `for`. Monotonic counter, old nodes dropped on re-render → no live-DOM duplicate-id collisions. Explicit-`id` param lets self-managed controls opt out. Sound. |
+| **minor** `screens.py:946` grade string-sort | Out of scope, model file untouched — still acknowledged for follow-up. |
+| **minor** hex-lint-in-comments smell | Informational, unchanged. |
+
+### Delta correctness — verified clean
+- **No listener leak / no double-render.** The overlay node is not recreated under
+  `keepOverlays`, so its `click`/`keydown` (focus-trap) listeners are not duplicated;
+  `fillFilterArea`'s `replaceChildren` discards the old `<select>` nodes (and their
+  `onchange`) for GC and wires fresh ones. Header controls (in `#app`) and the overlay
+  `filterSection` (on `body`) are disjoint subtrees — no node is rendered twice.
+- **`updatesApi` → helper delegation is hoist-safe** (`setActiveGrade` is a hoisted
+  function declaration; the arrows in the `const updatesApi` only dereference it at
+  call time).
+- **`keepOverlays:true` from the header path is harmless** — body overlays are modal
+  with focus traps, so the header selects are unreachable while one is open; skipping
+  `closeOverlays()` there is a no-op in practice.
+
+### Live-gate defects (#172–#176) — confirmed NOT introduced by this PR
+This delta touches only `shell.js` / `components.js` / docs. **#173** (course selection
+hides the whole Problems tab) is rooted in the already-merged `web/bridge.py::item_visible`,
+which this PR does not touch — confirmed not a regression of #177. #172/#174/#175/#176 are
+likewise outside this diff. No new defect introduced.
+
+### Non-blocking nits (follow-up, do not block merge)
+1. **Focus on the just-changed select is still dropped.** `fillFilterArea`
+   (screens.js:1137-1173) unconditionally rebuilds *both* selects on any change, so the
+   control the user just operated is replaced → focus falls to `document.body`. The major
+   (overlay vanishing) is fixed, but `04-implementation.md`'s "preserves focus" claim is
+   only partially met. Pre-existing `fillFilterArea` design, not introduced by this delta.
+   Cheap hardening: on a *course* change nothing structural changes, so the
+   `if (nf) fillFilterArea(nf)` at screens.js:1165 can be skipped (or restore focus to the
+   live course `<select>` after rebuild).
+2. **Cross-endpoint race not guarded.** `_gradeSeq` and `_courseSeq` are independent, so
+   interleaving a grade change with a course change inside the same in-flight window isn't
+   covered (both write `state.data` wholesale). Practically unreachable in this sequential
+   UI; note only — matches the first review's "acceptable" call.
+
+### Verdict: **APPROVE**
+All first-review findings resolved; the major is genuinely fixed (overlay survives, in-place
+re-populate now live, no leak/double-render); a11y association and in-flight guard are sound;
+no token violations (delta has no CSS; PR-added CSS is token-only); gate green (479/1). The
+two nits above are non-blocking follow-ups. No `blocker`/`major` open → **review status:
+approved**. (Merge remains `dev-manager`'s action per the GitHub-actions RACI.)
