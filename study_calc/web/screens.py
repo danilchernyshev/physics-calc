@@ -801,20 +801,51 @@ def _problem_model(problem: Problem) -> dict:
     }
 
 
-def problems_screen(subject_id: str) -> dict:
-    """The practice-problems screen for one subject: labels + every problem.
+def problems_screen(subject_id: str, active_course: str = "all") -> dict:
+    """The practice-problems screen for one subject: labels + filtered problem list.
 
     ``subject_id`` may be the bare id (``"physics"``) or the navigation item id
     (``"problems:physics"``). Each problem carries its statement, hidden solution,
     optional video link and (baked) related-topic learning blocks, so the whole
-    surface renders — and reveals — from one call. A subject with no problems
-    yields an empty ``problems`` list (the frontend shows the quiet ``empty``
-    hint), exactly like the Tk panel.
+    surface renders — and reveals — from one call.
+
+    ``active_course`` is the persisted curriculum-filter selection (default
+    ``"all"`` == no filter). When a specific course is active, only problems
+    whose ``courses`` list includes it are returned — the filter lives here in the
+    screen layer, not in :func:`~study_calc.core.learning.problems_for_subject`,
+    which stays curriculum-agnostic (ADR 0003 §2).
+
+    Empty states (ADR 0003 §Empty-state copy):
+
+    - Subject has problems but none match the active course → ``empty`` label is
+      ``ui.filter.no_results``, ``emptyDetail`` is ``ui.filter.no_results_detail``.
+    - Subject has no problems at all (filter-independent) → ``empty`` is
+      ``problems.empty``, ``emptyDetail`` is ``""``.
+
+    Forward-compatible with #175: when ``active_course`` widens to a
+    ``frozenset[str]``, the keep predicate ``active_course in p.courses`` becomes
+    ``bool(set(p.courses) & active)`` with no semantic change to any caller.
     """
     subject_id = subject_id.split(":", 1)[-1]
-    problems = problems_for_subject(subject_id, i18n.language)
+    all_problems = problems_for_subject(subject_id, i18n.language)
+    # Apply the curriculum filter in the screen layer; problems_for_subject stays
+    # curriculum-agnostic.  The scalar check is the singleton form of the #175
+    # set-intersection predicate: `active_course in p.courses` ≡
+    # `{active_course} & set(p.courses)` is non-empty.
+    if active_course == "all":
+        problems = all_problems
+    else:
+        problems = tuple(p for p in all_problems if active_course in p.courses)
+
+    # Filtered-empty state: the filter is active, the subject has problems, but
+    # none match.  Use the filter-specific key so the student knows to widen the
+    # selection rather than thinking the subject is empty.
+    filtered_empty = bool(active_course != "all" and all_problems and not problems)
+    empty_label = t("ui.filter.no_results") if filtered_empty else t("problems.empty")
+    empty_detail = t("ui.filter.no_results_detail") if filtered_empty else ""
+
     # Representative course for the shell-header chip (Figma node 29:2): the most
-    # common Ontario code among the subject's problems (e.g. Physics -> SPH4U).
+    # common Ontario code among the *filtered* problems (e.g. Physics -> SPH4U).
     # And a code -> "Grade 12 · University" descriptor for each course group header.
     code_counts: dict[str, int] = {}
     for p in problems:
@@ -839,7 +870,12 @@ def problems_screen(subject_id: str) -> dict:
             "answer": t("ui.answer"),
             "videoSolution": t("ui.video_solution"),
             "relatedTopic": t("ui.related_topic"),
-            "empty": t("problems.empty"),
+            # Empty-state key switches to the filter-specific message when the
+            # filter is active and produces no results (ADR 0003 §Empty-state copy).
+            "empty": empty_label,
+            # Non-empty only in the filtered-empty state; "" when no filter active
+            # or when the subject genuinely has no problems.
+            "emptyDetail": empty_detail,
             # Term pop-up labels — a backing topic may carry key terms whose
             # "Open full" pop-up reuses the shared concept overlay.
             "openFull": t("ui.open_full"),
