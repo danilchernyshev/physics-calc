@@ -25,7 +25,10 @@ MSG
 fi
 
 # Keep this list in sync with [project].dependencies in pyproject.toml.
+# --yaml is required: flatpak-pip-generator defaults to JSON output (writes
+# python3-deps.json), but the manifest includes python3-deps.yaml — without the
+# flag flatpak-builder fails with "No such file or directory" for the .yaml.
 echo ">> Resolving sympy + pywebview into hash-pinned Flatpak sources"
-"${GENERATOR}" --output "${HERE}/python3-deps" sympy pywebview
+"${GENERATOR}" --yaml --output "${HERE}/python3-deps" sympy pywebview
 
 echo ">> Wrote ${HERE}/python3-deps.yaml"
