@@ -93,7 +93,11 @@ a = Analysis(
     # what make PyWebView's GTK backend importable in the frozen bundle on Linux.
     hiddenimports=hiddenimports,
     hookspath=[],
-    runtime_hooks=[str(Path(SPECPATH).resolve().parent / "hooks" / "runtime_gi_typelib_path.py")],
+    # The hook lives at packaging/hooks/. _ROOT is the project root (SPECPATH's
+    # parent), so join through "packaging". The earlier `Path(SPECPATH).parent /
+    # "hooks"` resolved to <root>/hooks — a path that does not exist — and broke
+    # the freeze with FileNotFoundError before any artifact was produced (#158).
+    runtime_hooks=[str(_ROOT / "packaging" / "hooks" / "runtime_gi_typelib_path.py")],
     # The graphing surface (matplotlib/numpy/Pillow — the `graph` extra) is not
     # wired into the web UI yet and no shipping code path imports it, so keep it
     # out of the frozen bundle. Excluding here makes the build lean regardless of
