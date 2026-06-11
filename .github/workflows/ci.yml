@@ -1,0 +1,67 @@
+# PR-level continuous-integration gate (#163).
+#
+# The release pipeline (release.yml) is tag-triggered, so before this workflow
+# nothing ran on pull requests — not even pytest, and crucially never the
+# PyInstaller freeze. Two build-breaking spec bugs reached `master` that way (a
+# never-bundled `gi`, then a wrong `runtime_hooks` path; see #158). This workflow
+# runs on every PR and on push to `master` and actually **freezes the Linux
+# bundle and launches its GTK backend under xvfb**, so a broken spec fails here
+# instead of at the next release. It publishes nothing — release.yml stays the
+# sole publisher.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+# Cancel a previous run of this workflow on the same ref when a new commit lands.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The same pytest gate the release workflow runs, but on every PR/push so a red
+  # tree is caught long before a tag.
+  test:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+      - name: Run the test suite
+        run: uv run --extra dev pytest
+
+  # Freeze the one-folder bundle from packaging/study-calc.spec and launch the
+  # GTK backend headlessly. This exercises the exact spec path release.yml's
+  # linux-appimage/linux-deb jobs use, so a wrong runtime_hooks path or an
+  # uncollected gi.repository typelib fails the PR rather than the release.
+  linux-freeze-smoke:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the PyWebView GTK/WebKit backend + xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgirepository1.0-dev libcairo2-dev pkg-config \
+            gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0 python3-gi \
+            xvfb
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+      - name: Freeze the one-folder bundle
+        # Same pygobject<3.52 pin as the release jobs: from 3.52 PyGObject builds
+        # against girepository-2.0 (glib 2.80+), which ubuntu-22.04 lacks.
+        run: |
+          uv run --extra packaging --with "pygobject<3.52" \
+            pyinstaller packaging/study-calc.spec --noconfirm
+          test -x dist/study-calc/study-calc
+      - name: Smoke-test the frozen bundle (engine + GUI)
+        run: |
+          uv run --extra dev python packaging/smoke_test.py --bundle dist/study-calc
+          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
