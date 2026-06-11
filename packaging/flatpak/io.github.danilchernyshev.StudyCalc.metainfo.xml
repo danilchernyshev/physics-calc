@@ -21,8 +21,15 @@
     </ul>
     <p>
       Every problem shows built-in learning material — key terms, useful formulas,
-      a step-by-step method and a worked example. The interface is localized in
-      English, Spanish, French, Russian and Ukrainian, switchable at runtime.
+      a step-by-step method and a worked example. Physics, Math and Chemistry each
+      add a Problems tab of worked practice questions you reveal at your own pace,
+      and topics carry an Ontario curriculum badge (MCR3U, MHF4U, MCV4U, MDM4U,
+      SPH4U, SCH4U). The interface is localized in English, Spanish, French,
+      Russian and Ukrainian, switchable at runtime.
+    </p>
+    <p>
+      The app is fully keyboard-operable with screen-reader (ARIA) support, and
+      checks GitHub Releases for updates on startup — never updating silently.
     </p>
   </description>
   <launchable type="desktop-id">io.github.danilchernyshev.StudyCalc.desktop</launchable>
