@@ -189,11 +189,56 @@ jobs:
           path: dist/study-calc-${{ env.VERSION }}-linux.flatpak
           if-no-files-found: error
 
+  linux-deb:
+    needs: [test, resolve-version]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.resolve-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the PyWebView GTK/WebKit backend + Debian packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgirepository1.0-dev libcairo2-dev pkg-config \
+            gir1.2-webkit2-4.1 libwebkit2gtk-4.1-0 python3-gi \
+            dpkg-dev lintian
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+      - name: Build the .deb
+        # Wraps the frozen one-folder bundle; same pygobject<3.52 pin as the
+        # AppImage job (ubuntu-22.04 ships girepository-1.0). build_deb.sh freezes,
+        # smoke-tests, lays out /opt + /usr, and runs dpkg-deb.
+        run: |
+          uv run --extra packaging --with "pygobject<3.52" \
+            bash packaging/linux/build_deb.sh
+      - name: Install / smoke-test / remove the .deb
+        # Acceptance: clean install on an Ubuntu base (Mint's base), the launcher,
+        # menu entry and icon land, the installed bundle passes the smoke test, and
+        # remove leaves no orphans under /opt.
+        run: |
+          sudo apt-get install -y ./dist/study-calc_${VERSION}_amd64.deb
+          test -x /opt/study-calc/study-calc
+          test -L /usr/bin/study-calc
+          test -f /usr/share/applications/study-calc.desktop
+          test -f /usr/share/icons/hicolor/256x256/apps/study-calc.png
+          uv run --extra dev python packaging/smoke_test.py --bundle /opt/study-calc
+          sudo apt-get remove -y study-calc
+          test ! -e /opt/study-calc
+      - name: Upload the .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-calc-${{ env.VERSION }}-linux-deb
+          path: dist/study-calc_${{ env.VERSION }}_amd64.deb
+          if-no-files-found: error
+
   # Collect every built artifact and attach them to the GitHub Release. New
   # platform jobs just add themselves to `needs` and upload an artifact — the glob
   # below picks them up automatically.
   release:
-    needs: [linux-appimage, windows-installer, macos-dmg, linux-flatpak]
+    needs: [linux-appimage, windows-installer, macos-dmg, linux-flatpak, linux-deb]
     runs-on: ubuntu-22.04
     permissions:
       contents: write # publish the Release and upload assets

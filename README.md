@@ -117,6 +117,18 @@ flatpak run io.github.danilchernyshev.StudyCalc
 
 The app then appears in your application menu like any native app.
 
+**`.deb` (Debian / Ubuntu / Linux Mint).** The native APT package — the best fit
+for Mint. Download `study-calc_<version>_amd64.deb`, then double-click it in your
+Software Manager, or install from a terminal:
+
+```bash
+sudo apt install ./study-calc_<version>_amd64.deb
+```
+
+`apt` pulls the WebKitGTK it needs, and Study Calculator appears in your
+application menu with its icon. Remove it any time with `sudo apt remove
+study-calc`.
+
 **AppImage (fallback).** Download `study-calc-<version>-linux.AppImage`, make it
 executable, and run it:
 
@@ -150,6 +162,8 @@ installed the app:
 - **macOS** — download the matching DMG and drag-replace the app in Applications.
 - **Flatpak** — update through your software centre or `flatpak update
   io.github.danilchernyshev.StudyCalc` (the app never self-updates here).
+- **`.deb`** — download the newer `.deb` and install it over the current one
+  (`sudo apt install ./study-calc_<version>_amd64.deb`).
 - **AppImage** — replace the file with the new one (AppImageUpdate where
   supported).
 

@@ -52,3 +52,74 @@ def test_flatpak_metainfo_releases_are_unique_and_descending() -> None:
     assert parsed == sorted(parsed, reverse=True), (
         f"<release> entries must be newest-first; got {versions}"
     )
+
+
+# --- Debian .deb packaging inputs (#146) -------------------------------------
+#
+# The .deb is assembled and built by packaging/linux/build_deb.sh in the
+# release CI (it needs dpkg-deb, so the archive itself is only produced there).
+# These tests lint the *static inputs* the script wraps so a broken control
+# field, a missing maintainer script, or a desktop entry whose Exec drifts from
+# the launcher name fails fast at unit-test time rather than only on a tag.
+
+_LINUX = _ROOT / "packaging" / "linux"
+_DEB = _LINUX / "deb"
+
+
+def test_deb_build_script_is_present_and_single_sources_the_version() -> None:
+    """build_deb.sh exists and derives the version from app_version (not a
+    hand-typed literal), so the .deb version can never drift from pyproject."""
+    script = _LINUX / "build_deb.sh"
+    assert script.is_file(), "packaging/linux/build_deb.sh is missing"
+    text = script.read_text(encoding="utf-8")
+    assert "app_version()" in text, "build_deb.sh must read the version via app_version()"
+    # The canonical Debian artifact name (underscores, amd64) is what the README
+    # and the release job reference.
+    assert "study-calc_${VERSION}_${ARCH}" in text
+    assert "dpkg-deb" in text and "--root-owner-group" in text
+
+
+def test_deb_desktop_entry_matches_the_launcher() -> None:
+    """The packaged .desktop must be a valid entry whose Exec/Icon line up with
+    the /usr/bin/study-calc launcher and the hicolor icon name."""
+    desktop = (_LINUX / "study-calc.desktop").read_text(encoding="utf-8")
+    assert "[Desktop Entry]" in desktop
+    assert "Type=Application" in desktop
+    assert "Exec=study-calc" in desktop, "Exec must match the /usr/bin launcher symlink"
+    assert "Icon=study-calc" in desktop, "Icon must match the hicolor icon stem"
+
+
+def test_deb_maintainer_scripts_refresh_caches() -> None:
+    """postinst/postrm exist, are POSIX sh, and refresh the desktop + icon caches
+    so the menu entry appears/disappears without a re-login."""
+    for name in ("postinst", "postrm"):
+        script = _DEB / name
+        assert script.is_file(), f"packaging/linux/deb/{name} is missing"
+        text = script.read_text(encoding="utf-8")
+        assert text.startswith("#!/bin/sh"), f"{name} must be POSIX sh"
+        assert "update-desktop-database" in text and "gtk-update-icon-cache" in text, (
+            f"{name} must refresh the desktop-entry and icon caches"
+        )
+
+
+def test_deb_copyright_is_machine_readable() -> None:
+    """A DEP-5 copyright file ships (lintian errors without one)."""
+    text = (_DEB / "copyright").read_text(encoding="utf-8")
+    assert text.startswith("Format: https://www.debian.org/doc/packaging-manuals/")
+    assert "License: MIT" in text
+
+
+def test_release_workflow_builds_and_gates_on_the_deb() -> None:
+    """The release pipeline has a linux-deb job, gates the publish on it, and
+    uploads the .deb artifact so it lands on the GitHub Release."""
+    workflow = (_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    assert "linux-deb:" in workflow, "release.yml must define a linux-deb job"
+    assert "bash packaging/linux/build_deb.sh" in workflow
+    assert "study-calc_${{ env.VERSION }}_amd64.deb" in workflow
+    # The release job must depend on linux-deb, or download-artifact could run
+    # before the .deb exists and miss it.
+    needs_line = next(
+        line for line in workflow.splitlines()
+        if line.strip().startswith("needs: [linux-appimage")
+    )
+    assert "linux-deb" in needs_line, "release.needs must include linux-deb"
