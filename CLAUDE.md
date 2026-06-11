@@ -313,9 +313,11 @@ matrix in `docs/sdlc/README.md`.
 **GitHub action authority.** Who may mutate issues/PRs is governed by a RACI
 (`docs/sdlc/README.md` → "GitHub actions RACI"): developers **open** PRs but
 **never merge**; `code-reviewer` comments / requests-changes / approves; **only
-`dev-manager` merges** (after review approval + green gates); **only QA closes**
-tickets; if a PR needs extra expertise, `code-reviewer` asks `dev-manager` to
-delegate specialist reviewers. The Dev Director (the user) overrides any of it.
+`dev-manager` merges** (after review approval + green gates); each agent **closes its
+own role/work sub-issue when delivered** (or `dev-manager` closes it if the agent has no
+`gh`), while **only QA closes the parent ticket** after verifying it's done (D32); if a
+PR needs extra expertise, `code-reviewer` asks `dev-manager` to delegate specialist
+reviewers. The Dev Director (the user) overrides any of it.
 
 **Gates (pragmatic):** a phase advances only when its artifact proves it — for
 implementation that means `uv run --extra dev pytest` green *including* the

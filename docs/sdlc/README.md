@@ -198,13 +198,20 @@ override any row.
 | **Merge a PR** | **R/A** | ✗ never | C (approved upstream) | C (initial pass) | A (override) |
 | Delegate extra / double reviewers | **R/A** | I | **requests it** | I | I |
 | Decide if the review was sufficient | **R/A** | I | C | I | C |
-| **Close an issue (done)** | C | I | I | **R/A** | A (override) |
+| **Close a role/work sub-issue (delivered)** | A | R† | R† | R† | I |
+| **Close the parent ticket (done)** | C | I | I | **R/A** | A (override) |
 | Reopen an issue | R | C | C | R | A |
 | Update the board view (mirror issue/PR state) | R | R | R | R | A |
 | Flag a `bug`/`enhancement` found in flight | C | **R** | **R** | **R** | I |
 | **Create / label a sub-issue** | **R/A** (issue-create, D30) | I | I | I | A |
 | Decompose into planning sub-issues | **R/A** | C | C | C | I |
 | Create a new epic / milestone | R | C | C | C | **A** |
+
+† *A **role/work sub-issue** is closed by **its owning agent when its artifact lands**
+(PR merged, ADR written, sign-off given) — close it as the last act of your phase; if
+your agent has no `gh`/Bash, say "done, close #N" and `dev-manager` closes it (A). Only
+the **parent ticket** waits for **QA** to verify and close (D32). Don't leave delivered
+sub-issues open.*
 
 **Merge policy.** Only the **Dev Manager** merges (the QA→Release edge), and only
 when *all* hold: (a) `code-reviewer` has **approved** (a comment, single-account

@@ -108,11 +108,16 @@ actions RACI"):
   beyond its scope (security, architecture, language/DB), *it asks you* — you either
   delegate specific specialists (`security-auditor`, `architect-reviewer`, `sql-pro`,
   a language specialist) or judge the existing review sufficient and proceed.
-- **You do not close tickets** — only **QA** closes, after verifying done (release
-  shipped + regression green). You perform the transitions you own; the board view is
-  updated by hand (D24); the Dev Director can override anything.
+- **Sub-issue vs parent close (D32).** A **role/work sub-issue** is closed by **its
+  owning agent the moment its artifact lands** (PR merged, ADR written, sign-off given) —
+  and **you close it for any agent that has no `gh`** (e.g. `technical-writer`). When you
+  merge a PR, **close every delivered sub-issue that PR satisfied** as part of the merge
+  step; leave only the genuinely-unfinished ones open (a follow-up like a frontend
+  fast-follow, or a human-verification issue). **Only the parent ticket** waits for **QA**
+  to verify and close (release shipped + regression green). Don't let delivered sub-issues
+  linger Open — that was the #173 delegation gap.
 - **PR bodies use `Refs #N`, not `Closes #N`** (EP-6a) — so the merge doesn't
-  auto-close the issue; closing stays QA's action.
+  auto-close the issue; closing stays the owner's / QA's explicit action.
 - **Sub-issues (D22/D26/D30).** At standard/large weight, decompose the parent into
   native GitHub sub-issues — and **you create them** (`gh issue create`; you hold
   issue-create, D30). QA, the developer and `code-reviewer` **flag** a defect/improvement
