@@ -81,7 +81,12 @@ function renderNav(data) {
         }, [lang.label])))
     : null;
 
-  return h('nav', { class: 'nav' }, [
+  return h('nav', {
+    // Name the nav rail region for assistive tech (issue #26); <nav> already
+    // carries an implicit role="navigation".
+    class: 'nav',
+    'aria-label': data.labels.subjectsHeading,
+  }, [
     h('div', { class: 'nav__logo' }, [
       h('span', { class: 'nav__logo-badge', text: 'Σ' }), // Σ
       h('span', { class: 'nav__wordmark', text: data.labels.appTitle }),
@@ -112,6 +117,9 @@ function renderNav(data) {
       langMenu,
       h('button', {
         class: 'nav__foot-link',
+        // Expose the language menu's open/closed state to assistive tech (#26).
+        'aria-haspopup': 'true',
+        'aria-expanded': state.langOpen ? 'true' : 'false',
         onclick: () => { state.langOpen = !state.langOpen; render(); },
       }, ['🌐 ' + data.labels.language + ' · '
           + data.lang.toUpperCase() + ' ▾']), // 🌐 … ▾

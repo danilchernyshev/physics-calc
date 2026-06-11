@@ -1029,24 +1029,9 @@ const Screens = {
       'aria-label': model.title,
     }, [card]);
 
-    // Backdrop click dismisses.
+    // Backdrop click dismisses; Escape + Tab-trap via the shared helper.
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-
-    // Escape dismisses; Tab is trapped within the dialog.
-    overlay.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
-      if (e.key !== 'Tab') return;
-      const focusable = Array.from(overlay.querySelectorAll(
-        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      ));
-      if (!focusable.length) return;
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus();
-      }
-    });
+    _wireModalKeys(overlay, close);
 
     document.body.append(overlay);
     closeBtn.focus(); // move focus into the dialog on open
@@ -1158,20 +1143,7 @@ const Screens = {
     }, [card]);
 
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-    overlay.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
-      if (e.key !== 'Tab') return;
-      const focusable = Array.from(overlay.querySelectorAll(
-        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      ));
-      if (!focusable.length) return;
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus();
-      }
-    });
+    _wireModalKeys(overlay, close);
 
     document.body.append(overlay);
     closeBtn.focus();
@@ -1269,11 +1241,15 @@ function openConcept(concept, L) {
   // as openGuide, keeping focus-restore logic in one place (issue #51).
   const trigger = document.activeElement;
 
+  // Declared before the body so the see-also handlers and close button can
+  // reference close() (a hoisted function declaration below).
+  const closeBtn = h('button', {
+    class: 'modal__close', type: 'button', 'aria-label': L.close,
+    onclick: close,
+  }, ['×']); // ×
+
   const card = h('div', { class: 'modal__card' }, [
-    h('button', {
-      class: 'modal__close', type: 'button', 'aria-label': L.close,
-      onclick: close,
-    }, ['×']),
+    closeBtn,
     h('h3', { class: 'modal__title', text: concept.title }),
     h('p', { class: 'rich__body', text: concept.full }),
   ]);
@@ -1291,8 +1267,18 @@ function openConcept(concept, L) {
       }, [rel.title]))));
   }
 
-  const overlay = h('div', { class: 'modal' }, [card]);
+  // Same modal-dialog a11y contract as openGuide/openUpdates (issue #26):
+  // role="dialog" + aria-modal, focus moved into the dialog on open, Tab
+  // trapped within it, Escape (and a backdrop click) dismiss, focus returns
+  // to the trigger on close.
+  const overlay = h('div', {
+    class: 'modal',
+    role: 'dialog',
+    'aria-modal': 'true',
+    'aria-label': concept.title,
+  }, [card]);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  _wireModalKeys(overlay, close);
   // _destroyOverlay returns true when focus was inside the removed overlay;
   // restore it to the element that opened this pop-up if that element is
   // still in the DOM (it is for a manual close; it won't be after a render).
@@ -1300,6 +1286,7 @@ function openConcept(concept, L) {
     if (_destroyOverlay(overlay) && trigger && trigger.isConnected) trigger.focus();
   }
   document.body.append(overlay);
+  closeBtn.focus(); // move focus into the dialog on open
 }
 
 // Shared teardown for body-level modal overlays (openGuide and openConcept).
@@ -1312,6 +1299,27 @@ function _destroyOverlay(overlay) {
   const hadFocus = overlay.contains(document.activeElement);
   overlay.remove();
   return hadFocus;
+}
+
+// Shared keyboard contract for body-level modal dialogs (issue #26): Escape
+// dismisses, and Tab is trapped within the overlay so keyboard/AT users cannot
+// tab out to the page behind it. Used by openGuide, openUpdates, and
+// openConcept so the trap logic is defined once and never diverges.
+function _wireModalKeys(overlay, close) {
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key !== 'Tab') return;
+    const focusable = Array.from(overlay.querySelectorAll(
+      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    ));
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
 }
 
 window.Screens = Screens;

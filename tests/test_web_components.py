@@ -63,3 +63,72 @@ def test_index_loads_component_assets_in_order():
 def test_gallery_exists_and_uses_components():
     gallery = (FRONTEND / "gallery.html").read_text(encoding="utf-8")
     assert "components.js" in gallery and "UI.card" in gallery
+
+
+# --- issue #26: keyboard navigation and ARIA accessibility -------------------
+#
+# The components/CSS/shell are vanilla JS, so we lint the structural a11y
+# contract from source the same way the token checks above do.
+
+
+def test_button_and_chip_factories_render_native_buttons():
+    """Interactive controls must be real <button>s (focusable + Space/Enter
+    activatable for free) rather than clickable <div>s (issue #26)."""
+    js = (FRONTEND / "components.js").read_text(encoding="utf-8")
+    # The button() and chip() factories build a native <button> element.
+    button_body = js[js.index("button({"):js.index("chips({")]
+    assert "h('button'" in button_body, "UI.button must render a <button> element"
+    chip_body = js[js.index("chip({"):js.index("result({")]
+    assert "h('button'" in chip_body, "UI.chip must render a <button> element"
+
+
+def test_focus_indicators_are_token_based_and_visible():
+    """A visible :focus-visible ring exists and is built on a design token; no
+    interactive element drops the outline without a replacement (issue #26)."""
+    css = (FRONTEND / "components.css").read_text(encoding="utf-8")
+    assert ":focus-visible" in css, "components.css must define a :focus-visible ring"
+    # The ring colour is a token, not a hardcoded value: the first :focus-visible
+    # rule block declares an outline built on a --color-* variable. (Plain string
+    # scanning, not a regex — avoids any backtracking/ReDoS surface.)
+    fv = css.index(":focus-visible")
+    block = css[fv:css.index("}", fv)]
+    assert "outline:" in block and "var(--color-" in block, (
+        "the :focus-visible outline must use a --color-* token"
+    )
+    # Any `outline: none` must sit on a :focus-visible-guarded selector so
+    # keyboard focus still shows a ring. Scan the whitespace-stripped text so the
+    # match is independent of formatting.
+    packed = "".join(css.split())
+    start = 0
+    while True:
+        i = packed.find("outline:none", start)
+        if i == -1:
+            break
+        brace = packed.rfind("{", 0, i)
+        selector = packed[packed.rfind("}", 0, brace) + 1:brace]
+        assert ":focus-visible" in selector, (
+            f"`outline: none` on selector {selector!r} has no :focus-visible replacement"
+        )
+        start = i + len("outline:none")
+
+
+def test_modal_overlays_carry_dialog_semantics_and_keyboard_trap():
+    """Every body-level overlay is a focus-trapping dialog dismissable by
+    Escape, wired through the shared helper (issue #26)."""
+    js = (FRONTEND / "screens.js").read_text(encoding="utf-8")
+    # The shared keyboard helper handles Escape + the Tab focus-trap once.
+    assert "function _wireModalKeys(" in js
+    assert "e.key === 'Escape'" in js and "if (e.key !== 'Tab') return;" in js
+    # All three overlays opt into dialog semantics and the shared key handler.
+    assert js.count("role: 'dialog'") >= 3, "openGuide/openUpdates/openConcept dialogs"
+    assert js.count("'aria-modal': 'true'") >= 3
+    assert js.count("_wireModalKeys(overlay, close)") >= 3
+
+
+def test_nav_rail_region_is_labeled():
+    """The nav rail is a labeled landmark and the language toggle exposes its
+    expanded state (issue #26)."""
+    shell = (FRONTEND / "shell.js").read_text(encoding="utf-8")
+    nav_call = shell[shell.index("h('nav'"):shell.index("h('div', { class: 'nav__logo'")]
+    assert "'aria-label'" in nav_call, "the nav rail must carry an aria-label"
+    assert "'aria-expanded'" in shell, "the language toggle must expose aria-expanded"

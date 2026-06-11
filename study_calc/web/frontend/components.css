@@ -3,6 +3,27 @@
    or sizes. These classes back the factories in components.js and are reused by
    every per-screen surface (#6–#11). */
 
+/* ---- Focus indicators (issue #26) ----------------------------------- */
+/* Every interactive control gets a visible keyboard-focus ring built on a
+   design token. :focus-visible shows it for keyboard / assistive-tech users
+   without flashing on a mouse click. --color-brand-primary clears 3:1 (≈5:1)
+   against the light app/surface backgrounds; the dark nav rail overrides the
+   ring colour to --color-text-on-dark in shell.css. */
+.btn:focus-visible,
+.chip:focus-visible,
+.field__control:focus-visible,
+.term__link:focus-visible,
+.rich__link:focus-visible,
+.modal__close:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
 /* ---- Card ------------------------------------------------------------ */
 
 .card {
@@ -75,10 +96,14 @@
 .field__control::placeholder { color: var(--color-text-muted); }
 
 .field__control:focus {
-  outline: none;
   border-color: var(--color-brand-primary);
   box-shadow: 0 0 0 3px var(--color-brand-soft);
 }
+
+/* The soft halo above is decorative (low contrast). Keyboard focus additionally
+   gets the shared high-contrast ring from the :focus-visible block below; a
+   pointer/click focus keeps just the halo (no doubled outline). Issue #26. */
+.field__control:focus:not(:focus-visible) { outline: none; }
 
 .field__control--mono { font-family: var(--font-family-mono); color: var(--color-formula); }
 
