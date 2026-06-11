@@ -220,3 +220,105 @@ key terms, worked example), add
 `learning/en/topics/<key>.json` and a `learning/en/glossary/<term_id>.json` for any
 term it references that doesn't exist yet (`tests/test_learning.py` requires both).
 The app picks all of this up automatically — no frontend edits needed.
+
+## AI-SDLC workflow (agent dev team)
+
+This project is built by a coordinated team of subagents. Two Claude Code facts
+shape the whole setup: **subagents start cold** (they don't share the
+conversation or each other's memory, so cross-phase context travels through files
+in `docs/sdlc/<ticket>/`, never through chat), and **only the main thread spawns
+agents** (the `dev-manager` agent *plans* the team and dependencies; the main
+session *executes* its dispatch plan — a subagent cannot dispatch another).
+
+**Roles → agents** (all installed globally in `~/.claude/agents/`; the project
+`dev-manager` agent wraps the team-planning role of `agent-organizer`):
+
+| Function | Lead agent | Backup / review |
+|----------|-----------|-----------------|
+| BA / requirements | `business-analyst` | `product-manager`, `assumption-mapping` |
+| Plan & dependencies | `dev-manager` (wraps `agent-organizer`) + `project-manager` / `scrum-master` | `task-distributor`, `context-manager` |
+| Solution architecture / tech authority | `architect-reviewer` (owns ADRs + the technical "how"; **A** on implementation) | `dev-manager` stays process-only |
+| Design — visual & system (lead) | `ui-designer` (+ Figma MCP; owns tokens, **A** on design) | `accessibility-tester` (a11y intent) |
+| Design — UX research & validation | `ux-researcher` | `product-manager` |
+| Design — design→code translation & handoff | `design-bridge` | `frontend-developer` |
+| Core implementation | `python-pro` | `architect-reviewer` |
+| Frontend implementation | `javascript-pro` / `frontend-developer` | `fullstack-developer` |
+| Data / persistence (SQLite) | `sql-pro` | `database-optimizer`, `database-administrator` |
+| QA strategy & quality sign-off | `qa-expert` (QA lead, owns the test gate) | — |
+| Unit / integration tests | `test-automator` | `qa-expert` (A) |
+| UI / functional / visual tests | `ui-ux-tester` | `qa-expert` (A) |
+| Accessibility (WCAG) tests | `accessibility-tester` | `ui-ux-tester` |
+| CI pipeline | `deployment-engineer` / `devops-engineer` | `build-engineer`, `git-workflow-manager` |
+| Release | `deployment-engineer` + `git-workflow-manager` | `project-manager` |
+| Documentation | `documentation-engineer` / `technical-writer` | `readme-generator`, `api-documenter` |
+| Quality gate | `code-reviewer` | `security-auditor`, `architect-reviewer` |
+| Curriculum & study content (**future**) | _deferred — interim: installed agents + main thread_ | `research-analyst`, `search-specialist`, `scientific-literature-researcher` |
+
+The **Curriculum & study content** role is a separate *content track*, not a code
+ticket: reviewing public study resources, building study plans, and authoring
+problems/solutions per subject and course into `learning/`. A **dedicated
+curriculum agent is deferred to future work** (a big task — draft preserved in
+`ai-sdlc/future/curriculum-author.draft.md`); until it's built, content work is led
+by **installed** agents (`research-analyst`, `search-specialist`,
+`scientific-literature-researcher`) plus the main thread. The content track's
+artifact flow + the content↔DB seed bridge still apply — see `docs/sdlc/README.md`.
+
+There is **no separate Tech Lead / Solution Architect agent** (deliberate). The
+technical authority is `architect-reviewer`: it owns the architecture, authors and
+reviews **ADRs** (`docs/adr/`), guards cross-layer consistency
+(`core` ↔ `web` ↔ `db` ↔ `learning`) and the i18n contract as architectural
+invariants, and is **Accountable** for the technical soundness of phase
+`04-implementation` — it arbitrates between the `python-pro` / `javascript-pro` /
+`sql-pro` leads. Any cross-layer change, new dependency, or tech-choice goes
+through it (and a new ADR) **before** implementation. `dev-manager` stays purely
+process — "when and who", never "how and why".
+
+**`dev-manager` owns the SDLC itself.** Beyond planning individual tickets, it is
+solely responsible for the process working and the team functioning — detecting
+gaps in any process, gate, RACI, artifact contract, or agent instruction,
+escalating them to the **Dev Director (the user)** with a concrete proposed fix,
+and implementing the approved change across `CLAUDE.md`, the agent files, and
+`docs/sdlc/`. It proposes; the Dev Director decides; it executes — it does not
+rewrite the process or an agent's charter unilaterally.
+
+**How a ticket flows:** start by invoking the `dev-manager` agent on the ticket
+folder; it first classifies the ticket by **weight** (trivial / standard / large)
+and runs only the phases that weight earns, then returns the phases, the agent per
+phase, and a dispatch plan. Anything touching the i18n contract or `learning/`+DB
+is at least *standard*; a schema change or new section is *large*. The main
+thread then invokes each specialist per that plan, each reading/writing its
+artifact in `docs/sdlc/<ticket>/` (see `docs/sdlc/README.md` for the artifact
+contract and `docs/sdlc/_template/` for the starting files). Phases that don't
+apply are skipped *on the record* in `02-plan.md`.
+
+**Status is derived from issue/PR state; the board is a view (D24).** A ticket's
+status comes from its **issue + PR state** (+ the `docs/sdlc/<ticket>/` artifacts) —
+what cold agents read — and the **GitHub Project board** just mirrors it for the Dev
+Director. Stages: **Todo** (00–02) → **Implementation** (03–04 + code review on the
+PR — D21/D27) → **QA** (05 tests + 07 docs by `technical-writer`, checked by
+`qa-expert` — D25) → *(dev-manager merges)* → **Release** (post-merge regression +
+go/no-go by dev-manager + Dev Director + devops) → **Done** (QA closes). Code review
+**precedes** QA and lives inside Implementation; QA may bounce a ticket to
+Implementation (direct fix) or back to **Todo** (re-plan). `status:*` labels are
+**retired**; labels are `agent:*` (scope) + the standard `bug`/`enhancement` kind
+labels, never status (D26). `dev-manager` owns the merge / re-plan / sign-off
+transitions and **creates the decomposition sub-issues** (D30); full transition
+matrix in `docs/sdlc/README.md`.
+
+**GitHub action authority.** Who may mutate issues/PRs is governed by a RACI
+(`docs/sdlc/README.md` → "GitHub actions RACI"): developers **open** PRs but
+**never merge**; `code-reviewer` comments / requests-changes / approves; **only
+`dev-manager` merges** (after review approval + green gates); **only QA closes**
+tickets; if a PR needs extra expertise, `code-reviewer` asks `dev-manager` to
+delegate specialist reviewers. The Dev Director (the user) overrides any of it.
+
+**Gates (pragmatic):** a phase advances only when its artifact proves it — for
+implementation that means `uv run --extra dev pytest` green *including* the
+contract tests (`test_i18n`, `test_references`, `test_learning`, `test_problems`)
+and any new formula/unit/error code present in all five locales; for review, the
+`code-reviewer`'s **approval on the PR** with no open blocker (review is on the PR,
+no local artifact — D21/D27). **Implementation (`04-implementation.md`) is
+the python/js/db dev phase** — `python-pro` for `core/`+`domains/`,
+`javascript-pro`/`frontend-developer` for `web/`+`frontend/`, `sql-pro` for the
+existing SQLite knowledgebase (`core/db.py`, `data/schema.sql`, ADR 0002). Design
+and visual/a11y phases run only when the ticket touches the frontend.
