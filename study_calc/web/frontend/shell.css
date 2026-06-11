@@ -161,6 +161,16 @@ body {
 .nav__lang-option:hover { background: rgba(255, 255, 255, 0.08); }
 .nav__lang-option.is-active { font-weight: var(--font-weight-semibold); color: var(--color-text-on-brand); }
 
+/* Keyboard-focus ring for the dark nav rail (issue #26): the brand-blue ring
+   from components.css would be near-invisible on --color-bg-nav, so override it
+   with --color-text-on-dark (≈14:1 against the rail). */
+.nav__item:focus-visible,
+.nav__foot-link:focus-visible,
+.nav__lang-option:focus-visible {
+  outline: 2px solid var(--color-text-on-dark);
+  outline-offset: 2px;
+}
+
 /* ---- Content + header ------------------------------------------------ */
 
 .content {
