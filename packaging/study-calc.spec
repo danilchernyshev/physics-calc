@@ -91,6 +91,16 @@ a.datas = [
 
 pyz = PYZ(a.pure)
 
+# EXE icon: Windows accepts only .exe/.ico (and the lean build has no Pillow to
+# auto-convert a PNG), so on Windows use the .ico that build_installer.ps1
+# generates from icon.png *before* freezing; macOS/Linux accept the PNG. If the
+# .ico is somehow absent, fall back to no icon rather than failing the freeze.
+if sys.platform == "win32":
+    _win_ico = _ROOT / "packaging" / "windows" / "study-calc.ico"
+    _exe_icon = str(_win_ico) if _win_ico.exists() else None
+else:
+    _exe_icon = str(_PKG / "web" / "frontend" / "icon.png")
+
 exe = EXE(
     pyz,
     a.scripts,
@@ -103,7 +113,7 @@ exe = EXE(
     upx=False,
     # --noconsole: a GUI app must not pop a terminal window on Windows/macOS.
     console=False,
-    icon=str(_PKG / "web" / "frontend" / "icon.png"),
+    icon=_exe_icon,
 )
 
 coll = COLLECT(

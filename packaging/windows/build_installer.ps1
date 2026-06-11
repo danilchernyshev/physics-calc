@@ -44,23 +44,27 @@ try {
     }
     Write-Host ">> Building study-calc $Version Windows installer"
 
-    # --- 1. Freeze with PyInstaller --------------------------------------
-    Write-Host ">> [1/5] PyInstaller freeze"
+    # --- 1. Generate the .ico (BEFORE freezing) --------------------------
+    # PyInstaller needs a real .ico for the Windows EXE icon (the lean build
+    # has no Pillow to convert a PNG), and Inno Setup uses it for SetupIconFile.
+    # The spec picks up packaging\windows\study-calc.ico when present, so it must
+    # exist before the freeze below.
+    Write-Host ">> [1/5] Generating study-calc.ico"
+    & (Join-Path $Here "make_ico.ps1") `
+        -Source "study_calc\web\frontend\icon.png" `
+        -Destination (Join-Path $Here "study-calc.ico")
+
+    # --- 2. Freeze with PyInstaller --------------------------------------
+    Write-Host ">> [2/5] PyInstaller freeze"
     if (Test-Path "dist\study-calc") { Remove-Item -Recurse -Force "dist\study-calc" }
     python -m PyInstaller --noconfirm --clean "packaging\study-calc.spec"
     $exe = "dist\study-calc\study-calc.exe"
     if (-not (Test-Path $exe)) { throw "Expected frozen exe not found: $exe" }
 
-    # --- 2. Smoke-test the frozen bundle ---------------------------------
-    Write-Host ">> [2/5] Smoke test (frozen bundle)"
+    # --- 3. Smoke-test the frozen bundle ---------------------------------
+    Write-Host ">> [3/5] Smoke test (frozen bundle)"
     python "packaging\smoke_test.py" --bundle "dist\study-calc"
     if ($LASTEXITCODE -ne 0) { throw "Smoke test failed" }
-
-    # --- 3. Generate the installer icon ----------------------------------
-    Write-Host ">> [3/5] Generating study-calc.ico"
-    & (Join-Path $Here "make_ico.ps1") `
-        -Source "study_calc\web\frontend\icon.png" `
-        -Destination (Join-Path $Here "study-calc.ico")
 
     # --- 4. Fetch the WebView2 bootstrapper ------------------------------
     Write-Host ">> [4/5] Fetching WebView2 Evergreen Bootstrapper"

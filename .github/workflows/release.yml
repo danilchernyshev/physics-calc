@@ -78,8 +78,10 @@ jobs:
       - name: Build the AppImage
         # PyGObject lets the frozen build import pywebview's GTK backend; the AppImage
         # itself relies on the host's libwebkit2gtk-4.1-0 (see packaging/linux/README.md).
+        # Pin < 3.52: from 3.52 PyGObject builds against girepository-2.0 (glib 2.80+),
+        # which ubuntu-22.04 lacks (it ships the girepository-1.0 dev headers).
         run: |
-          uv run --extra packaging --with pygobject \
+          uv run --extra packaging --with "pygobject<3.52" \
             bash packaging/linux/build_appimage.sh
       - name: Smoke-test the built AppImage
         run: |
@@ -164,8 +166,13 @@ jobs:
             flathub https://flathub.org/repo/flathub.flatpakrepo
       - name: Fetch flatpak-pip-generator (vendors the pinned Python deps)
         run: |
-          curl -fsSLO https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator
-          chmod +x flatpak-pip-generator
+          # pip/flatpak-pip-generator is a symlink to flatpak-pip-generator.py;
+          # raw.githubusercontent returns the symlink target text, not the script,
+          # so fetch the real .py file. It has a python3 shebang, so it runs once
+          # made executable.
+          curl -fsSL -o flatpak-pip-generator.py \
+            https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/pip/flatpak-pip-generator.py
+          chmod +x flatpak-pip-generator.py
           # The generator needs requirements-parser to resolve the deps.
           pip install --user requirements-parser
       - name: Build the Flatpak bundle
@@ -173,7 +180,7 @@ jobs:
         # runtime/SDK, builds with flatpak-builder, exports the .flatpak, and
         # runs the headless smoke test inside the freshly built sandbox.
         env:
-          FLATPAK_PIP_GENERATOR: ${{ github.workspace }}/flatpak-pip-generator
+          FLATPAK_PIP_GENERATOR: ${{ github.workspace }}/flatpak-pip-generator.py
         run: bash packaging/flatpak/build_flatpak.sh
       - name: Upload the Flatpak artifact
         uses: actions/upload-artifact@v4
