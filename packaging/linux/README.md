@@ -45,12 +45,15 @@ runs `dpkg-deb` into `dist/study-calc_<version>_amd64.deb`. The version is read
 from `pyproject.toml`. If `lintian` is installed it runs advisory-only (it never
 fails the build).
 
-**Documented lintian notes:** the bundle lives under `/opt` (lintian's
-`dir-or-file-in-opt` is informational — standard for a self-contained frozen app,
-mirroring the Flatpak/AppImage approach), and the frozen `_internal/` ships
-PyInstaller's bundled shared libraries (the usual `embedded-library` /
-`statically-linked` advisories for a frozen Python app). These are expected and
-not errors.
+**Documented lintian notes:** the bundle lives under `/opt` (the conventional
+spot for a vendored, non-FHS payload, as Chrome's and VS Code's `.deb`s do),
+which raises one `dir-or-file-in-opt` **error** per bundled file. Because this
+placement is the ticket's design, the package ships a lintian override
+([`deb/lintian-overrides`](deb/lintian-overrides) → installed as
+`/usr/share/lintian/overrides/study-calc`) that silences that tag, so **lintian
+reports no errors** (#146). The frozen `_internal/` also ships PyInstaller's
+bundled shared libraries, which draw the usual `embedded-library` /
+`statically-linked` **warnings** for a frozen Python app — expected, left as-is.
 
 ## AppImage host requirement
 

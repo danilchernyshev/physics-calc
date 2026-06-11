@@ -57,6 +57,7 @@ mkdir -p "${PKGROOT}/opt/study-calc" \
          "${PKGROOT}/usr/share/applications" \
          "${PKGROOT}/usr/share/icons/hicolor/256x256/apps" \
          "${PKGROOT}/usr/share/doc/study-calc" \
+         "${PKGROOT}/usr/share/lintian/overrides" \
          "${PKGROOT}/DEBIAN"
 
 # The frozen bundle (launcher + _internal/) goes under /opt; cp -a keeps the
@@ -76,6 +77,12 @@ install -m 0644 "${ROOT}/study_calc/web/frontend/icon.png" \
 # Machine-readable copyright (lintian errors without it).
 install -m 0644 "${HERE}/deb/copyright" \
     "${PKGROOT}/usr/share/doc/study-calc/copyright"
+
+# lintian override: the bundle lives under /opt by design (#146), which raises
+# dir-or-file-in-opt for every bundled file. Ship the override so lintian
+# reports clean — the package name file is what lintian reads at check time.
+install -m 0644 "${HERE}/deb/lintian-overrides" \
+    "${PKGROOT}/usr/share/lintian/overrides/study-calc"
 
 # Maintainer scripts: refresh the desktop/icon caches on (un)install.
 install -m 0755 "${HERE}/deb/postinst" "${PKGROOT}/DEBIAN/postinst"
@@ -118,9 +125,14 @@ OUTPUT="${OUTPUT_DIR}/study-calc_${VERSION}_${ARCH}.deb"
 mkdir -p "${OUTPUT_DIR}"
 dpkg-deb --root-owner-group --build "${PKGROOT}" "${OUTPUT}"
 
-# 7. Advisory lint — never fail the build on warnings (acceptance: no errors;
-#    warnings are documented in packaging/linux/README.md).
-echo ">> [5/5] lintian (advisory)"
+# 7. Lint. The acceptance is "lintian reports no errors" (#146): the /opt
+#    placement that raised 112 dir-or-file-in-opt errors is silenced by the
+#    shipped override above, so the report is clean. Kept advisory (|| true) so
+#    a transient lint hiccup never blocks a release — the criterion is checked by
+#    reading this output, which now shows no E: lines. Warnings (the expected
+#    embedded-library / statically-linked tags of a frozen Python app) still
+#    print for the record. If lintian is absent (local dev), skip.
+echo ">> [5/5] lintian"
 if command -v lintian >/dev/null 2>&1; then
     lintian --no-tag-display-limit "${OUTPUT}" || true
 else
