@@ -130,45 +130,14 @@ def _check_bundle(bundle: Path) -> None:
             raise AssertionError(f"bundle is missing asset: {'/'.join(parts)} ({path})")
 
 
-def _check_gui() -> None:
-    """Test that PyWebView can initialize a GUI backend.
-
-    On Linux, this verifies that gi (PyGObject) and GObject-Introspection
-    typelibs (WebKit2, Gtk, etc.) are bundled and discoverable. Run it under
-    ``xvfb-run`` on headless CI.
-
-    Crucially it must drive ``webview.start()``, not just ``create_window()``:
-    ``create_window`` only registers a Window object — PyWebView imports and
-    initialises the platform backend (on Linux ``import gi`` + loading the
-    WebKit2/Gtk typelibs) lazily inside ``start()``. A test that stops at
-    ``create_window`` never touches gi, so it would pass even on a bundle that is
-    missing gi/typelibs entirely — a false guard for exactly the #158 crash. We
-    therefore start the GUI loop and tear it down from the ``func`` callback,
-    which runs on a worker thread once the backend is up.
-
-    Raises AssertionError if the GUI backend cannot be initialized.
-    """
-    import webview
-
-    def _teardown() -> None:
-        # Runs after the backend has initialised; closing every window ends the
-        # event loop so start() returns immediately.
-        for win in list(webview.windows):
-            win.destroy()
-
-    try:
-        webview.create_window(
-            title="Study Calc - GUI Smoke Test",
-            html="<h1>GUI Test</h1><p>Backend loaded successfully.</p>",
-            width=400,
-            height=300,
-        )
-        # Force the GTK backend on Linux so a missing gi/typelib is a hard error
-        # here rather than a silent fallback; elsewhere let PyWebView auto-pick.
-        gui = "gtk" if sys.platform.startswith("linux") else None
-        webview.start(_teardown, gui=gui)
-    except Exception as exc:
-        raise AssertionError(f"PyWebView GUI backend failed to initialize: {exc}") from exc
+# NOTE: the PyWebView GUI-backend self-test deliberately lives in the app entry
+# point (study_calc.web.app.run, behind ``--smoke-gui``), NOT here. It must run
+# through the *frozen launcher* so it exercises the bundle's own bundled gi +
+# typelibs; invoking it via ``python smoke_test.py`` would only ever test the
+# build host's venv (which has no bundled gi) and could never validate the
+# shipped bundle — the exact #158 trap. CI runs
+# ``xvfb-run dist/study-calc/study-calc --smoke-gui`` for that check; this script
+# stays GUI-free (engine + asset checks only).
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -180,19 +149,12 @@ def main(argv: list[str] | None = None) -> int:
         metavar="DIR",
         help="also check a built one-folder bundle directory (e.g. dist/study-calc)",
     )
-    parser.add_argument(
-        "--gui",
-        action="store_true",
-        help="also test PyWebView GUI backend initialization (should be run under xvfb-run on headless CI)",
-    )
     args = parser.parse_args(argv)
 
     try:
         _check_engines()
         if args.bundle is not None:
             _check_bundle(args.bundle)
-        if args.gui:
-            _check_gui()
     except Exception as exc:  # noqa: BLE001 - any failure must fail the build gate
         print(f"SMOKE TEST FAILED: {exc}", file=sys.stderr)
         traceback.print_exc()

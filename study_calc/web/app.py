@@ -14,6 +14,7 @@ the bridge.
 from __future__ import annotations
 
 import json
+import sys
 
 from ..resources import app_version, resource_path
 from . import screens
@@ -110,4 +111,25 @@ def run() -> None:
     start_kwargs: dict = {}
     if _WINDOW_ICON.exists():
         start_kwargs["icon"] = str(_WINDOW_ICON)
+
+    # Headless backend self-test (#158/#163). `--smoke-gui` must run through THIS
+    # entry point so it exercises the *frozen* interpreter's bundled GObject-
+    # Introspection (gi) + typelibs — the thing #158 is about. Running the GUI
+    # check via `python smoke_test.py` instead would test the build host's venv,
+    # which has no bundled gi, and so could never validate the shipped bundle.
+    # Here we start the real backend (forcing GTK on Linux) and tear it down from
+    # the func callback, so a bundle missing gi/typelibs exits non-zero under
+    # `xvfb-run dist/study-calc/study-calc --smoke-gui`.
+    if "--smoke-gui" in sys.argv:
+        def _smoke_teardown() -> None:
+            for win in list(webview.windows):
+                win.destroy()
+
+        start_kwargs["func"] = _smoke_teardown
+        if sys.platform.startswith("linux"):
+            start_kwargs["gui"] = "gtk"
+        webview.start(**start_kwargs)
+        print("GUI SMOKE OK")
+        return
+
     webview.start(**start_kwargs)

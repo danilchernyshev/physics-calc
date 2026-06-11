@@ -62,6 +62,9 @@ jobs:
             pyinstaller packaging/study-calc.spec --noconfirm
           test -x dist/study-calc/study-calc
       - name: Smoke-test the frozen bundle (engine + GUI)
+        # The GUI check must run through the frozen launcher itself so it loads
+        # the bundle's *own* gi + typelibs; running it via `python smoke_test.py`
+        # would test this venv (no bundled gi) and validate nothing (#158).
         run: |
           uv run --extra dev python packaging/smoke_test.py --bundle dist/study-calc
-          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
+          xvfb-run -a dist/study-calc/study-calc --smoke-gui

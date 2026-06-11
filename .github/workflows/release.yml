@@ -96,7 +96,10 @@ jobs:
         run: |
           ./dist/study-calc-${VERSION}-linux.AppImage --appimage-extract
           uv run --extra dev python packaging/smoke_test.py --bundle squashfs-root/usr/bin
-          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
+          # GUI check via the frozen launcher so it loads the bundle's own gi +
+          # typelibs (running smoke_test.py here would test the venv, not the
+          # bundle — the #158 trap).
+          xvfb-run -a squashfs-root/usr/bin/study-calc --smoke-gui
       - name: Upload the AppImage artifact
         uses: actions/upload-artifact@v4
         with:
@@ -241,7 +244,10 @@ jobs:
           test -f /usr/share/icons/hicolor/32x32/apps/study-calc.png || \
           test -f /usr/share/icons/hicolor/256x256/apps/study-calc.png
           uv run --extra dev python packaging/smoke_test.py --bundle /opt/study-calc
-          xvfb-run -a uv run --extra dev python packaging/smoke_test.py --gui
+          # GUI check via the installed frozen launcher so it loads the bundle's
+          # own gi + typelibs (running smoke_test.py would test the venv, not the
+          # installed bundle — the #158 trap).
+          xvfb-run -a /opt/study-calc/study-calc --smoke-gui
           sudo apt-get remove -y study-calc
           test ! -e /opt/study-calc
       - name: Upload the .deb artifact
