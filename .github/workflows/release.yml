@@ -158,6 +158,12 @@ jobs:
     # `bwrap: execvp appstream-compose: No such file or directory` (#140). noble
     # ships flatpak-builder 1.4.x, which calls `appstreamcli compose` instead.
     runs-on: ubuntu-24.04
+    # continue-on-error stays one more cycle: the flatpak job only runs on a
+    # tagged release pipeline (no PR-time CI), so this lets the next tagged run
+    # confirm the 24.04 runner actually exports the bundle without re-blocking
+    # the 4 shipping platforms. Once a tagged run is green, drop this and re-add
+    # linux-flatpak to `release.needs` below (the rest of #140's acceptance).
+    continue-on-error: true
     permissions:
       contents: read
     env:
@@ -198,8 +204,13 @@ jobs:
   # Collect every built artifact and attach them to the GitHub Release. New
   # platform jobs just add themselves to `needs` and upload an artifact — the glob
   # below picks them up automatically.
+  #
+  # linux-flatpak is temporarily omitted here while #140 (appstream-compose on
+  # GNOME SDK 47) is fixed, so v0.8.0 can ship the 4 working platforms; re-add it
+  # once #140 lands. The artifact glob still picks up the .flatpak automatically
+  # if/when the job succeeds.
   release:
-    needs: [linux-appimage, windows-installer, macos-dmg, linux-flatpak]
+    needs: [linux-appimage, windows-installer, macos-dmg]
     runs-on: ubuntu-22.04
     permissions:
       contents: write # publish the Release and upload assets
