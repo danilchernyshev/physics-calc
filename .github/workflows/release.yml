@@ -131,13 +131,15 @@ jobs:
     needs: [test, resolve-version]
     permissions:
       contents: read
+    # Apple Silicon only. The macos-13 (Intel) leg was dropped (#151): it is
+    # GitHub's last Intel image and its runners are scarce, so it sat queued far
+    # longer than any other job and stalled the whole release. A one-entry matrix
+    # keeps the ${{ matrix.arch }} asset naming and leaves room to re-add Intel.
     strategy:
       matrix:
         include:
           - runner: macos-14   # Apple Silicon
             arch: arm64
-          - runner: macos-13   # Intel
-            arch: intel
     runs-on: ${{ matrix.runner }}
     env:
       VERSION: ${{ needs.resolve-version.outputs.version }}
