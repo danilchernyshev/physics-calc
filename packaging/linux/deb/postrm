@@ -1,0 +1,18 @@
+#!/bin/sh
+# Post-removal: refresh the desktop-entry and icon caches after dpkg has deleted
+# study-calc's files, so the stale menu entry and icon disappear right away.
+# dpkg already removes every packaged file (the /opt bundle, the launcher
+# symlink, the .desktop and the icon), so there is nothing to delete here — only
+# the caches to refresh, best-effort.
+set -e
+
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database -q /usr/share/applications || true
+    fi
+    if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+        gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor || true
+    fi
+fi
+
+exit 0
