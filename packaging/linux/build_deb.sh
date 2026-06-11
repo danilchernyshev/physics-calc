@@ -40,7 +40,16 @@ if [ "${REUSE_BUNDLE:-0}" = "1" ] && [ -x "${BUNDLE}/study-calc" ]; then
     echo ">> [1/5] Reusing existing frozen bundle at ${BUNDLE}"
 else
     echo ">> [1/5] PyInstaller one-folder build"
-    uv run --extra packaging pyinstaller packaging/study-calc.spec \
+    # PyGObject must be importable at freeze time so PyInstaller bundles gi + the
+    # GObject-Introspection typelibs for PyWebView's GTK backend (#158). This inner
+    # `uv run` resolves its own env, so the pin is named here, not just on an outer
+    # wrapper (the v0.8.1 release froze gi-less and shipped an unlaunchable bundle).
+    # <3.52 targets girepository-1.0 hosts (ubuntu-22.04); override PYGOBJECT_PIN
+    # for another host, or set it empty to rely on a system-site gi.
+    _pin="${PYGOBJECT_PIN-pygobject<3.52}"
+    _freeze_with=()
+    [ -n "${_pin}" ] && _freeze_with=(--with "${_pin}")
+    uv run --extra packaging "${_freeze_with[@]}" pyinstaller packaging/study-calc.spec \
         --noconfirm --distpath "${OUTPUT_DIR}" --workpath "${BUILD_DIR}/pyinstaller"
 fi
 test -x "${BUNDLE}/study-calc" || { echo "frozen bundle missing"; exit 1; }

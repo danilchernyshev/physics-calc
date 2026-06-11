@@ -31,8 +31,20 @@ VERSION="$(uv run --extra packaging python -c \
 echo ">> Building study-calc ${VERSION} AppImage (${ARCH})"
 
 # 2. Freeze the one-folder bundle from the shared spec.
+#
+# PyGObject must be importable *at freeze time* so PyInstaller bundles gi + the
+# GObject-Introspection typelibs for PyWebView's GTK backend (#158). This inner
+# `uv run` resolves its own environment, so the pin must be named HERE — naming it
+# only on an outer `uv run … bash build_appimage.sh` wrapper does NOT propagate
+# (that was the v0.8.1 release failure: gi "not a package" at freeze → unlaunchable
+# bundle). Pinned <3.52 for girepository-1.0 hosts (ubuntu-22.04); override
+# PYGOBJECT_PIN for another host, or set it empty (PYGOBJECT_PIN=) to rely on a
+# system-site gi instead of a uv-built one.
 echo ">> [1/5] PyInstaller one-folder build"
-uv run --extra packaging pyinstaller packaging/study-calc.spec \
+_pin="${PYGOBJECT_PIN-pygobject<3.52}"
+_freeze_with=()
+[ -n "${_pin}" ] && _freeze_with=(--with "${_pin}")
+uv run --extra packaging "${_freeze_with[@]}" pyinstaller packaging/study-calc.spec \
     --noconfirm --distpath "${OUTPUT_DIR}" --workpath "${BUILD_DIR}/pyinstaller"
 
 BUNDLE="${OUTPUT_DIR}/study-calc"
@@ -54,7 +66,8 @@ uv run --with pillow python "${HERE}/generate_icon_sizes.py" \
 echo ">> [4/5] Assembling AppDir"
 rm -rf "${APPDIR}"
 mkdir -p "${APPDIR}/usr/bin" \
-         "${APPDIR}/usr/share/applications"
+         "${APPDIR}/usr/share/applications" \
+         "${APPDIR}/usr/share/icons/hicolor"
 cp -a "${BUNDLE}/." "${APPDIR}/usr/bin/"
 install -m 0755 "${HERE}/AppRun" "${APPDIR}/AppRun"
 # appimagetool expects the .desktop and icon at the AppDir root, with a matching
