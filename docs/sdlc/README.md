@@ -98,10 +98,17 @@ Rules of the bus:
 
 - **Read before you write.** Each agent's prompt names the exact input artifacts.
 - **No prose context in the dispatch.** Pass file paths, not pasted text.
+- **Use real code paths (EP-17).** Code lives under the `study_calc/` package —
+  `web/bridge.py` is `study_calc/web/bridge.py`; `navigation.py` is
+  `study_calc/navigation.py` (package root, **not** under `web/`). Briefs use the
+  short form; dispatch with the real path so cold agents don't lose a round-trip.
 - **A skipped phase is recorded,** not silent — note it in `02-plan.md`.
 - **Gates live in the Dev Manager.** A phase advances only when its artifact
   proves the gate (green pytest incl. the i18n/references/learning/problems
-  contract tests; review with no blockers).
+  contract tests; review with no blockers). **For a `bug` ticket, green pytest is
+  not sufficient** — the existing tests may encode the defect, so the gate also
+  requires a **failing-first regression test** (red without the fix) and that any
+  assertions pinning the old behavior are inverted (EP-16).
 
 ## Lifecycle, stages & status transitions
 
@@ -221,3 +228,23 @@ proceeds. That call is the Dev Manager's.
 > enforce it yet. Branch-protection rules (require review approval, block direct
 > merges) could enforce "developers can't merge" technically — that's a repo-settings
 > change, deferred as an open question (see `ai-sdlc/ROADMAP.md` Q6).
+
+## Reviewer & `gh` recipes (EP-18)
+
+The `code-reviewer` works **on the PR**, but a couple of `gh` defaults misfire on this
+repo (deprecated classic-Projects GraphQL field; large bundled diffs). Use these:
+
+- **View the PR / diff:** plain `gh pr view <n>` can error on the Projects field — use
+  `gh pr view <n> --json title,body,files,state`. If `gh pr diff <n>` is too large or
+  path-scoping fails, fetch and diff locally:
+  `git fetch origin && git diff origin/master...origin/<branch> -- <paths>`.
+- **Run the PR branch's tests without disturbing your tree** (the working tree usually
+  sits on `master`): `git worktree add /tmp/pr<n> origin/<branch> && cd /tmp/pr<n> &&
+  uv run --extra dev pytest`, then `git worktree remove /tmp/pr<n>`.
+- **Single-account approval (D21 caveat).** `gh pr review --approve` is rejected on our
+  own PR, so the reviewer posts a **`gh pr comment`** whose first line is `✅ APPROVE`
+  or `⛔ CHANGES REQUESTED`, followed by the findings table. The merge gate reads that
+  comment — dev-manager opens the thread to confirm (PR list views won't show it).
+- **Keep fix PRs free of unrelated churn** — governance/doc reworks ride their *own*
+  branch + PR, never bundled into a feature/bugfix PR (a local-`master`-ahead state
+  silently bundles unpushed commits; everything reaches `origin/master` via a PR).

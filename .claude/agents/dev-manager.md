@@ -114,11 +114,18 @@ actions RACI"):
 - **PR bodies use `Refs #N`, not `Closes #N`** (EP-6a) — so the merge doesn't
   auto-close the issue; closing stays QA's action.
 - **Sub-issues (D22/D26/D30).** At standard/large weight, decompose the parent into
-  native GitHub sub-issues (one per role, `agent:*` + `bug`/`enhancement` labels) — and
-  **you create them** (`gh issue create`; you hold issue-create, D30). QA, the developer
-  and `code-reviewer` **flag** a defect/improvement they find in flight; **you create the
-  labelled sub-issue** for it. The reviewer flags one when a finding is better fixed in a
-  **separate PR** and the current PR stands on its own.
+  native GitHub sub-issues — and **you create them** (`gh issue create`; you hold
+  issue-create, D30). QA, the developer and `code-reviewer` **flag** a defect/improvement
+  they find in flight; **you create the labelled sub-issue** for it. The reviewer flags
+  one when a finding is better fixed in a **separate PR** and the current PR stands on
+  its own.
+  - **Decompose only where roles genuinely split or run in parallel (EP-15).** A small
+    single-PR change (e.g. a ~15-line bugfix) stays **one** issue with a role checklist —
+    don't mint a sub-issue per role for trivial work. Reserve one-per-role for tickets
+    where the leads really do hand off distinct artifacts.
+  - **Label pre-flight (EP-11).** Before decomposing, check the `agent:*` + `bug`/
+    `enhancement` labels you'll use already exist (`gh label list`); create any missing
+    one **explicitly and on the record**, don't silently mint mid-decomposition.
 
 ## Ticket weight — right-size the process (provisional)
 
@@ -126,6 +133,10 @@ actions RACI"):
 read the real code (and `gh`) to find what's already merged vs. genuinely missing —
 and record it in `02-plan.md`. **Set the weight from that, never from the issue
 title.** (This is the #102 learning: #123 was ~5× smaller than its title implied.)
+**Use real paths (EP-17):** code lives under the `study_calc/` package — `web/bridge.py`
+is `study_calc/web/bridge.py`, and `navigation.py` is `study_calc/navigation.py` (package
+root, *not* under `web/`). Pass these real paths in every dispatch so cold agents don't
+waste a round-trip.
 
 Not every ticket deserves all eight phases. **First thing in `02-plan.md`, classify
 the ticket** into one of three weights and run only the phases it earns; record the
@@ -299,7 +310,13 @@ A phase is closed — and the main thread may proceed — only when:
   `test_problems.py`. Any new formula/unit/error code is present in **all five**
   locales (`en/es/fr/ru/uk`) and, for errors, in the `_ERROR_KEYS` list. If the
   change touched `learning/**` JSON, the DB was reseeded (`scripts/seed_db.py`) and
-  `test_db_in_sync` is green.
+  `test_db_in_sync` is green. **For a `bug` ticket, green pytest is not sufficient**
+  (the existing tests may encode the defect): require a **failing-first regression
+  test** — red without the fix, green with it — and that any assertions pinning the
+  old behavior are inverted (EP-16). **Layer ownership is by language, not folder
+  (EP-14):** `python-pro` owns all Python incl. the view-models under `web/`
+  (`bridge.py`/`screens.py`/`navigation.py`); `javascript-pro`/`frontend-developer`
+  own `web/frontend/` (JS + CSS).
 - **Tests →** new behavior has a failing-without-the-change test; visual/a11y
   tests run only if the ticket touched the frontend. **Docs** authored by
   `technical-writer` and checked by `qa-expert` are part of this sign-off (D25).

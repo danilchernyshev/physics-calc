@@ -27,6 +27,11 @@ invocations still resolve.)
 
 ## Architecture
 
+> **Paths in this doc** are relative to the `study_calc/` package — `web/bridge.py`
+> means `study_calc/web/bridge.py`, `core/` means `study_calc/core/`. The one trap:
+> **`navigation.py` lives at the package root** (`study_calc/navigation.py`), *not*
+> under `web/`. Agents reading handoff briefs should use these real paths (EP-17).
+
 Layers, deliberately decoupled so the domain logic stays UI- and
 language-agnostic:
 
@@ -317,8 +322,13 @@ implementation that means `uv run --extra dev pytest` green *including* the
 contract tests (`test_i18n`, `test_references`, `test_learning`, `test_problems`)
 and any new formula/unit/error code present in all five locales; for review, the
 `code-reviewer`'s **approval on the PR** with no open blocker (review is on the PR,
-no local artifact — D21/D27). **Implementation (`04-implementation.md`) is
-the python/js/db dev phase** — `python-pro` for `core/`+`domains/`,
-`javascript-pro`/`frontend-developer` for `web/`+`frontend/`, `sql-pro` for the
-existing SQLite knowledgebase (`core/db.py`, `data/schema.sql`, ADR 0002). Design
+no local artifact — D21/D27). For a **`bug`** ticket, "pytest green" is *not enough*
+on its own — the existing tests may encode the defect (green on broken code); the
+gate also requires a **failing-first regression test** (red without the fix) and that
+any assertions pinning the old behavior are inverted (EP-16). **Implementation
+(`04-implementation.md`) is the python/js/db dev phase** — split by **language, not
+folder** (EP-14): `python-pro` owns all **Python** — `core/`, `domains/`, and the
+Python view-models under `web/` (`bridge.py`, `screens.py`, `navigation.py`);
+`javascript-pro`/`frontend-developer` own `web/frontend/` (JS + CSS); `sql-pro`
+owns the SQLite knowledgebase (`core/db.py`, `data/schema.sql`, ADR 0002). Design
 and visual/a11y phases run only when the ticket touches the frontend.
