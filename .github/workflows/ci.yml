@@ -29,7 +29,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install uv
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
       - name: Run the test suite
@@ -44,7 +44,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install the PyWebView GTK/WebKit backend + xvfb
         run: |
           sudo apt-get update
@@ -67,4 +67,7 @@ jobs:
         # would test this venv (no bundled gi) and validate nothing (#158).
         run: |
           uv run --extra dev python packaging/smoke_test.py --bundle dist/study-calc
-          xvfb-run -a dist/study-calc/study-calc --smoke-gui
+          # timeout guards against any pre-exit hang; --smoke-gui exits 0 cleanly
+          # on a healthy backend (os._exit after the backend is up), so only exit
+          # 0 passes — a crash (missing gi/typelib) or a hang fails the step.
+          xvfb-run -a timeout 90 dist/study-calc/study-calc --smoke-gui
