@@ -21,10 +21,11 @@ const OP_TOOLS = {
   'tool:vectors': { screen: 'vector_screen', run: 'vector_run' },
 };
 
-// The two bridge calls the updates overlay drives (#74).
+// The bridge calls the updates overlay drives (#74 check / #75 guide / #94 apply).
 const updatesApi = {
   check: () => callApi('check_updates'),
   setAuto: (enabled) => callApi('set_auto_update_check', enabled),
+  applyUpdate: (version) => callApi('apply_update', version),
 };
 
 async function loadState() {

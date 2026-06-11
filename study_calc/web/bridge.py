@@ -15,6 +15,16 @@ the Tkinter shell does.
 
 from __future__ import annotations
 
+import json
+import os
+import shutil
+import stat
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+from typing import Callable
+
 from . import screens
 from .. import navigation
 from ..core import installer
@@ -73,11 +83,16 @@ class Bridge:
         settings: Settings | None = None,
         update_fetcher: updates_core.Fetcher | None = None,
         package_format: str | None = None,
+        apply_update_fn: "Callable[[str, str], installer.ApplyResult] | None" = None,
     ) -> None:
         self._version = version or app_version()
         self._settings = settings if settings is not None else Settings()
         self._update_fetcher = update_fetcher
         self._format = package_format or installer.detect_format()
+        # The automated self-update apply (#94). Injectable so the localized
+        # result model is unit-tested without network/subprocess; the default
+        # wires the real GitHub download + checksum verify + installer launch.
+        self._apply_update_fn = apply_update_fn or self._default_apply_update
 
     def get_state(self) -> dict:
         """The full shell model: language, the language list, chrome labels, subjects."""
@@ -194,3 +209,99 @@ class Bridge:
             auto_check=self._settings.auto_update_check,
             fmt=self._format,
         )
+
+    def apply_update(self, version: str) -> dict:
+        """Automatically install the update for a self-updating format (#94).
+
+        Only Windows and AppImage self-apply; other formats keep the v1 guidance.
+        Returns a localized result model (success or a failure that points the
+        user at the manual download link). Never raises.
+        """
+        result = self._apply_update_fn(self._format, str(version))
+        return screens.apply_result_model(result)
+
+    def _default_apply_update(self, fmt: str, version: str) -> installer.ApplyResult:
+        """Real apply seams: GitHub download + SHA256SUMS verify + launch.
+
+        Impure (network + subprocess); not unit-tested — exercised by per-OS VM
+        acceptance. The pure orchestration in :func:`installer.apply_update` does
+        the verify-before-run gating with these as injected callables.
+        """
+        if not installer.supports_auto_apply(fmt):
+            return installer.ApplyResult("unsupported", "updates.apply.error.unsupported")
+        import tempfile
+
+        dest_dir = tempfile.mkdtemp(prefix="study-calc-update-")
+        return installer.apply_update(
+            fmt,
+            version,
+            download=lambda name: _download_release_asset(name, dest_dir),
+            checksums=_fetch_release_checksums(),
+            run=lambda path: _run_artifact(fmt, path),
+        )
+
+
+# --- real apply seams (impure; VM-exercised, not unit-tested) -------------
+# Network download from the latest GitHub Release + checksum fetch + the
+# per-format launch. Kept out of core.installer so that module stays pure; the
+# pure orchestration there gates run() on a verified SHA-256 (#94).
+
+_UA = {"User-Agent": "study-calc-self-update", "Accept": "application/vnd.github+json"}
+
+
+def _latest_release_json() -> dict:
+    request = urllib.request.Request(updates_core.LATEST_RELEASE_API, headers=_UA)
+    with urllib.request.urlopen(request, timeout=15) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def _asset_url(release: dict, name: str) -> str | None:
+    for asset in release.get("assets", []):
+        if asset.get("name") == name:
+            return asset.get("browser_download_url")
+    return None
+
+
+def _download_release_asset(name: str, dest_dir: str) -> Path:
+    """Download release asset ``name`` into ``dest_dir`` and return its path."""
+    url = _asset_url(_latest_release_json(), name)
+    if not url:
+        raise RuntimeError(f"asset {name!r} not found in the latest release")
+    dest = Path(dest_dir) / name
+    request = urllib.request.Request(url, headers={"User-Agent": _UA["User-Agent"]})
+    with urllib.request.urlopen(request, timeout=120) as response, open(dest, "wb") as out:
+        shutil.copyfileobj(response, out)
+    return dest
+
+
+def _fetch_release_checksums() -> dict:
+    """The latest release's ``SHA256SUMS`` parsed to ``{name: hex}`` (empty on failure)."""
+    try:
+        url = _asset_url(_latest_release_json(), "SHA256SUMS")
+        if not url:
+            return {}
+        request = urllib.request.Request(url, headers={"User-Agent": _UA["User-Agent"]})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return installer.parse_sha256sums(response.read().decode("utf-8"))
+    except Exception:
+        return {}
+
+
+def _run_artifact(fmt: str, path: Path) -> None:
+    """Launch the verified artifact: installer (Windows) / in-place swap (AppImage)."""
+    if fmt == "windows":
+        # Run the per-user installer to upgrade in place, then quit so it can
+        # replace files; the Inno installer relaunches the app afterwards.
+        subprocess.Popen([str(path), "/SILENT"], close_fds=True)
+        sys.exit(0)
+    if fmt == "appimage":
+        target = os.environ.get("APPIMAGE")
+        if not target:
+            raise RuntimeError("APPIMAGE is not set; not running inside an AppImage")
+        # Make the freshly-downloaded image owner-executable only; never widen
+        # group/other write or open it up world-writable (the file lives in a
+        # private mkdtemp dir). Add the owner-execute bit to its current mode.
+        os.chmod(path, os.stat(path).st_mode | stat.S_IXUSR)
+        shutil.move(str(path), target)  # swap the running image (cross-device safe)
+        os.execv(target, [target, *sys.argv[1:]])  # relaunch on the new version
+    raise RuntimeError(f"no automated apply for format {fmt!r}")

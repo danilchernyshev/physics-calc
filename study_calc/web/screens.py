@@ -978,11 +978,35 @@ def updates_screen(
         if plan.get("command"):
             apply["command"] = plan["command"]
             apply["commandLabel"] = t("updates.apply.command")
+        # Automated apply (#94): Windows & AppImage can install it themselves, so
+        # offer an "Update now" button and a progress label alongside the guide.
+        if installer.supports_auto_apply(fmt):
+            apply["autoApply"] = True
+            apply["button"] = t("updates.apply.button")
+            apply["progress"] = t("updates.apply.progress")
         model["apply"] = apply
     else:  # "error"
         model["status"] = "error"
         code = str(check.get("code", "update.error.http"))
         model["message"] = t(_UPDATE_ERROR_KEYS.get(code, "updates.error.http"))
+    return model
+
+
+def apply_result_model(result) -> dict:
+    """Localize an :class:`installer.ApplyResult` for the frontend (#94).
+
+    Returns ``{ok, status, message}`` plus, on failure, a ``manualUrl`` /
+    ``viewRelease`` pair so the user can fall back to downloading the release by
+    hand. Every string is resolved here from the ``updates.apply.*`` keys.
+    """
+    model: dict = {
+        "ok": bool(getattr(result, "ok", False)),
+        "status": getattr(result, "status", "error"),
+        "message": t(getattr(result, "code", "updates.apply.error.launch")),
+    }
+    if not model["ok"]:
+        model["manualUrl"] = installer.RELEASES_PAGE
+        model["viewRelease"] = t("updates.view_release")
     return model
 
 
