@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Regenerate python3-deps.yaml — the vendored, hash-pinned pip sources for the
 # Flatpak manifest (#65). Run this whenever the runtime dependencies in
-# pyproject.toml change (sympy, pywebview, or their transitive set).
+# pyproject.toml change (sympy, pywebview, or their transitive set), or the
+# build backend (hatchling) is bumped.
 #
 # It uses flatpak-pip-generator, which resolves each requirement to a wheel/sdist
 # with a sha256, so flatpak-builder can install them offline. Requires network
@@ -24,11 +25,14 @@ MSG
     exit 1
 fi
 
-# Keep this list in sync with [project].dependencies in pyproject.toml.
+# Keep the runtime list in sync with [project].dependencies in pyproject.toml.
+# hatchling is the PEP 517 build backend ([build-system] in pyproject.toml): the
+# study-calc module installs with `pip --no-build-isolation --no-index`, so the
+# backend must be vendored here too or `hatchling.build` can't be imported offline.
 # --yaml is required: flatpak-pip-generator defaults to JSON output (writes
 # python3-deps.json), but the manifest includes python3-deps.yaml — without the
 # flag flatpak-builder fails with "No such file or directory" for the .yaml.
-echo ">> Resolving sympy + pywebview into hash-pinned Flatpak sources"
-"${GENERATOR}" --yaml --output "${HERE}/python3-deps" sympy pywebview
+echo ">> Resolving sympy + pywebview + hatchling into hash-pinned Flatpak sources"
+"${GENERATOR}" --yaml --output "${HERE}/python3-deps" sympy pywebview hatchling
 
 echo ">> Wrote ${HERE}/python3-deps.yaml"
