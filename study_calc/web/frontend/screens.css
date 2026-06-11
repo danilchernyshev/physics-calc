@@ -654,6 +654,25 @@
   cursor: pointer;
 }
 
+/* Per-format "how to update" command (#75): a copyable shell line. */
+.updates__cmd-label {
+  margin: var(--space-md) 0 var(--space-3xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.updates__command {
+  margin: 0 0 var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: all;
+}
+
 /* ---- Key-term pop-up ------------------------------------------------ */
 
 .modal {

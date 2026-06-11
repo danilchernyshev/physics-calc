@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from . import screens
 from .. import navigation
+from ..core import installer
 from ..core import updates as updates_core
 from ..core.settings import Settings
 from ..i18n import i18n, t
@@ -55,11 +56,14 @@ def navigation_model() -> list[dict]:
 class Bridge:
     """PyWebView ``js_api``: the shell's localized state, regenerated on demand.
 
-    The constructor takes optional injectables so the update feature (#74) stays
-    headlessly testable: ``version`` (defaults to the single-sourced
+    The constructor takes optional injectables so the update feature (#74/#75)
+    stays headlessly testable: ``version`` (defaults to the single-sourced
     :func:`study_calc.resources.app_version`), a :class:`~study_calc.core.settings.Settings`
-    store, and an ``update_fetcher`` callable the check uses instead of hitting
-    the network. Defaults give the real app; tests pass fakes.
+    store, an ``update_fetcher`` callable the check uses instead of hitting the
+    network, and ``package_format`` (defaults to
+    :func:`study_calc.core.installer.detect_format`) so the per-format apply
+    guidance is exercised for every format. Defaults give the real app; tests
+    pass fakes.
     """
 
     def __init__(
@@ -68,10 +72,12 @@ class Bridge:
         version: str | None = None,
         settings: Settings | None = None,
         update_fetcher: updates_core.Fetcher | None = None,
+        package_format: str | None = None,
     ) -> None:
         self._version = version or app_version()
         self._settings = settings if settings is not None else Settings()
         self._update_fetcher = update_fetcher
+        self._format = package_format or installer.detect_format()
 
     def get_state(self) -> dict:
         """The full shell model: language, the language list, chrome labels, subjects."""
@@ -154,24 +160,37 @@ class Bridge:
         """The guide overlay model: title, intro, and six localized sections."""
         return screens.guide_screen()
 
-    # --- software updates (#74) ---
+    # --- software updates (#74 check / #75 per-format apply) ---
 
     def update_screen(self) -> dict:
         """The updates overlay model before any check has run (labels + current version)."""
         return screens.updates_screen(
-            None, current=self._version, auto_check=self._settings.auto_update_check
+            None,
+            current=self._version,
+            auto_check=self._settings.auto_update_check,
+            fmt=self._format,
         )
 
     def check_updates(self) -> dict:
-        """Force an update check now; localized up-to-date / available / error model."""
+        """Force an update check now; localized up-to-date / available / error model.
+
+        When an update is available the model carries per-format apply guidance
+        (#75) built from the detected packaging format.
+        """
         result = updates_core.check_updates(self._version, fetcher=self._update_fetcher)
         return screens.updates_screen(
-            result, current=self._version, auto_check=self._settings.auto_update_check
+            result,
+            current=self._version,
+            auto_check=self._settings.auto_update_check,
+            fmt=self._format,
         )
 
     def set_auto_update_check(self, enabled: bool) -> dict:
         """Persist the auto-check preference and echo back the refreshed model."""
         self._settings.set_auto_update_check(bool(enabled))
         return screens.updates_screen(
-            None, current=self._version, auto_check=self._settings.auto_update_check
+            None,
+            current=self._version,
+            auto_check=self._settings.auto_update_check,
+            fmt=self._format,
         )

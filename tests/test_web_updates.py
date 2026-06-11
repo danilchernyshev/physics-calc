@@ -22,13 +22,14 @@ def _english():
     i18n.set_language("en")
 
 
-def _bridge(tmp_path, *, tag="v9.9.9", version="0.7.0", auto=True):
+def _bridge(tmp_path, *, tag="v9.9.9", version="0.7.0", auto=True, fmt="source"):
     settings = Settings(path=tmp_path / "settings.json")
     settings.set_auto_update_check(auto)
     return Bridge(
         version=version,
         settings=settings,
         update_fetcher=lambda: {"tag_name": tag, "body": "Notes", "html_url": "https://rel"},
+        package_format=fmt,
     )
 
 
@@ -84,6 +85,34 @@ def test_check_updates_localizes_in_russian(tmp_path):
     assert en != ru
 
 
+# --- per-format apply guidance (#75) -------------------------------------
+
+def test_available_update_carries_per_format_apply_block(tmp_path):
+    model = _bridge(tmp_path, fmt="windows").check_updates()
+    assert model["apply"]["heading"]
+    assert model["apply"]["instructions"]
+    assert model["apply"]["selfUpdate"] is True
+    assert "command" not in model["apply"]  # Windows re-runs the installer, no shell cmd
+
+
+def test_flatpak_apply_defers_with_a_command(tmp_path):
+    model = _bridge(tmp_path, fmt="flatpak").check_updates()
+    assert model["apply"]["selfUpdate"] is False
+    assert model["apply"]["command"].startswith("flatpak update ")
+    assert model["apply"]["commandLabel"]
+
+
+def test_apply_instructions_differ_by_format(tmp_path):
+    win = _bridge(tmp_path, fmt="windows").check_updates()["apply"]["instructions"]
+    mac = _bridge(tmp_path, fmt="macos").check_updates()["apply"]["instructions"]
+    assert win != mac
+
+
+def test_up_to_date_has_no_apply_block(tmp_path):
+    model = _bridge(tmp_path, tag="v0.7.0", version="0.7.0", fmt="flatpak").check_updates()
+    assert "apply" not in model
+
+
 # --- the auto-check toggle persists --------------------------------------
 
 def test_set_auto_update_check_persists(tmp_path):
@@ -119,6 +148,13 @@ _UPDATE_KEYS = [
     "updates.bump.patch",
     "updates.whats_new",
     "updates.view_release",
+    "updates.apply.title",
+    "updates.apply.command",
+    "updates.apply.windows",
+    "updates.apply.macos",
+    "updates.apply.flatpak",
+    "updates.apply.appimage",
+    "updates.apply.source",
     "updates.error.offline",
     "updates.error.http",
     "updates.error.bad_version",

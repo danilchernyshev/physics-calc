@@ -18,6 +18,7 @@ import math
 from functools import lru_cache
 from typing import Mapping
 
+from ..core import installer
 from ..core.explain import Explanation
 from ..core.formula import Formula, SolveError
 from ..core.learning import (
@@ -920,7 +921,9 @@ _UPDATE_ERROR_KEYS = {
 }
 
 
-def updates_screen(check: dict | None, *, current: str, auto_check: bool) -> dict:
+def updates_screen(
+    check: dict | None, *, current: str, auto_check: bool, fmt: str = "source"
+) -> dict:
     """The software-updates overlay model: chrome labels + an optional result.
 
     ``check`` is :func:`study_calc.core.updates.check_updates`'s raw status model
@@ -928,6 +931,11 @@ def updates_screen(check: dict | None, *, current: str, auto_check: bool) -> dic
     here from the ``updates.*`` i18n keys — the core stays language-neutral. The
     ``status`` field drives the frontend: ``idle`` / ``up_to_date`` / ``available``
     / ``error``.
+
+    When an update is available, an ``apply`` block carries the per-format
+    how-to-install guidance (#75): ``fmt`` is the detected packaging format
+    (:func:`study_calc.core.installer.detect_format`), and Flatpak/source also
+    surface the exact command to run.
     """
     model: dict = {
         "title": t("updates.title"),
@@ -959,6 +967,18 @@ def updates_screen(check: dict | None, *, current: str, auto_check: bool) -> dic
             model["notes"] = notes
         model["viewRelease"] = t("updates.view_release")
         model["url"] = str(check.get("url", ""))
+        # Per-format apply guidance (#75): how this packaging format installs the
+        # new version, plus the exact command where one applies (Flatpak/source).
+        plan = installer.update_plan(fmt)
+        apply: dict = {
+            "heading": t("updates.apply.title"),
+            "instructions": t(plan["instructions_key"]),
+            "selfUpdate": bool(plan.get("self_update")),
+        }
+        if plan.get("command"):
+            apply["command"] = plan["command"]
+            apply["commandLabel"] = t("updates.apply.command")
+        model["apply"] = apply
     else:  # "error"
         model["status"] = "error"
         code = str(check.get("code", "update.error.http"))
