@@ -151,7 +151,13 @@ jobs:
 
   linux-flatpak:
     needs: [test, resolve-version]
-    runs-on: ubuntu-22.04
+    # ubuntu-24.04 (not 22.04): jammy's apt flatpak-builder is 1.2.x, which runs
+    # the legacy `appstream-compose` (appstream-glib) binary in the final catalog
+    # step — but org.gnome.Sdk//47 dropped it for `appstreamcli compose`
+    # (AppStream 1.0), so the build died with
+    # `bwrap: execvp appstream-compose: No such file or directory` (#140). noble
+    # ships flatpak-builder 1.4.x, which calls `appstreamcli compose` instead.
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     env:
