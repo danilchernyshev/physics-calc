@@ -71,7 +71,96 @@ and the language can be switched at runtime.
   the window; everything else, including the converter, vectors and chemistry
   tabs, uses only the Python standard library.
 
-## Getting started on Windows (step by step)
+## Install
+
+The easiest way to use Study Calculator: download one file and open it — **no
+Python, no terminal**. Grab the file for your system from the
+[**Releases page**](https://github.com/danilchernyshev/study-calc/releases) — open
+the latest release and download from its **Assets**.
+
+### Windows
+
+1. Download `study-calc-<version>-windows-setup.exe`.
+2. Double-click it. The installer is **per-user** — it needs no administrator
+   rights and installs in a few seconds.
+3. Launch **Study Calculator** from the Start menu.
+
+The app uses the Microsoft Edge **WebView2** runtime, which the installer adds
+automatically if it isn't already present (it ships with Windows 11 and recent
+Windows 10).
+
+> **SmartScreen warning?** These builds aren't code-signed yet, so Windows may
+> show a blue *"Windows protected your PC"* prompt. Click **More info → Run
+> anyway** to continue.
+
+### macOS
+
+1. Download the DMG that matches your Mac:
+   - Apple Silicon (M1/M2/M3…): `study-calc-<version>-macos-arm64.dmg`
+   - Intel: `study-calc-<version>-macos-intel.dmg`
+2. Open the DMG and drag **Study Calculator** into **Applications**.
+3. Launch it from Launchpad or Applications.
+
+> **"Apple cannot check it for malicious software"?** These builds aren't
+> notarized yet. **Right-click** (or Control-click) the app → **Open** → **Open**
+> the first time, and macOS will remember your choice.
+
+### Linux
+
+**Flatpak (recommended).** Bundles its own WebKit, so it works on any distro with
+Flatpak — no system packages to install:
+
+```bash
+flatpak install study-calc-<version>-linux.flatpak
+flatpak run io.github.danilchernyshev.StudyCalc
+```
+
+The app then appears in your application menu like any native app.
+
+**AppImage (fallback).** Download `study-calc-<version>-linux.AppImage`, make it
+executable, and run it:
+
+```bash
+chmod +x study-calc-<version>-linux.AppImage
+./study-calc-<version>-linux.AppImage
+```
+
+(Prefer no terminal? In your file manager, right-click the AppImage →
+**Properties** → allow **Executable**, then double-click it.)
+
+> The AppImage relies on your system's **WebKitGTK**. If it doesn't start,
+> install `libwebkit2gtk-4.1-0` (Debian/Ubuntu/Mint), `webkit2gtk4.1` (Fedora),
+> or your distro's equivalent. The Flatpak has no such requirement.
+
+### Updating
+
+Study Calculator checks [GitHub Releases](https://github.com/danilchernyshev/study-calc/releases)
+for a newer version on startup and **never updates itself silently**. Open the
+**Updates** panel (the ⬆ button in the sidebar) to:
+
+- see whether a newer version is available, with its release notes;
+- **force a check** at any time with **Check for updates**;
+- turn the automatic startup check on or off.
+
+Minor and patch updates are **optional** — you choose whether to install them and
+can keep your current version. How you apply an update depends on how you
+installed the app:
+
+- **Windows** — download and run the latest installer; it upgrades in place.
+- **macOS** — download the matching DMG and drag-replace the app in Applications.
+- **Flatpak** — update through your software centre or `flatpak update
+  io.github.danilchernyshev.StudyCalc` (the app never self-updates here).
+- **AppImage** — replace the file with the new one (AppImageUpdate where
+  supported).
+
+## Run from source (developers)
+
+Prefer to run from the source tree (to contribute, or before a release is
+published for your platform)? The per-OS walkthroughs below install Python, fetch
+the project, and run it. End users should use the one-click [Install](#install)
+section above instead.
+
+### From source on Windows (step by step)
 
 New to Python? No problem — this section walks you through everything from the
 beginning. You do not need any prior experience. Just follow the steps in order,
@@ -80,7 +169,7 @@ and you will have the calculator running in a few minutes.
 You will do three things: install Python, get the project files, and run one
 command.
 
-### Step 1 — Install Python
+#### Step 1 — Install Python
 
 1. Open [python.org/downloads/windows](https://www.python.org/downloads/windows/)
    and download the latest **Windows installer** (the regular 64-bit version is
@@ -105,13 +194,13 @@ If you see something like `Python 3.12.x`, you are ready for the next step. If
 you instead see an error, the most common cause is a missed "Add to PATH" box —
 reinstalling and checking that box usually fixes it.
 
-### Step 2 — Get the project files
+#### Step 2 — Get the project files
 
 Copy the `study-calc` folder onto your computer — for example, from the USB
 drive to your Desktop or to `C:\study-calc`. Keep all the files together in
 one folder; nothing else needs to be set up.
 
-### Step 3 — Run the calculator
+#### Step 3 — Run the calculator
 
 The simplest way: open the `study-calc` folder in File Explorer and
 **double-click `Run.bat`**. The first time, it installs what the app needs
@@ -139,13 +228,13 @@ for you.)
 If you get stuck on any step, it is completely normal — feel free to ask for
 help. The shorter, technical instructions for each operating system are below.
 
-## Getting started on macOS (step by step)
+### From source on macOS (step by step)
 
 New to Python on the Mac? This section walks you through the same three things:
 install Python, get the project files, and run one command. No prior experience
 needed.
 
-### Step 1 — Install Python
+#### Step 1 — Install Python
 
 1. Open [python.org/downloads/macos](https://www.python.org/downloads/macos/)
    and download the latest **macOS installer** (the universal2 `.pkg`).
@@ -162,12 +251,12 @@ python3 --version
 
 If you see something like `Python 3.12.x`, you are ready for the next step.
 
-### Step 2 — Get the project files
+#### Step 2 — Get the project files
 
 Copy the `study-calc` folder onto your Mac — for example, onto your Desktop.
 Keep all the files together in one folder.
 
-### Step 3 — Run the calculator
+#### Step 3 — Run the calculator
 
 In Terminal, go into the folder (type `cd `, then drag the `study-calc` folder
 onto the Terminal window and press Enter) and run these two lines:
@@ -180,12 +269,12 @@ python3 -m study_calc
 The first line installs the app (a one-time step); the second opens the window.
 After installing, a `study-calc` command also works from any terminal.
 
-## Getting started on Linux (step by step)
+### From source on Linux (step by step)
 
 The same three things — with one extra: on Linux the window's web view comes
 from system packages, so you install those first.
 
-### Step 1 — Install Python and the web-view packages
+#### Step 1 — Install Python and the web-view packages
 
 Most Linux distributions already ship Python 3. Check with:
 
@@ -205,12 +294,12 @@ sudo pacman -S python-gobject gtk3 webkit2gtk                          # Arch / 
 sudo zypper install python3-gobject webkit2gtk3                        # openSUSE
 ```
 
-### Step 2 — Get the project files
+#### Step 2 — Get the project files
 
 Copy the `study-calc` folder onto your computer and keep all the files together
 in one folder.
 
-### Step 3 — Run the calculator
+#### Step 3 — Run the calculator
 
 Open a terminal in that folder and run:
 
@@ -266,7 +355,7 @@ py -m study_calc
 ```
 
 Or just use the bundled `Run.bat` — it installs on first run; see
-[Getting started on Windows](#getting-started-on-windows-step-by-step).
+[From source on Windows](#from-source-on-windows-step-by-step).
 
 > Note: the Python from the Microsoft Store works the same way.
 
