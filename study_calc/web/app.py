@@ -14,6 +14,7 @@ the bridge.
 from __future__ import annotations
 
 import json
+import sys
 
 from ..resources import app_version, resource_path
 from . import screens
@@ -110,4 +111,37 @@ def run() -> None:
     start_kwargs: dict = {}
     if _WINDOW_ICON.exists():
         start_kwargs["icon"] = str(_WINDOW_ICON)
+
+    # Headless backend self-test (#158/#163). `--smoke-gui` must run through THIS
+    # entry point so it exercises the *frozen* interpreter's bundled GObject-
+    # Introspection (gi) + typelibs — the thing #158 is about. Running the GUI
+    # check via `python smoke_test.py` instead would test the build host's venv,
+    # which has no bundled gi, and so could never validate the shipped bundle.
+    #
+    # If the backend can't load (no bundled gi/typelibs), `webview.start()` raises
+    # before the GUI loop starts → the process exits non-zero and the CI step
+    # fails. If it loads, `func` runs on a worker thread once the loop is up; we
+    # let it settle briefly, then `os._exit(0)` for a deterministic success. We do
+    # NOT tear the window down and let `start()` return normally: WebKit2GTK keeps
+    # web-process children alive, so a graceful GTK-loop exit can hang the job
+    # (observed in CI). A hard exit from the worker thread sidesteps that. Run as
+    # `xvfb-run dist/study-calc/study-calc --smoke-gui`; CI still wraps it in
+    # `timeout` as a belt-and-suspenders against any pre-exit hang.
+    if "--smoke-gui" in sys.argv:
+        import os
+        import threading
+
+        def _smoke_ok() -> None:
+            # Reaching here means the backend initialised (start() got past the
+            # gi import). Give WebKit a moment to surface any immediate crash,
+            # then exit success without unwinding the GTK loop.
+            print("GUI SMOKE OK", flush=True)
+            os._exit(0)
+
+        start_kwargs["func"] = lambda: threading.Timer(3.0, _smoke_ok).start()
+        if sys.platform.startswith("linux"):
+            start_kwargs["gui"] = "gtk"
+        webview.start(**start_kwargs)
+        return
+
     webview.start(**start_kwargs)
