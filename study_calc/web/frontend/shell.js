@@ -22,10 +22,24 @@ const OP_TOOLS = {
 };
 
 // The bridge calls the updates overlay drives (#74 check / #75 guide / #94 apply).
+// setGrade / setCourse are also exposed so the Settings overlay can mirror the
+// header filter controls (epic #102, issue #123): they persist via the two-method
+// API, re-render the shell, and return the fresh filter descriptor to the overlay
+// so its course list updates in-place without closing and re-opening the dialog.
 const updatesApi = {
   check: () => callApi('check_updates'),
   setAuto: (enabled) => callApi('set_auto_update_check', enabled),
   applyUpdate: (version) => callApi('apply_update', version),
+  setGrade: async (grade) => {
+    const newState = await callApi('set_active_grade', grade);
+    if (newState) { state.data = newState; render(); }
+    return newState ? newState.filter : null;
+  },
+  setCourse: async (course) => {
+    const newState = await callApi('set_active_course', course);
+    if (newState) { state.data = newState; render(); }
+    return newState ? newState.filter : null;
+  },
 };
 
 async function loadState() {
@@ -41,6 +55,85 @@ async function callApi(method, ...args) {
   const preview = window.__STUDY_CALC_API__;
   if (preview && typeof preview[method] === 'function') return preview[method](...args);
   return null;
+}
+
+// --- Curriculum filter (epic #102, issue #123) ------------------------------
+// Two async helpers keep the pattern uniform: call the bridge, store the fresh
+// state, and re-render so the nav and the header controls both reflect the new
+// selection. `render()` clamps state.subject/item to valid indices, so calling
+// these from anywhere is safe even when the filter shrinks the subject list.
+
+async function setActiveGrade(grade) {
+  const newState = await callApi('set_active_grade', grade);
+  if (newState) { state.data = newState; render(); }
+}
+
+async function setActiveCourse(course) {
+  const newState = await callApi('set_active_course', course);
+  if (newState) { state.data = newState; render(); }
+}
+
+// Build the grade + course select row that sits in the content header (shown on
+// every screen, below the page title). Returns null when the model has no filter
+// descriptor (preview / first load before bridge responds).
+function renderFilterControls(data) {
+  const filter = data.filter;
+  if (!filter) return null;
+  const labels = filter.labels;
+
+  // Grade options: "all" maps to the translated label; each numeric grade
+  // becomes e.g. "Grade 11" by combining labels.grade with the level number.
+  const gradeOptions = filter.grades.map((g) => ({
+    value: g,
+    label: g === 'all' ? labels.all : `${labels.grade} ${g}`,
+  }));
+
+  // Course options are restricted to the grade currently selected; when grade
+  // is "all" the course select only shows "All" (forced to all).
+  const courseOptions = [{ value: 'all', label: labels.all }];
+  if (filter.activeGrade !== 'all') {
+    const courses = filter.gradeMap[filter.activeGrade] || [];
+    courses.forEach((c) => courseOptions.push({ value: c, label: c }));
+  }
+
+  const gradeSelect = UI.select({
+    label: labels.grade,
+    options: gradeOptions,
+    value: filter.activeGrade,
+    onchange: (value) => setActiveGrade(value),
+  });
+  const courseSelect = UI.select({
+    label: labels.course,
+    options: courseOptions,
+    value: filter.activeCourse,
+    onchange: (value) => setActiveCourse(value),
+  });
+  // "Clear filter" affordance — only shown when a grade (and possibly a course)
+  // is active; grade="all" means filter is off.
+  const clearBtn = filter.activeGrade !== 'all'
+    ? h('button', {
+        class: 'filter__clear',
+        type: 'button',
+        'aria-label': labels.clear,
+        onclick: () => setActiveGrade('all'),
+      }, [labels.clear])
+    : null;
+
+  return h('div', { class: 'header__filter-row' }, [gradeSelect, courseSelect, clearBtn]);
+}
+
+// Render the "no content matches this filter" empty state that replaces the
+// normal content area when the filtered nav is completely empty.
+function renderNoResults(data) {
+  const filter = data.filter || {};
+  const labels = filter.labels || {};
+  return h('main', { class: 'content' }, [
+    renderFilterControls(data),
+    h('div', { class: 'filter-empty' }, [
+      h('p', { class: 'filter-empty__title', text: labels.noResults || '' }),
+      h('p', { class: 'filter-empty__detail', text: labels.noResultsDetail || '' }),
+    ]),
+  ]);
 }
 
 async function setLanguage(code) {
@@ -141,11 +234,14 @@ function renderContent(data, subject) {
   // per-screen renderers may fill — e.g. the periodic table sets "SCH4U" beside
   // the "Chemistry" title (Figma node 23:2). It is recreated empty on every
   // render(), so non-curriculum screens simply leave it blank.
+  // The filter row (#123) sits between the title and the subtitle so the selects
+  // are always in view without scrolling, regardless of which screen is active.
   return h('main', { class: 'content' }, [
     h('div', { class: 'header__title-row' }, [
       h('h1', { class: 'header__title', text: subject.label }),
       h('span', { class: 'header__badge-slot', id: 'header-badge' }, []),
     ]),
+    renderFilterControls(data),
     h('p', { class: 'header__subtitle', id: 'header-subtitle', text: subject.tagline }),
     tabs,
     screenMount,
@@ -253,9 +349,23 @@ function render() {
   // in the previous language / subject / item (issue #51).
   Screens.closeOverlays();
   const data = state.data;
-  const subject = data.subjects[state.subject];
   document.documentElement.lang = data.lang;
   const app = document.getElementById('app');
+
+  // When the active filter hides every subject, skip the normal content area
+  // and render the no-results empty state instead (issue #123).
+  if (!data.subjects || data.subjects.length === 0) {
+    app.replaceChildren(renderNav(data), renderNoResults(data));
+    app.removeAttribute('aria-busy');
+    return;
+  }
+
+  // Clamp subject and item indices after a filter change may have shortened
+  // the subject or item lists (prevents an out-of-bounds access).
+  if (state.subject >= data.subjects.length) state.subject = 0;
+  const subject = data.subjects[state.subject];
+  if (state.item >= subject.items.length) state.item = 0;
+
   app.replaceChildren(renderNav(data), renderContent(data, subject));
   app.removeAttribute('aria-busy');
   mountScreen();
