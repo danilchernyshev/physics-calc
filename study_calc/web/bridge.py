@@ -80,14 +80,25 @@ def item_courses(item: object, language: str = "en") -> frozenset[str]:
 def item_visible(item: object, active_course: str, language: str = "en") -> bool:
     """Whether a nav *item* survives the active-course filter.
 
-    ``active_course == "all"`` shows everything. Otherwise a tool or placeholder
-    is always shown, an **untagged** item (no courses) is always shown (universal
-    content), and a tagged item is shown only when the active course is among its
-    codes.
+    ``active_course == "all"`` shows everything. Otherwise:
+
+    - A :class:`~study_calc.navigation.Tool` or
+      :class:`~study_calc.navigation.Placeholder` is always shown.
+    - A :class:`~study_calc.navigation.Problems` item is **always shown** — the
+      filter narrows the *list inside* the surface, not the tab itself (ADR 0003
+      §1). Forward-compatible: this unconditional ``return True`` remains correct
+      when #175 widens ``active_course`` to a ``frozenset[str]``.
+    - An **untagged** ``Section`` (no courses) is always shown (universal content).
+    - A tagged ``Section`` is shown only when the active course is among its codes.
     """
     if active_course == "all":
         return True
     if isinstance(item, (navigation.Tool, navigation.Placeholder)):
+        return True
+    # ADR 0003 §1: a Problems item is a content collection — it stays reachable
+    # so the student can see the filtered-empty state ("no problems for this
+    # course").  Drop-on-mismatch is correct only for Section/calculator items.
+    if isinstance(item, navigation.Problems):
         return True
     courses = item_courses(item, language)
     if not courses:
@@ -272,8 +283,12 @@ class Bridge:
         return screens.balance_run(equation)
 
     def problems_screen(self, subject_id: str) -> dict:
-        """The practice-problems screen for a subject: every problem + its solution."""
-        return screens.problems_screen(subject_id)
+        """The practice-problems screen for a subject: every problem + its solution.
+
+        Threads the persisted ``active_course`` through so the returned model
+        already reflects the curriculum filter (ADR 0003 §3).
+        """
+        return screens.problems_screen(subject_id, self._settings.active_course)
 
     def guide_screen(self) -> dict:
         """The guide overlay model: title, intro, and six localized sections."""
