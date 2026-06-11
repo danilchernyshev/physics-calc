@@ -164,17 +164,21 @@ for a newer version on startup and **never updates itself silently**. Open the
 - turn the automatic startup check on or off.
 
 Minor and patch updates are **optional** — you choose whether to install them and
-can keep your current version. How you apply an update depends on how you
+can keep your current version. On **Windows** and the **AppImage**, the Updates
+panel can apply the update for you in one click (it downloads the new build,
+**verifies it against `SHA256SUMS`**, and launches the installer / replaces the
+image). The other formats are guided — how you apply an update depends on how you
 installed the app:
 
-- **Windows** — download and run the latest installer; it upgrades in place.
+- **Windows** — one-click apply from the Updates panel, or download and run the
+  latest installer manually; either upgrades in place.
 - **macOS** — download the DMG and drag-replace the app in Applications.
 - **Flatpak** — update through your software centre or `flatpak update
   io.github.danilchernyshev.StudyCalc` (the app never self-updates here).
 - **`.deb`** — download the newer `.deb` and install it over the current one
   (`sudo apt install ./study-calc_<version>_amd64.deb`).
-- **AppImage** — replace the file with the new one (AppImageUpdate where
-  supported).
+- **AppImage** — one-click apply from the Updates panel, or replace the file with
+  the new one yourself (AppImageUpdate where supported).
 
 ## Run from source (developers)
 
@@ -433,7 +437,10 @@ study_calc/
 │   ├── periodic.py  #   chemistry engine: molar mass, composition, balancer
 │   ├── explain.py   #   learning-content model (i18n keys + references)
 │   ├── learning.py  #   rich learning-material + practice-problem loader
-│   └── db.py        #   SQLite knowledgebase repository
+│   ├── db.py        #   SQLite knowledgebase repository
+│   ├── settings.py  #   fail-soft settings store (auto-check, active course)
+│   ├── updates.py   #   in-app update check + semver release policy
+│   └── installer.py #   per-format update apply (Windows/AppImage self-apply)
 ├── domains/         # declarative formula sets, one module per section
 │   ├── mechanics.py
 │   ├── thermodynamics.py
