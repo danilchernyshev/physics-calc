@@ -128,6 +128,61 @@ is recommended but out of scope for this ticket.
   without a second bridge call.
 - **No `screens.py` change**: all required fields were already present.
 
+## Review fixes (javascript-pro, post-review commit)
+
+Addressed all findings from `06-review.md`.
+
+### Fix 1 — Major: overlay grade/course change closed the Settings overlay
+
+Root cause: `updatesApi.setGrade/setCourse` called the shell-wide `render()`, which
+unconditionally called `Screens.closeOverlays()`. That removed every `.modal` node
+from `document.body`, including the live `.modal--updates` overlay. The subsequent
+`fillFilterArea(nf)` then mutated a detached `filterSection` node, so the course
+list never updated and focus dropped to `document.body`.
+
+Fix applied in `shell.js`:
+
+- `render()` now accepts `{ keepOverlays = false } = {}`. When `keepOverlays` is
+  true, `Screens.closeOverlays()` is skipped. The overlay is attached to
+  `document.body` outside `#app`; the `app.replaceChildren()` call inside `render()`
+  does not touch it, so only the `closeOverlays()` step would have removed it.
+- `setActiveGrade` / `setActiveCourse` now call `render({ keepOverlays: true })`.
+  With the overlay intact and `filterSection` still in the DOM, `fillFilterArea(nf)`
+  runs on the live node and updates the course `<select>` in-place as designed.
+  The nav and header filter controls inside `#app` are rebuilt correctly.
+
+### Fix 2 — Minor a11y: label not programmatically associated
+
+`UI.field` in `components.js` rendered `<label>` with no `for` and the control had
+no `id`, so assistive tech could not announce the label for the grade/course selects.
+
+Fix: added a module-level `_fieldIdSeq` counter. `UI.field(label, control, id=null)`
+now generates `field-N` ids when no explicit id is passed, sets `control.id = lid`,
+and sets `for: lid` on the `<label>`. All existing callers (`UI.textInput`,
+`UI.select`, any screen that calls `UI.field` directly) benefit automatically since
+the third parameter defaults to `null`. The `id` parameter exists for callers like
+the auto-check checkbox that already manage their own id.
+
+### Fix 3 — Minor: in-flight guard for rapid grade/course changes
+
+Added `_gradeSeq` / `_courseSeq` module-level counters in `shell.js`. Each call to
+`setActiveGrade` / `setActiveCourse` increments its counter and captures the value;
+after the `await`, if the counter has advanced (a newer call was issued), the
+response is discarded and `null` is returned. The overlay's existing `if (nf)`
+guard means a discarded response leaves the filter area unchanged, and the winning
+call (highest seq) performs the full update.
+
+### Fix 4 — Optional: header vs overlay helper consolidation
+
+`updatesApi.setGrade/setCourse` previously duplicated `setActiveGrade/setActiveCourse`
+with only a cosmetic difference (returning `newState.filter`). After fixes 1–3 they
+are identical. `updatesApi.setGrade/setCourse` now simply delegate to the shared
+helpers: `setGrade: (grade) => setActiveGrade(grade)`.
+
+### Gate (post-review)
+
+`uv run --extra dev pytest -q` → **479 passed, 1 skipped** (unchanged pass count).
+
 ## Database (sql-pro)
 
 Not touched. No schema change, no learning-JSON change, no DB reseed.

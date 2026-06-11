@@ -22,24 +22,15 @@ const OP_TOOLS = {
 };
 
 // The bridge calls the updates overlay drives (#74 check / #75 guide / #94 apply).
-// setGrade / setCourse are also exposed so the Settings overlay can mirror the
-// header filter controls (epic #102, issue #123): they persist via the two-method
-// API, re-render the shell, and return the fresh filter descriptor to the overlay
-// so its course list updates in-place without closing and re-opening the dialog.
+// setGrade / setCourse delegate to setActiveGrade/setActiveCourse (defined below)
+// which handle the in-flight guard, the keepOverlays render, and the filter-return
+// contract that lets the Settings overlay update its course list in-place (fix #123).
 const updatesApi = {
   check: () => callApi('check_updates'),
   setAuto: (enabled) => callApi('set_auto_update_check', enabled),
   applyUpdate: (version) => callApi('apply_update', version),
-  setGrade: async (grade) => {
-    const newState = await callApi('set_active_grade', grade);
-    if (newState) { state.data = newState; render(); }
-    return newState ? newState.filter : null;
-  },
-  setCourse: async (course) => {
-    const newState = await callApi('set_active_course', course);
-    if (newState) { state.data = newState; render(); }
-    return newState ? newState.filter : null;
-  },
+  setGrade: (grade) => setActiveGrade(grade),
+  setCourse: (course) => setActiveCourse(course),
 };
 
 async function loadState() {
@@ -58,19 +49,39 @@ async function callApi(method, ...args) {
 }
 
 // --- Curriculum filter (epic #102, issue #123) ------------------------------
-// Two async helpers keep the pattern uniform: call the bridge, store the fresh
-// state, and re-render so the nav and the header controls both reflect the new
-// selection. `render()` clamps state.subject/item to valid indices, so calling
-// these from anywhere is safe even when the filter shrinks the subject list.
+// One shared pair of helpers used from both the header controls and the
+// Settings overlay (consolidates the previously duplicated overlay helpers).
+//
+// In-flight guard (fix #123 review): each helper owns a sequence counter that
+// increments on every call; a response that arrives after a newer one has already
+// resolved is discarded, preventing out-of-order clobbers on rapid changes.
+//
+// render({ keepOverlays: true }) is used so the Settings overlay stays alive when
+// grade/course changes inside it — the overlay is attached to document.body
+// outside #app, so the DOM rebuild inside render() leaves it intact; only the
+// closeOverlays() step (skipped via keepOverlays) would remove it.
+// The fresh filter descriptor is returned so the overlay's fillFilterArea() can
+// update the course <select> in-place (fix #123 review, major).
+
+let _gradeSeq = 0;
+let _courseSeq = 0;
 
 async function setActiveGrade(grade) {
+  const seq = ++_gradeSeq;
   const newState = await callApi('set_active_grade', grade);
-  if (newState) { state.data = newState; render(); }
+  if (!newState || seq !== _gradeSeq) return null;
+  state.data = newState;
+  render({ keepOverlays: true });
+  return newState.filter;
 }
 
 async function setActiveCourse(course) {
+  const seq = ++_courseSeq;
   const newState = await callApi('set_active_course', course);
-  if (newState) { state.data = newState; render(); }
+  if (!newState || seq !== _courseSeq) return null;
+  state.data = newState;
+  render({ keepOverlays: true });
+  return newState.filter;
 }
 
 // Build the grade + course select row that sits in the content header (shown on
@@ -342,12 +353,16 @@ async function mountScreen() {
   mount.replaceChildren(placeholderNode(data, subject));
 }
 
-function render() {
+function render({ keepOverlays = false } = {}) {
   // Close any open body-level overlay (guide or key-term pop-up) before
   // rebuilding #app: these overlays are appended to document.body, not inside
   // #app, so the DOM rebuild below would otherwise orphan them over the page
   // in the previous language / subject / item (issue #51).
-  Screens.closeOverlays();
+  // keepOverlays:true is passed by grade/course-filter helpers so the Settings
+  // overlay is not destroyed when the user changes grade/course inside it — the
+  // overlay lives on document.body outside #app and is untouched by the DOM
+  // rebuild below; only Screens.closeOverlays() would remove it (fix #123 review).
+  if (!keepOverlays) Screens.closeOverlays();
   const data = state.data;
   document.documentElement.lang = data.lang;
   const app = document.getElementById('app');
